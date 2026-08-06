@@ -1,0 +1,1787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SWP Layout Planner — DXF Import/Export V2 — TNCDBR 2019</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#eef2f6;color:#111;font-size:13px}
+h1{font-size:16px;font-weight:700;text-align:center;margin:0 0 2px}
+.sub{text-align:center;font-size:11px;color:#555;margin:0 0 8px}
+.wrap{max-width:1340px;margin:12px auto;padding:0 12px}
+.two-col{display:grid;grid-template-columns:330px 1fr;gap:12px;align-items:start}
+.panel{background:#fff;border:1px solid #bbb;border-radius:6px;padding:12px}
+.panel h2{font-size:12px;font-weight:700;color:#142bc8;margin:0 0 8px;padding-bottom:5px;border-bottom:1px solid #e0e0e0}
+.field{margin-bottom:7px}
+.field label{display:block;font-weight:700;font-size:11px;margin-bottom:2px;color:#333}
+.field input,.field select{width:100%;padding:5px 7px;border:1px solid #999;border-radius:3px;font-size:12px}
+.field input[readonly]{background:#e8f0ff;color:#142bc8;font-weight:700;cursor:default}
+.field small{display:block;font-size:10px;color:#666;margin-top:2px}
+.sec{font-size:10px;font-weight:700;color:#777;text-transform:uppercase;letter-spacing:.05em;margin:8px 0 5px;border-top:1px solid #eee;padding-top:6px}
+.btn-row{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.btn{padding:7px 11px;border-radius:3px;cursor:pointer;font-size:12px;font-weight:700;border:none}
+.btn-draw{background:#142bc8;color:#fff}
+.btn-export{background:#166534;color:#fff}
+.btn-export:disabled{background:#ccc;cursor:not-allowed}
+.btn-reset{background:#eee;border:1px solid #bbb;color:#333}
+
+/* Drop zone */
+.dz{border:2px dashed #142bc8;border-radius:5px;padding:12px 8px;text-align:center;cursor:pointer;background:#f0f4ff;margin-bottom:7px;transition:.15s}
+.dz:hover,.dz.over{background:#dde8ff}
+.dz-icon{font-size:24px}.dz-txt{font-size:12px;color:#142bc8;font-weight:700;margin-top:2px}
+.dz-sub{font-size:10px;color:#667;margin-top:2px;line-height:1.4}
+.msg{border-radius:4px;padding:7px 9px;font-size:11px;margin-bottom:7px;display:none;line-height:1.6}
+.msg.ok{background:#e8f5e9;border:1px solid #4caf50;color:#1b5e20;display:block}
+.msg.err{background:#ffebee;border:1px solid #e57373;color:#b71c1c;display:block}
+.msg.warn{background:#fff8e1;border:1px solid #ffca28;color:#5f3700;display:block}
+
+/* Right panel */
+.tab-bar{display:flex;gap:0;margin-bottom:8px}
+.tb{padding:6px 13px;border:1px solid #bbb;border-bottom:none;background:#dde3ea;cursor:pointer;font-size:11px;font-weight:700;border-radius:4px 4px 0 0;margin-right:2px}
+.tb.on{background:#fff;color:#142bc8;border-bottom:2px solid #fff;margin-bottom:-1px}
+.tc{display:none}.tc.on{display:block}
+.canvas-wrap{overflow:auto;background:#e8eaf0;border:1px solid #bbb;border-radius:4px}
+canvas{display:block}
+.legend{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;font-size:10px}
+.leg{display:flex;align-items:center;gap:3px}
+.lc{width:14px;height:10px;border-radius:2px;border:1px solid rgba(0,0,0,.15);flex-shrink:0}
+/* checks */
+.ci{display:flex;gap:7px;align-items:flex-start;padding:5px 7px;border-radius:3px;margin-bottom:4px;font-size:11px}
+.ci.pass{background:#eafaf0;border-left:3px solid #2a9a50}
+.ci.fail{background:#fff0f0;border-left:3px solid #c00}
+.ci.warn{background:#fffbe6;border-left:3px solid #d4a017}
+.ci.info{background:#f0f4ff;border-left:3px solid #142bc8}
+.ci-t{font-weight:700}.ci-d{color:#444;margin-top:1px}
+/* area */
+.sg{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:8px}
+.sb{background:#f5f7fa;border:1px solid #dde;border-radius:4px;padding:6px 8px}
+.sv{font-size:14px;font-weight:700;color:#142bc8}.sl{font-size:10px;color:#666;margin-top:1px}
+@media(max-width:900px){.two-col{grid-template-columns:1fr}.sg{grid-template-columns:1fr 1fr}}
+</style>
+
+<!-- LICENSE OVERLAY STYLES -->
+<style>
+#licOverlay{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:fixed;inset:0;z-index:9999;background:#0d1117;
+  padding:24px;overflow-y:auto;
+}
+#licOverlay .act-box{
+  background:#161b22;border:1px solid #30363d;border-radius:10px;
+  padding:28px 28px 24px;width:100%;max-width:380px;display:flex;flex-direction:column;gap:14px;
+}
+#licOverlay .act-label{font-size:11px;color:#8b949e;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;font-family:ui-monospace,monospace;}
+#licOverlay .act-input{
+  width:100%;background:#0d1117;border:1px solid #30363d;border-radius:6px;
+  color:#e6edf3;font-family:ui-monospace,monospace;font-size:13px;
+  padding:11px 13px;outline:none;letter-spacing:.06em;
+}
+#licOverlay .act-input:focus{border-color:#58a6ff;}
+#licOverlay .act-btn{
+  width:100%;padding:12px;background:#238636;border:none;border-radius:6px;
+  color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;cursor:pointer;font-family:ui-monospace,monospace;
+}
+#licOverlay .act-btn:hover{background:#2ea043;}
+#licOverlay .act-btn:disabled{background:#21262d;color:#484f58;cursor:not-allowed;}
+#licOverlay .act-msg{font-size:12px;text-align:center;min-height:18px;padding:4px;font-family:ui-monospace,monospace;}
+#licOverlay .act-msg.ok{color:#3fb950;}
+#licOverlay .act-msg.err{color:#f85149;}
+#licOverlay .act-msg.checking{color:#d29922;}
+#licOverlay .tab-bar{display:flex;gap:0;border-bottom:1px solid #30363d;width:100%;max-width:420px;margin-bottom:0;}
+#licOverlay .tab-bar button{
+  flex:1;padding:10px;background:#0d1117;border:none;border-bottom:2px solid transparent;
+  color:#8b949e;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  cursor:pointer;font-family:ui-monospace,monospace;transition:.15s;
+}
+#licOverlay .tab-bar button.active{background:#161b22;color:#58a6ff;border-bottom-color:#58a6ff;}
+#licOverlay .tab-content{display:none;width:100%;max-width:420px;}
+#licOverlay .tab-content.active{display:block;}
+</style>
+
+</head>
+<body>
+
+<!-- ══ SWP LICENSE ACTIVATION OVERLAY ══ -->
+<div id="licOverlay">
+
+  <!-- TAB BAR -->
+  <div class="tab-bar" style="margin-bottom:0;">
+    <button id="licTab_activate" class="active" onclick="licSwitchTab('activate')">🔐 Activate</button>
+    <button id="licTab_classes" onclick="licSwitchTab('classes')">🎓 Online Class</button>
+  </div>
+
+  <!-- TAB 1 — ACTIVATE -->
+  <div id="licTabContent_activate" class="tab-content active">
+    <div style="padding:24px 0 8px;text-align:center;">
+      <div style="font-size:32px;">🔐</div>
+      <div style="font-size:18px;font-weight:700;color:#e6edf3;letter-spacing:.04em;margin:6px 0 2px;font-family:ui-monospace,monospace;">SWP CAD Tools</div>
+      <div style="font-size:13px;color:#58a6ff;font-weight:700;letter-spacing:.04em;font-family:ui-monospace,monospace;">Layout Planner</div>
+      <div style="font-size:10px;color:#484f58;letter-spacing:.1em;text-transform:uppercase;margin-top:4px;font-family:ui-monospace,monospace;">License Activation Required</div>
+    </div>
+
+    <div class="act-box">
+      <div>
+        <div class="act-label">License Key</div>
+        <input class="act-input" id="licKeyInput" type="text" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="24" autocomplete="off" spellcheck="false">
+      </div>
+      <button class="act-btn" id="activateBtn" onclick="doActivate()">Activate</button>
+      <div class="act-msg" id="actMsg"></div>
+    </div>
+
+    <div style="text-align:center;padding:16px 0 8px;display:flex;flex-direction:column;align-items:center;gap:8px;font-family:ui-monospace,monospace;">
+      <div style="color:#8b949e;font-size:10px;letter-spacing:.08em;text-transform:uppercase;">Guided By</div>
+      <div style="color:#f0883e;font-size:12px;font-weight:700;letter-spacing:.06em;">C.Jaikumar B.E</div>
+      <a href="https://www.caddacademy.in/" target="_blank"
+         style="color:#3fb950;font-size:10px;text-decoration:none;
+                border:1px solid #238636;border-radius:4px;padding:3px 10px;">
+        🌐 www.caddacademy.in
+      </a>
+      <div style="color:#8b949e;font-size:10px;">📞 99427-81728</div>
+      <div style="border-top:1px solid #30363d;width:100%;margin:4px 0;"></div>
+      <div style="color:#e6edf3;font-size:10px;letter-spacing:.08em;text-transform:uppercase;">Created By</div>
+      <div style="color:#58a6ff;font-size:12px;font-weight:700;letter-spacing:.08em;">B.Muthukumar B.E</div>
+      <div style="color:#8b949e;font-size:10px;margin-top:4px;">To get license key, contact:</div>
+      <a href="https://wa.me/919597943222?text=Name%3A%20%0ADistrict%3A%20" target="_blank"
+         style="color:#25D366;font-size:13px;font-weight:700;text-decoration:none;
+                border:1px solid #25D366;border-radius:6px;padding:8px 18px;display:inline-block;">
+        💬 WhatsApp: 95979-43222
+      </a>
+      <span style="background:linear-gradient(90deg,#f78166,#ffa657);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:12px;font-weight:700;">🎉 First 6 Months FREE!</span>
+      <div>
+        <div style="font-size:10px;color:#e6edf3;font-weight:700;letter-spacing:.06em;margin-bottom:8px;">🎬 Watch Online Demo Class</div>
+        <a href="https://www.youtube.com/@SWPCAD" target="_blank"
+           style="display:inline-flex;align-items:center;gap:8px;
+                  background:#FF0000;color:#fff;font-size:12px;font-weight:700;
+                  text-decoration:none;border-radius:6px;padding:10px 18px;">
+          ▶ YouTube: @SWPCAD
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2 — ONLINE CLASS -->
+  <div id="licTabContent_classes" class="tab-content">
+    <div style="padding:20px 0 8px;text-align:center;">
+      <div style="font-size:28px;">🎓</div>
+      <div style="font-size:16px;font-weight:700;color:#e6edf3;letter-spacing:.04em;margin:6px 0 2px;font-family:ui-monospace,monospace;">Online / Offline Classes</div>
+      <div style="font-size:10px;color:#f0883e;letter-spacing:.1em;text-transform:uppercase;font-weight:700;font-family:ui-monospace,monospace;">Single Window Portal · TNCDBR Rules</div>
+    </div>
+    <div style="background:#161b22;border:1px solid #30363d;border-radius:10px;padding:20px;margin:0 0 12px;">
+      <div style="font-size:11px;color:#8b949e;margin-bottom:12px;line-height:1.7;font-family:ui-monospace,monospace;">
+        Complete training on <span style="color:#58a6ff;font-weight:700;">Plan Approval</span> process as per TNCDBR Rules.
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px;">
+        <div style="background:#0d1117;border-left:3px solid #3fb950;border-radius:0 4px 4px 0;padding:6px 10px;font-size:11px;color:#e6edf3;font-family:ui-monospace,monospace;">✦ Setback &amp; FSI Calculation</div>
+        <div style="background:#0d1117;border-left:3px solid #58a6ff;border-radius:0 4px 4px 0;padding:6px 10px;font-size:11px;color:#e6edf3;font-family:ui-monospace,monospace;">✦ Site Plan &amp; Floor Plan Preparation</div>
+        <div style="background:#0d1117;border-left:3px solid #f0883e;border-radius:0 4px 4px 0;padding:6px 10px;font-size:11px;color:#e6edf3;font-family:ui-monospace,monospace;">✦ DXF Drawing for Approval Submission</div>
+        <div style="background:#0d1117;border-left:3px solid #d2a8ff;border-radius:0 4px 4px 0;padding:6px 10px;font-size:11px;color:#e6edf3;font-family:ui-monospace,monospace;">✦ CMDA / DTCP / Panchayat Rules</div>
+        <div style="background:#0d1117;border-left:3px solid #ffa657;border-radius:0 4px 4px 0;padding:6px 10px;font-size:11px;color:#e6edf3;font-family:ui-monospace,monospace;">✦ Scrutiny Report Generation</div>
+      </div>
+      <div style="border-top:1px solid #21262d;padding-top:12px;text-align:center;">
+        <div style="font-size:10px;color:#e6edf3;font-weight:700;letter-spacing:.06em;margin-bottom:8px;font-family:ui-monospace,monospace;">🎬 Watch Online Demo Class</div>
+        <a href="https://www.youtube.com/@SWPCAD" target="_blank"
+           style="display:inline-flex;align-items:center;gap:8px;
+                  background:#FF0000;color:#fff;font-size:12px;font-weight:700;
+                  text-decoration:none;border-radius:6px;padding:10px 18px;">
+          ▶ YouTube: @SWPCAD
+        </a>
+        <div style="font-size:10px;color:#e6edf3;margin:12px 0 4px;font-weight:700;font-family:ui-monospace,monospace;">To join classes contact:</div>
+        <div style="color:#58a6ff;font-size:12px;font-weight:700;font-family:ui-monospace,monospace;">B.Muthukumar B.E</div>
+        <a href="https://wa.me/919597943222?text=Name%3A%20%0ADistrict%3A%20" target="_blank"
+           style="color:#25D366;font-size:12px;font-weight:700;text-decoration:none;
+                  border:1px solid #25D366;border-radius:6px;padding:8px 18px;
+                  display:inline-block;margin-top:8px;">
+          💬 WhatsApp: 95979-43222
+        </a>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /#licOverlay -->
+<div id="swpToolContent" style="display:none">
+
+
+<div class="wrap">
+<div class="panel" style="margin-bottom:10px">
+  <h1>SWP Layout Planner — DXF Import / Export V2</h1>
+  <p class="sub">Upload irregular site DXF → draw actual boundary shape → place layout inside → export DXF — TNCDBR 2019 Rule 47 | Created By B.Muthukumar Cell:95979-43222</p>
+</div>
+<div class="two-col">
+
+<!-- LEFT -->
+<div>
+<div class="panel">
+  <h2>📂 Site DXF Import</h2>
+  <div class="dz" id="dz" onclick="document.getElementById('fi').click()">
+    <div class="dz-icon">📁</div>
+    <div class="dz-txt">Upload Site Boundary DXF</div>
+    <div class="dz-sub">Click or drag &amp; drop .dxf<br>Supports AC1009–AC1027 | LWPOLYLINE / POLYLINE / LINE<br>Irregular shapes fully supported</div>
+  </div>
+  <input type="file" id="fi" accept=".dxf" style="display:none" onchange="loadDXF(this)">
+  <div class="msg" id="msg"></div>
+
+  <div class="sec">Site &amp; Jurisdiction</div>
+  <div class="field"><label>Layout type</label>
+    <select id="lyType" onchange="autoCalcPlots()"><option value="residential">Residential</option><option value="commercial">Commercial</option><option value="industrial">Industrial</option><option value="mixed">Mixed Use</option></select></div>
+  <div class="field"><label>Jurisdiction</label>
+    <select id="lyLocal"><option value="corp">Corporation / Municipality</option><option value="townpanchayat">Town Panchayat</option><option value="villagepanchayat">Village Panchayat</option></select></div>
+  <div class="field"><label>Abutting road width (m)</label>
+    <input id="lyRoad" type="number" min="0" step="0.1" value="9.0"></div>
+
+  <div class="sec">Site Boundary (auto from DXF)</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
+    <div class="field"><label>Width E-W (m)</label><input id="siteW" type="number" min="1" step="0.01" value="80" oninput="autoCalcPlots()"></div>
+    <div class="field"><label>Depth N-S (m)</label><input id="siteD" type="number" min="1" step="0.01" value="60" oninput="autoCalcPlots()"></div>
+  </div>
+  <div class="field"><label>Site area (sq.m) — auto</label><input id="siteArea" type="number" readonly></div>
+  <div class="field"><label>Vertices detected</label><input id="siteVerts" type="number" readonly></div>
+
+  <!-- OSR + PPR PANEL — auto-updates when site area changes -->
+  <div id="osrPprPanel" style="border:1px solid #bbb;border-radius:5px;overflow:hidden;margin-top:6px">
+
+    <!-- OSR HEADER -->
+    <div style="background:#166534;color:#fff;padding:6px 10px;font-size:11px;font-weight:700">
+      🌳 OSR — Open Space Reservation [Rule 41 + Rule 47]
+    </div>
+    <div style="padding:8px 10px;background:#f0fff4;font-size:11px;line-height:1.8" id="osrInfo">
+      Enter site area to calculate OSR requirement.
+    </div>
+
+    <!-- OSR PROVISION CHOICE — only shown when payment is permitted (3k–10k slab) -->
+    <div id="osrChoiceDiv" style="padding:7px 10px;background:#fffbe6;border-top:1px solid #e0d080;display:none">
+      <div style="font-size:11px;font-weight:700;margin-bottom:5px;color:#5f3700">
+        OSR Provision Method [Rule 41(4)]:
+      </div>
+      <label style="display:flex;align-items:center;gap:7px;font-size:12px;cursor:pointer;margin-bottom:5px">
+        <input type="radio" name="osrMethod" id="osrLand" value="land" checked onchange="updateOSRMethod()">
+        <span><b>Reserve physical land</b> — Gift deed to Local Body before sanction</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:7px;font-size:12px;cursor:pointer">
+        <input type="radio" name="osrMethod" id="osrPay" value="pay" onchange="updateOSRMethod()">
+        <span><b>Pay guideline value</b> — 10% × (site − 3,000) × GLV per sq.m</span>
+      </label>
+      <div id="osrPayCalc" style="margin-top:6px;display:none">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+          <div class="field"><label>Guideline value (₹/sq.m)</label>
+            <input id="glv" type="number" min="1" step="1" value="5000" oninput="calcOSRPayment()">
+          </div>
+          <div class="field"><label>OSR payment amount</label>
+            <input id="osrPayAmt" type="number" readonly style="background:#fff3cd;font-weight:700;color:#7a4f00">
+          </div>
+        </div>
+        <div id="osrPayNote" style="font-size:10px;color:#7a4f00;margin-top:3px"></div>
+      </div>
+    </div>
+
+    <!-- PPR HEADER -->
+    <div style="background:#7a0000;color:#fff;padding:6px 10px;font-size:11px;font-weight:700;border-top:1px solid #bbb">
+      🏛 PPR — Public Purpose Reservation [Rule 47(8)]
+    </div>
+    <div style="padding:8px 10px;background:#fff5f5;font-size:11px;line-height:1.8" id="pprInfo">
+      Enter site area to calculate PPR.
+    </div>
+    <div style="padding:6px 10px;background:#fff5f5;border-top:1px solid #fcc;font-size:11px">
+      <b>PPR is always auto-provided</b> — both boxes drawn on plan and exported to DXF.<br>
+      Registered gift deed to Local Body + TANGEDCO before layout sanction.
+    </div>
+
+  </div>
+
+  <div class="sec">Internal Roads — Rule 47(3) TNCDBR 2019</div>
+  <div class="field" style="background:#f0f4ff;border:1px solid #c8d8ff;border-radius:4px;padding:7px;font-size:11px;color:#222;line-height:1.7">
+    <b>Road width by road length [Rule 47(3) gazette]:</b><br>
+    ≤ 60 m dead-end → <b>3.6 m</b> &nbsp;|&nbsp; ≤ 250 m → <b>6.0 m</b><br>
+    251–500 m → <b>9.0 m</b> &nbsp;|&nbsp; > 500 m → <b>12.0 m</b>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:6px">
+    <div class="field"><label>Internal road width (m)</label>
+      <input id="mainRW" type="number" min="3.6" step="0.1" value="7.2" oninput="autoCalcPlots()">
+      <small id="roadWidthHint" style="color:#c00"></small></div>
+    <div class="field"><label>Vertical col roads</label>
+      <input id="nColR" type="number" min="0" max="20" step="1" value="1" oninput="autoCalcPlots()">
+      <small>No fixed limit</small></div>
+  </div>
+  <div class="field"><label>Road pattern</label>
+    <select id="roadPat" onchange="autoCalcPlots()">
+      <option value="grid">Grid (H + V roads)</option>
+      <option value="spine">Spine (1 main road)</option>
+      <option value="cul">Spine + Cul-de-sac</option>
+    </select></div>
+  <!-- Auto road count advisory -->
+  <div id="roadAdvisory" style="font-size:11px;background:#fffbe6;border:1px solid #f0c040;border-radius:4px;padding:6px 8px;margin-top:4px;display:none"></div>
+
+  <div class="sec">Plot Configuration — Auto-calculated from site</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
+    <div class="field"><label>Plot width (m) <small>min 4.5m R47</small></label>
+      <input id="pW" type="number" min="4.5" step="0.5" value="10" oninput="autoCalcPlots()"></div>
+    <div class="field"><label>Plot depth (m) <small>min 10m</small></label>
+      <input id="pDp" type="number" min="10" step="0.5" value="20" oninput="autoCalcPlots()"></div>
+  </div>
+  <!-- Auto-calculated rows/cols — readonly, shown from site -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
+    <div class="field"><label>Plot rows (auto) ▼</label>
+      <input id="plotR" type="number" min="1" step="1" value="2" oninput="updateManualPlots()">
+      <small style="color:#142bc8">Auto-filled · edit to override</small></div>
+    <div class="field"><label>Plot cols (auto) ▼</label>
+      <input id="plotC" type="number" min="1" step="1" value="4" oninput="updateManualPlots()">
+      <small style="color:#142bc8">Auto-filled · edit to override</small></div>
+  </div>
+  <!-- Summary box -->
+  <div id="plotSummary" style="background:#e8f5e9;border:1px solid #4caf50;border-radius:4px;padding:7px 9px;font-size:11px;margin-top:4px;line-height:1.8;display:none"></div>
+
+  <div class="btn-row">
+    <button class="btn btn-draw" onclick="draw()">▶ Draw Layout</button>
+    <button class="btn btn-export" id="expBtn" disabled onclick="exportDXF()">⬇ Export DXF</button>
+    <button class="btn btn-reset" onclick="resetAll()">↺ Reset</button>
+  </div>
+  <div style="font-size:10px;color:#666;margin-top:5px">DXF export: AC1009 (R12) — AutoCAD 2000-2026 compatible | Layers: SITE_BOUNDARY · INTERNAL_ROAD · PLOT · OSR · PPR · EWS_PLOT · CORNER_SPLAY · DIMENSION · LABEL</div>
+</div>
+</div>
+
+<!-- RIGHT -->
+<div>
+<div class="panel" style="padding:8px">
+  <div class="tab-bar">
+    <div class="tb on" onclick="stab('draw',this)">📐 Drawing</div>
+    <div class="tb" onclick="stab('chk',this)">✅ Rule 47 Checks</div>
+    <div class="tb" onclick="stab('area',this)">📊 Area Statement</div>
+  </div>
+
+  <div class="tc on" id="tab-draw">
+    <div class="legend">
+      <div class="leg"><div class="lc" style="background:#d4edda"></div>Residential plot</div>
+      <div class="leg"><div class="lc" style="background:#ffd280"></div>Commercial</div>
+      <div class="leg"><div class="lc" style="background:#c0d8f8"></div>Industrial</div>
+      <div class="leg"><div class="lc" style="background:#ccc"></div>Road</div>
+      <div class="leg"><div class="lc" style="background:#90ee90"></div>OSR</div>
+      <div class="leg"><div class="lc" style="background:#ffd0e0"></div>PPR LB</div>
+      <div class="leg"><div class="lc" style="background:#ffe0b0"></div>PPR TN</div>
+      <div class="leg"><div class="lc" style="background:#e0d0ff"></div>EWS</div>
+      <div class="leg"><div class="lc" style="background:rgba(255,200,0,.7);border-color:#aa7700"></div>Splay R47(5)</div>
+      <div class="leg"><div class="lc" style="background:none;border:2px dashed #1a5276"></div>DXF boundary</div>
+    </div>
+    <div class="canvas-wrap"><canvas id="cv" width="900" height="600"></canvas></div>
+    <div style="font-size:10px;color:#888;margin-top:4px;display:flex;justify-content:space-between">
+      <span id="scLbl">Scale: auto</span><span>▶ Draw Layout to render</span>
+    </div>
+  </div>
+
+  <div class="tc" id="tab-chk">
+    <div id="chkDiv"><p style="color:#888;padding:20px;text-align:center">Click ▶ Draw Layout first.</p></div>
+  </div>
+  <div class="tc" id="tab-area">
+    <div id="areaDiv"><p style="color:#888;padding:20px;text-align:center">Click ▶ Draw Layout first.</p></div>
+  </div>
+</div>
+</div>
+</div><!-- end two-col -->
+</div><!-- end wrap -->
+
+<script>
+// ══════════════════════════════════════════════════════════════════
+// GLOBALS
+// ══════════════════════════════════════════════════════════════════
+let G={poly:null,bbox:null,layoutData:null};
+
+function stab(id,btn){
+  document.querySelectorAll('.tc').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.tb').forEach(b=>b.classList.remove('on'));
+  document.getElementById('tab-'+id).classList.add('on');
+  btn.classList.add('on');
+}
+const nv=id=>{const e=document.getElementById(id);return e?+e.value||0:0;}
+const vv=id=>{const e=document.getElementById(id);return e?e.value:'';}
+function showMsg(txt,type='ok'){const m=document.getElementById('msg');m.innerHTML=txt;m.className='msg '+type;}
+function hideMsg(){document.getElementById('msg').className='msg';}
+
+// ══════════════════════════════════════════════════════════════════
+// GEOMETRY HELPERS (defined first — used by parser and export)
+// ══════════════════════════════════════════════════════════════════
+function shoelaceArea(pts){
+  let a=0;
+  for(let i=0;i<pts.length;i++){
+    const j=(i+1)%pts.length;
+    a+=pts[i].x*pts[j].y - pts[j].x*pts[i].y;
+  }
+  return Math.abs(a/2);
+}
+function bbox(pts){
+  const xs=pts.map(p=>p.x),ys=pts.map(p=>p.y);
+  return{minX:Math.min(...xs),maxX:Math.max(...xs),
+         minY:Math.min(...ys),maxY:Math.max(...ys),
+         w:Math.max(...xs)-Math.min(...xs),
+         h:Math.max(...ys)-Math.min(...ys)};
+}
+
+// ══════════════════════════════════════════════════════════════════
+// DXF PARSER — robust line-by-line scan, AC1009–AC1027
+// Root cause of no-response: i+=2 pairing breaks when blank lines
+// or \r\n endings misalign code/value pairs → NaN codes → ENTITIES
+// section never found → empty array → silent failure
+// Fix: scan lines individually, skip blanks, pair robustly
+// ══════════════════════════════════════════════════════════════════
+function parseDXF(txt){
+  // Normalise + split
+  const raw = txt.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n');
+
+  // Build pairs — skip blank lines, pair code-line with next non-blank value-line
+  const pairs=[];
+  let li=0;
+  while(li<raw.length){
+    const codeLine=raw[li].trim(); li++;
+    if(codeLine==='') continue;
+    const code=parseInt(codeLine,10);
+    if(isNaN(code)) continue;
+    let valLine='';
+    while(li<raw.length){ valLine=raw[li].trim(); li++; if(valLine!=='') break; }
+    pairs.push([code,valLine]);
+  }
+
+  // Find ENTITIES section
+  let pi=0;
+  const peek=()=>pi<pairs.length?pairs[pi]:null;
+  const next=()=>pairs[pi++]||null;
+  while(pi<pairs.length){ const p=next(); if(!p) break; if(p[0]===2&&p[1]==='ENTITIES') break; }
+
+  const entities=[];
+  while(pi<pairs.length){
+    const p=peek(); if(!p) break;
+    if(p[0]!==0){ next(); continue; }
+    next();
+    const etype=p[1];
+    if(etype==='ENDSEC'||etype==='EOF') break;
+
+    if(etype==='LWPOLYLINE'){
+      const pts=[]; let closed=false, cx=null;
+      while(pi<pairs.length){
+        const pp=peek(); if(!pp||pp[0]===0) break;
+        const np=next(); const c=np[0],v=np[1];
+        if(c===5||c===330||c===100||c===67||c===410||c===8||c===6||
+           c===62||c===370||c===48||c===60||c===420||c===430) continue;
+        if(c===70) closed=!!(parseInt(v,10)&1);
+        if(c===10) cx=parseFloat(v);
+        if(c===20&&cx!==null){ pts.push({x:cx,y:parseFloat(v)}); cx=null; }
+        if(c===1001){ while(pi<pairs.length){ const xp=peek(); if(!xp||xp[0]===0||xp[0]===10) break; next(); } }
+      }
+      if(pts.length>=3) entities.push({type:'LWPOLY',pts,closed});
+      continue;
+    }
+
+    if(etype==='POLYLINE'){
+      let closed=false;
+      while(pi<pairs.length){ const pp=peek(); if(!pp||pp[0]===0) break; const np=next(); if(np[0]===70) closed=!!(parseInt(np[1],10)&1); }
+      const verts=[];
+      while(pi<pairs.length){
+        const pp=peek(); if(!pp) break;
+        if(pp[0]===0){
+          if(pairs[pi][1]==='VERTEX'){
+            next(); let vx=0,vy=0;
+            while(pi<pairs.length){ const vp=peek(); if(!vp||vp[0]===0) break; const np=next(); if(np[0]===10)vx=parseFloat(np[1]); if(np[0]===20)vy=parseFloat(np[1]); }
+            verts.push({x:vx,y:vy});
+          } else if(pairs[pi][1]==='SEQEND'){ next(); break; } else break;
+        } else next();
+      }
+      if(verts.length>=3) entities.push({type:'POLY',pts:verts,closed:true});
+      continue;
+    }
+
+    if(etype==='LINE'){
+      let x1=0,y1=0,x2=0,y2=0;
+      while(pi<pairs.length){ const pp=peek(); if(!pp||pp[0]===0) break; const np=next();
+        if(np[0]===10)x1=parseFloat(np[1]); if(np[0]===20)y1=parseFloat(np[1]);
+        if(np[0]===11)x2=parseFloat(np[1]); if(np[0]===21)y2=parseFloat(np[1]); }
+      entities.push({type:'LINE',pts:[{x:x1,y:y1},{x:x2,y:y2}],closed:false});
+      continue;
+    }
+
+    if(etype==='SPLINE'){
+      const pts=[]; let cx=null;
+      while(pi<pairs.length){ const pp=peek(); if(!pp||pp[0]===0) break; const np=next();
+        if(np[0]===11) cx=parseFloat(np[1]);
+        if(np[0]===21&&cx!==null){ pts.push({x:cx,y:parseFloat(np[1])}); cx=null; } }
+      if(pts.length>=3) entities.push({type:'SPLINE',pts,closed:true});
+      continue;
+    }
+
+    while(pi<pairs.length&&(peek()||[0])[0]!==0) next();
+  }
+  return entities;
+}
+
+function chainLines(lines){
+  if(!lines.length) return null;
+  const EPS=0.001, used=new Array(lines.length).fill(false);
+  const chain=[{...lines[0].pts[0]},{...lines[0].pts[1]}]; used[0]=true;
+  let changed=true;
+  while(changed){ changed=false; const last=chain[chain.length-1];
+    for(let i=0;i<lines.length;i++){ if(used[i]) continue;
+      const p0=lines[i].pts[0],p1=lines[i].pts[1];
+      if(Math.hypot(p0.x-last.x,p0.y-last.y)<EPS){chain.push({...p1});used[i]=true;changed=true;break;}
+      if(Math.hypot(p1.x-last.x,p1.y-last.y)<EPS){chain.push({...p0});used[i]=true;changed=true;break;} } }
+  return chain.length>=3?chain:null;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// LOAD DXF — with progress messages so user sees it working
+// ══════════════════════════════════════════════════════════════════
+function loadDXF(inp){
+  const f=inp.files[0]; if(!f) return;
+  if(!f.name.toLowerCase().endsWith('.dxf')){ showMsg('Please upload a .dxf file.','err'); return; }
+  showMsg(`⏳ Reading <b>${f.name}</b> (${(f.size/1024).toFixed(1)} KB) — please wait…`,'warn');
+  const r=new FileReader();
+  r.onload=e=>{
+    showMsg(`⏳ Parsing DXF geometry…`,'warn');
+    setTimeout(()=>{
+      try{ processDXF(e.target.result,f.name); }
+      catch(ex){ showMsg('Parse error: '+ex.message,'err'); }
+    },30);
+  };
+  r.onerror=()=>showMsg('File read failed. Try again.','err');
+  r.readAsText(f,'utf-8');
+}
+
+function processDXF(txt,fname){
+  const lineCount=txt.split('\n').length;
+  showMsg(`⏳ Scanning ${lineCount.toLocaleString()} lines…`,'warn');
+
+  const ents=parseDXF(txt);
+
+  if(!ents.length){
+    const hasE=txt.includes('ENTITIES'),hasLW=txt.includes('LWPOLYLINE'),hasPL=txt.includes('POLYLINE'),hasLN=txt.includes('LINE');
+    showMsg(`⚠ No geometry extracted from <b>${fname}</b>.<br>
+      ENTITIES section: ${hasE?'✓':'✗'} | LWPOLYLINE: ${hasLW?'✓':'✗'} | POLYLINE: ${hasPL?'✓':'✗'} | LINE: ${hasLN?'✓':'✗'}<br>
+      Tip: ensure the site boundary is a closed LWPOLYLINE or POLYLINE entity.`,'err');
+    return;
+  }
+
+  let best=null, bestA=0;
+  for(const e of ents){
+    if(e.pts.length<3) continue;
+    const a=shoelaceArea(e.pts);
+    if(a>bestA){ bestA=a; best=e; }
+  }
+  if(!best||bestA<1){
+    const chain=chainLines(ents.filter(e=>e.type==='LINE'));
+    if(chain){ const a=shoelaceArea(chain); if(a>bestA){ best={type:'CHAIN',pts:chain}; bestA=a; } }
+  }
+  if(!best||bestA<1){
+    showMsg(`⚠ Found ${ents.length} entities (${[...new Set(ents.map(e=>e.type))].join(', ')}) but none form a closed polygon.<br>
+      Draw site boundary as a single closed LWPOLYLINE and save as DXF.`,'err');
+    return;
+  }
+
+  let pts=best.pts;
+  const bb0=bbox(pts);
+  if(bb0.w>10000||bb0.h>10000) pts=pts.map(p=>({x:p.x*0.001,y:p.y*0.001}));
+  G.poly=pts; G.bbox=bbox(pts);
+  const realArea=shoelaceArea(pts);
+  const W=+G.bbox.w.toFixed(3), H=+G.bbox.h.toFixed(3);
+
+  document.getElementById('siteW').value=W;
+  document.getElementById('siteD').value=H;
+  document.getElementById('siteArea').value=realArea.toFixed(2);
+  document.getElementById('siteVerts').value=pts.length;
+  document.getElementById('pW').value=Math.max(4.5,Math.min(10,+(W/8).toFixed(1)));
+  document.getElementById('pDp').value=Math.max(10,Math.min(20,+(H/5).toFixed(1)));
+  updateOSRPPRPanel(realArea);
+  autoCalcPlots();
+
+  const sides=[];
+  for(let i=0;i<pts.length;i++){
+    const j=(i+1)%pts.length;
+    sides.push('<b>'+(Math.sqrt((pts[j].x-pts[i].x)**2+(pts[j].y-pts[i].y)**2)).toFixed(2)+'m</b>');
+  }
+  const dxfVer=txt.includes('AC1027')?'AC1027':txt.includes('AC1015')?'AC1015':txt.includes('AC1012')?'AC1012':'AC1009';
+
+  showMsg(`✅ <b>${fname}</b> loaded<br>
+    Vertices: <b>${pts.length}</b> | Sides: ${sides.join(' · ')}<br>
+    BBox: <b>${W} m × ${H} m</b> | Polygon area: <b>${realArea.toFixed(2)} sq.m</b><br>
+    Format: ${dxfVer} | Entities found: ${ents.length} (${[...new Set(ents.map(e=>e.type))].join(', ')})`,
+  'ok');
+}
+
+
+// Drag and drop
+const dz=document.getElementById('dz');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
+dz.addEventListener('drop',e=>{
+  e.preventDefault();dz.classList.remove('over');
+  const f=e.dataTransfer.files[0];
+  if(f) loadDXF({files:e.dataTransfer.files});
+});
+
+// ══════════════════════════════════════════════════════════════════
+// OSR + PPR PANEL — auto-updates from site area
+// ══════════════════════════════════════════════════════════════════
+function updateOSRPPRPanel(siteArea){
+  const osrInfo   = document.getElementById('osrInfo');
+  const pprInfo   = document.getElementById('pprInfo');
+  const choiceDiv = document.getElementById('osrChoiceDiv');
+  if(!siteArea||siteArea<=0){
+    osrInfo.innerHTML='Enter site area to calculate OSR.';
+    pprInfo.innerHTML='Enter site area to calculate PPR.';
+    choiceDiv.style.display='none';
+    return;
+  }
+
+  const netApprox = siteArea * 0.85; // approximate net after roads
+  const pprLB  = (netApprox * 0.005).toFixed(2);
+  const pprTN  = (netApprox * 0.005).toFixed(2);
+  const pprTot = (netApprox * 0.010).toFixed(2);
+
+  if(siteArea <= 3000){
+    // No OSR
+    osrInfo.innerHTML =
+      `<span style="color:#2a9a50;font-weight:700">✔ NO OSR REQUIRED</span><br>` +
+      `Site area ${siteArea.toFixed(0)} sq.m ≤ 3,000 sq.m — OSR not applicable [Rule 41]`;
+    choiceDiv.style.display='none';
+
+  } else if(siteArea <= 10000){
+    // 3k–10k slab — payment in lieu permitted
+    const taxable  = siteArea - 3000;
+    const osrAmt   = (taxable * 0.10).toFixed(2);
+    osrInfo.innerHTML =
+      `<span style="color:#c00;font-weight:700">✘ OSR REQUIRED</span> — Site 3,000–10,000 sq.m slab<br>` +
+      `OSR = 10% × (${siteArea.toFixed(0)} − 3,000) = <b>${osrAmt} sq.m</b><br>` +
+      `<span style="color:#c60">⚑ Payment of guideline value permitted in lieu of land [Rule 41(4)]</span><br>` +
+      `Minimum OSR parcel: 100 sq.m, min dimension 10 m<br>` +
+      `Gift deed to Local Body before sanction (if land reserved)`;
+    choiceDiv.style.display='block';
+    calcOSRPayment();
+
+  } else {
+    // >10k — physical only
+    const osrAmt = (siteArea * 0.10).toFixed(2);
+    osrInfo.innerHTML =
+      `<span style="color:#c00;font-weight:700">✘ OSR REQUIRED — PHYSICAL LAND ONLY</span><br>` +
+      `Site > 10,000 sq.m: OSR = 10% × ${siteArea.toFixed(0)} = <b>${osrAmt} sq.m</b><br>` +
+      `<span style="color:#c00;font-weight:700">⛔ Payment in lieu NOT permitted [Rule 41 gazette]</span><br>` +
+      `Physical reservation mandatory. Minimum 500 sq.m, ratio 1:5.<br>` +
+      `Registered gift deed to Local Body before layout sanction.`;
+    choiceDiv.style.display='none';
+  }
+
+  // PPR always shown
+  pprInfo.innerHTML =
+    `<span style="color:#c00;font-weight:700">✘ PPR AUTO-PROVIDED on plan</span><br>` +
+    `<b>Local Body (0.5%):</b> ${pprLB} sq.m — gift deed to Local Body<br>` +
+    `<b>TANGEDCO (0.5%):</b> ${pprTN} sq.m — gift deed to TANGEDCO<br>` +
+    `<b>Total PPR: ${pprTot} sq.m</b> (1% of net layout area)<br>` +
+    `<small style="color:#555">Both boxes drawn on plan and exported to DXF automatically [Rule 47(8)]</small>`;
+}
+
+function updateOSRMethod(){
+  const isPay = document.getElementById('osrPay').checked;
+  document.getElementById('osrPayCalc').style.display = isPay?'block':'none';
+  if(isPay) calcOSRPayment();
+}
+
+function calcOSRPayment(){
+  const siteArea = nv('siteArea') || nv('siteW')*nv('siteD');
+  const glv = nv('glv');
+  if(!glv||siteArea<=3000) return;
+  const taxable = siteArea - 3000;
+  const osrAmt  = taxable * 0.10;
+  const payment = osrAmt * glv;
+  document.getElementById('osrPayAmt').value = payment.toFixed(0);
+  document.getElementById('osrPayNote').innerHTML =
+    `Payment = 10% × (${siteArea.toFixed(0)}−3,000) sq.m × ₹${glv}/sq.m<br>` +
+    `= ${osrAmt.toFixed(2)} sq.m × ₹${glv} = <b>₹${payment.toLocaleString('en-IN')}</b><br>` +
+    `Pay to Local Body treasurer before layout sanction [Rule 41(4)]`;
+}
+
+// Auto-update area from manual W/D
+['siteW','siteD'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',()=>{
+    const a=nv('siteW')*nv('siteD');
+    if(a>0) document.getElementById('siteArea').value=a.toFixed(2);
+  });
+});
+
+// ══════════════════════════════════════════════════════════════════
+// AUTO-CALCULATE PLOTS FROM SITE + ROAD + PLOT DIMENSIONS
+// Rule 47(3): road width determined by road length
+// ══════════════════════════════════════════════════════════════════
+function autoCalcPlots(){
+  const siteW=nv('siteW'), siteD=nv('siteD');
+  const mainRW=nv('mainRW'), nColR=nv('nColR');
+  const pW=nv('pW'), pDp=nv('pDp');
+  const pattern=vv('roadPat');
+  const type=vv('lyType');
+
+  if(!siteW||!siteD||!pW||!pDp) return;
+
+  // Update site area
+  document.getElementById('siteArea').value=(siteW*siteD).toFixed(2);
+
+  // Update OSR + PPR panel
+  updateOSRPPRPanel(siteW*siteD);
+
+  // ── Rule 47(3): Check if entered road width meets required minimum ──
+  const longestRoad = Math.max(siteW, siteD);
+  const reqRW = longestRoad<=60?3.6:longestRoad<=250?6:longestRoad<=500?9:12;
+  const hint = document.getElementById('roadWidthHint');
+  if(mainRW>0 && mainRW<reqRW){
+    hint.textContent=`⚠ Rule 47(3): min ${reqRW}m needed for ${longestRoad}m road`;
+    hint.style.color='#c00';
+  } else if(mainRW>=reqRW){
+    hint.textContent=`✔ OK for ${longestRoad}m road length`;
+    hint.style.color='#2a9a50';
+  } else {
+    hint.textContent='';
+  }
+
+  // ── How many roads do you need? (Rule 47 advisory) ──────────────
+  // Minimum roads = 1 entry road always
+  // Additional roads needed = so every plot has road frontage
+  // For spine: 1 col road down the middle, plots on both sides
+  // For grid: (pRows-1) horizontal roads + nColR vertical roads
+  // Auto-suggest nColR based on site width / plot groups
+  const advisory = document.getElementById('roadAdvisory');
+  const siteUseW = siteW; // usable width
+  const siteUseD = siteD * 0.85; // after OSR
+
+  // Calculate max plots that fit
+  // Available width = siteW - nColR * mainRW (vertical roads)
+  // Available depth = siteD * 0.75 (after OSR + entry road)
+  const availW = Math.max(0, siteUseW - nColR*mainRW);
+  const availD = Math.max(0, siteUseD - mainRW); // minus entry road
+
+  const maxCols = Math.max(1, Math.floor(availW / pW));
+  const maxRows = Math.max(1, Math.floor(availD / pDp));
+  const maxPlots = maxRows * maxCols;
+
+  // Minimum road width check
+  const minPlotArea = type==='industrial'?892:72;
+
+  // Required col roads based on site width — Rule 47 advisory
+  // Suggest 1 col road per ~(5-6 plots wide)
+  const suggestedColRoads = Math.max(0, Math.floor(maxCols/6));
+  const suggestedRows = maxRows;
+  const suggestedCols = maxCols;
+
+  advisory.style.display='block';
+  advisory.innerHTML=
+    `<b>Rule 47(3) — Internal road advisory:</b><br>` +
+    `Longest road ≈ ${Math.max(siteW,siteD).toFixed(0)}m → min road width: <b>${reqRW}m</b><br>` +
+    `Available plot zone: <b>${availW.toFixed(1)}m × ${availD.toFixed(1)}m</b><br>` +
+    `Max plots that fit: <b>${maxCols} cols × ${maxRows} rows = ${maxPlots} plots</b><br>` +
+    `Suggested col roads: <b>${suggestedColRoads}</b> (1 per ~6 columns)<br>` +
+    `<small style="color:#555">Each plot must have direct road frontage [Rule 47(1)]</small>`;
+
+  // Auto-fill rows and cols
+  document.getElementById('plotR').value = maxRows;
+  document.getElementById('plotC').value = maxCols;
+
+  // Summary
+  const plotArea = pW*pDp;
+  const entryRoadArea = siteW*mainRW;
+  const betweenRoadArea = pattern==='grid'?(maxRows-1)*siteW*mainRW:0;
+  const colRoadArea = nColR*mainRW*maxRows*pDp;
+  const totalRoadArea = entryRoadArea+betweenRoadArea+colRoadArea;
+  const netArea = Math.max(0,siteW*siteD-totalRoadArea);
+  const osrArea = siteW*siteD>3000?siteW*siteD*0.10:0;
+  const saleable = Math.max(0,netArea-osrArea-siteW*siteD*0.01);
+
+  const sumDiv=document.getElementById('plotSummary');
+  sumDiv.style.display='block';
+  sumDiv.innerHTML=
+    `<b>Auto-calculated layout summary:</b><br>` +
+    `Plots: <b>${maxCols} cols × ${maxRows} rows = ${maxPlots} plots</b> (${pW}m × ${pDp}m each)<br>` +
+    `Plot area each: ${plotArea.toFixed(0)} sq.m ${plotArea>=minPlotArea?'✔':'✘ below min '+minPlotArea+'m²'}<br>` +
+    `Total road area: ${totalRoadArea.toFixed(0)} sq.m | OSR: ${osrArea.toFixed(0)} sq.m<br>` +
+    `Saleable area ≈ ${saleable.toFixed(0)} sq.m`;
+}
+
+function updateManualPlots(){
+  // User manually overrode rows/cols — just update summary
+  const pW=nv('pW'),pDp=nv('pDp'),pR=nv('plotR'),pC=nv('plotC');
+  const sumDiv=document.getElementById('plotSummary');
+  const type=vv('lyType');
+  const minPA=type==='industrial'?892:72;
+  if(pR&&pC&&pW&&pDp){
+    sumDiv.style.display='block';
+    sumDiv.innerHTML=`<b>Manual override:</b> ${pC} cols × ${pR} rows = <b>${pR*pC} plots</b> (${pW}×${pDp}m = ${(pW*pDp).toFixed(0)} sq.m each) ${pW*pDp>=minPA?'✔':'⚠ below min '+minPA+'m²'}`;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// DRAW ENGINE
+// ══════════════════════════════════════════════════════════════════
+const PAD=58;
+
+function draw(){
+  const type=vv('lyType'),local=vv('lyLocal');
+  const road=nv('lyRoad');
+  const siteW=nv('siteW'),siteD=nv('siteD');
+  const mainRW=nv('mainRW');
+  const pRows=Math.max(1,nv('plotR')),pCols=Math.max(1,nv('plotC'));
+  const pW=nv('pW'),pDp=nv('pDp');
+  const pattern=vv('roadPat');
+  const nColR=Math.max(0,Math.min(nv('nColR'),pCols-1));
+
+  const canvas=document.getElementById('cv');
+  const ctx=canvas.getContext('2d');
+
+  // Auto-fit scale
+  const maxPx=Math.min(860,window.innerWidth-380);
+  const SCALE=Math.max(3,Math.min(10,Math.floor(maxPx/Math.max(siteW,siteD))));
+  document.getElementById('scLbl').textContent=`Scale: 1m=${SCALE}px | Site: ${siteW}×${siteD}m`;
+
+  const pubRH=Math.max(road*SCALE*0.55,24);
+  canvas.width=Math.max(650,siteW*SCALE+PAD*2+30);
+  canvas.height=Math.max(450,siteD*SCALE+PAD*2+pubRH+45);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle='#e8eaf0';ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  const ox=PAD,oy=PAD;
+
+  // ── COLUMN TRACKS ─────────────────────────────────────────────
+  const colTracks=[];
+  const ppg=pCols/(nColR+1);
+  let ri2=0,pc2=0;
+  for(let c=0;c<pCols;c++){
+    if(ri2<nColR&&pc2>0&&Math.round(pc2/ppg)>ri2){colTracks.push('road');ri2++;}
+    colTracks.push('plot');pc2++;
+  }
+  const rowTracks=['road'];
+  for(let r=0;r<pRows;r++){
+    rowTracks.push('plot');
+    if(pattern==='grid'&&r<pRows-1) rowTracks.push('road');
+  }
+  if(pattern==='cul') rowTracks.push('cul');
+
+  const apW=pW*SCALE,apH=pDp*SCALE,arW=mainRW*SCALE;
+
+  // Column X positions
+  const colX=[],colWd=[];
+  let cx2=ox;
+  for(const t of colTracks){colX.push(cx2);const w=t==='road'?arW:apW;colWd.push(w);cx2+=w;}
+
+  // Row Y positions (south to north)
+  const rowY=[],rowH=[];
+  let cy2=oy+siteD*SCALE;
+  for(const t of rowTracks){const h=t==='road'?arW:apH;cy2-=h;rowY.push(cy2);rowH.push(h);}
+
+  const entryTopY=rowY[0];
+  const plotOnlyYs=rowTracks.map((t,i)=>t==='plot'?rowY[i]:null).filter(y=>y!==null);
+  const plotZoneTopY=plotOnlyYs.length>0?Math.min(...plotOnlyYs):entryTopY;
+  const plotRowYs=[];
+  rowTracks.forEach((t,i)=>{if(t==='plot')plotRowYs.push(rowY[i]);});
+
+  // ── DRAW SITE FILL (white or irregular polygon) ────────────────
+  if(G.poly&&G.bbox){
+    // Draw irregular polygon as site background
+    const bb=G.bbox;
+    const toCanvasX=mx=>ox+(mx-bb.minX)/bb.w*siteW*SCALE;
+    const toCanvasY=my=>oy+siteD*SCALE-(my-bb.minY)/bb.h*siteD*SCALE;
+    // White fill inside polygon
+    ctx.save();
+    ctx.beginPath();
+    G.poly.forEach((p,idx)=>{
+      const cx3=toCanvasX(p.x),cy3=toCanvasY(p.y);
+      idx===0?ctx.moveTo(cx3,cy3):ctx.lineTo(cx3,cy3);
+    });
+    ctx.closePath();
+    ctx.fillStyle='#fff';ctx.fill();
+    // Clip all internal drawing to this polygon
+    ctx.clip();
+    // Draw internal elements (clipped)
+    drawInternals();
+    ctx.restore();
+    // DXF boundary outline on top (not clipped)
+    ctx.save();
+    ctx.beginPath();
+    G.poly.forEach((p,idx)=>{
+      const cx3=toCanvasX(p.x),cy3=toCanvasY(p.y);
+      idx===0?ctx.moveTo(cx3,cy3):ctx.lineTo(cx3,cy3);
+    });
+    ctx.closePath();
+    ctx.strokeStyle='#1a5276';ctx.lineWidth=2.5;ctx.setLineDash([7,4]);
+    ctx.stroke();ctx.setLineDash([]);
+    // Vertex labels
+    G.poly.forEach((p,idx)=>{
+      const cx3=toCanvasX(p.x),cy3=toCanvasY(p.y);
+      ctx.fillStyle='#1a5276';ctx.font='bold 9px Arial';ctx.textAlign='center';
+      ctx.fillText(`V${idx+1}`,cx3,cy3-5);
+      // Side length label
+      const j=(idx+1)%G.poly.length;
+      const p2=G.poly[j];
+      const d=Math.sqrt((p2.x-p.x)**2+(p2.y-p.y)**2);
+      const mx2=(toCanvasX(p.x)+toCanvasX(p2.x))/2;
+      const my2=(toCanvasY(p.y)+toCanvasY(p2.y))/2;
+      ctx.fillStyle='#0a3d62';ctx.font='bold 9px Arial';
+      ctx.fillText(`${d.toFixed(2)}m`,mx2,my2);
+    });
+    ctx.fillStyle='#1a5276';ctx.font='bold 9px Arial';ctx.textAlign='left';
+    ctx.fillText('DXF site boundary',ox+4,oy+13);
+  } else {
+    // No DXF loaded — rectangular site
+    ctx.fillStyle='#fff';ctx.fillRect(ox,oy,siteW*SCALE,siteD*SCALE);
+    drawInternals();
+  }
+
+  // ── INTERNAL DRAWING FUNCTION (called inside clip or freely) ──
+  function drawInternals(){
+    // Horizontal roads
+    rowTracks.forEach((t,ri)=>{
+      if(t!=='road') return;
+      ctx.fillStyle='#cccccc';
+      ctx.fillRect(ox,rowY[ri],siteW*SCALE,rowH[ri]);
+      ctx.fillStyle='#444';ctx.font=`bold ${Math.max(8,Math.min(10,arW-2))}px Arial`;
+      ctx.textAlign='center';
+      ctx.fillText(`${mainRW}m`,ox+siteW*SCALE/2,rowY[ri]+rowH[ri]/2+4);
+    });
+
+    // Vertical col roads (only within plot zone, not into OSR)
+    colTracks.forEach((t,ci)=>{
+      if(t!=='road') return;
+      ctx.fillStyle='#cccccc';
+      ctx.fillRect(colX[ci],plotZoneTopY,colWd[ci],entryTopY-plotZoneTopY);
+      ctx.save();
+      ctx.translate(colX[ci]+colWd[ci]/2,plotZoneTopY+(entryTopY-plotZoneTopY)/2);
+      ctx.rotate(-Math.PI/2);ctx.fillStyle='#444';
+      ctx.font=`bold ${Math.max(7,Math.min(9,arW-1))}px Arial`;ctx.textAlign='center';
+      ctx.fillText(`${mainRW}m`,0,4);ctx.restore();
+    });
+
+    // Cul-de-sac turnaround
+    if(pattern==='cul'){
+      const rIdx=colTracks.indexOf('road');
+      if(rIdx>=0){
+        const spineCX=colX[rIdx]+colWd[rIdx]/2;
+        const culSz=Math.max(arW,9*SCALE);
+        const cxc=spineCX-culSz/2,cyc=plotZoneTopY-culSz;
+        ctx.fillStyle='#cccccc';ctx.fillRect(cxc,cyc,culSz,culSz);
+        ctx.strokeStyle='#777';ctx.lineWidth=1.2;ctx.setLineDash([4,3]);
+        ctx.strokeRect(cxc,cyc,culSz,culSz);ctx.setLineDash([]);
+        ctx.fillStyle='#333';ctx.font=`bold ${Math.max(7,Math.min(9,culSz/5))}px Arial`;
+        ctx.textAlign='center';
+        ctx.fillText('9×9m',spineCX,cyc+culSz/2-3);
+        ctx.fillText('turnaround',spineCX,cyc+culSz/2+10);
+      }
+    }
+
+    // Plots
+    const totalPlots=pRows*pCols;
+    const ewsTrig=(type==='residential'||type==='mixed')&&(siteW*siteD)>10000;
+    const ewsCnt=ewsTrig?Math.ceil(totalPlots*0.10):0;
+    let plotColor='#d4edda';
+    if(type==='commercial') plotColor='#ffd280';
+    else if(type==='industrial'||type==='institutional') plotColor='#c0d8f8';
+
+    let pNum=0;
+    G.plotRects=[];
+    for(let r=0;r<pRows;r++){
+      const rY=plotRowYs[r];
+      colTracks.forEach((t,ci)=>{
+        if(t!=='plot') return;
+        pNum++;
+        const isEWS=ewsTrig&&pNum>totalPlots-ewsCnt;
+        const pColor=isEWS?'#e0d0ff':plotColor;
+        const px=colX[ci],py=rY,pw=colWd[ci],ph=apH;
+        ctx.fillStyle=pColor;ctx.fillRect(px,py,pw,ph);
+        ctx.strokeStyle='#777';ctx.lineWidth=0.8;ctx.strokeRect(px,py,pw,ph);
+        const fs=Math.max(8,Math.min(11,pw/5));
+        if(pw>15&&ph>13){
+          ctx.fillStyle='#1a1a1a';ctx.font=`bold ${fs}px Arial`;ctx.textAlign='center';
+          ctx.fillText(`P${pNum}`,px+pw/2,py+ph/2-(pw>35?4:0));
+          if(pw>35&&ph>20){ctx.fillStyle='#555';ctx.font=`${Math.max(7,fs-2)}px Arial`;
+            ctx.fillText(`${pW}×${pDp}m`,px+pw/2,py+ph/2+fs+1);}
+        }
+        G.plotRects.push({n:pNum,isEWS,mx:(px-ox)/SCALE,my:(oy+siteD*SCALE-py-ph)/SCALE,mw:pW,mh:pDp});
+      });
+    }
+
+    // OSR (top zone)
+    const osrReq=(siteW*siteD)>3000;
+    const osrH2=plotZoneTopY-oy;
+    if(osrReq&&osrH2>6){
+      ctx.fillStyle='#90ee90';ctx.fillRect(ox,oy,siteW*SCALE,osrH2);
+      ctx.strokeStyle='#2a9a50';ctx.lineWidth=1.5;ctx.strokeRect(ox,oy,siteW*SCALE,osrH2);
+      ctx.fillStyle='#155724';ctx.font=`bold ${Math.max(9,Math.min(12,osrH2-3))}px Arial`;
+      ctx.textAlign='center';
+      ctx.fillText(`OSR — ${(siteW*siteD*0.10).toFixed(0)} sq.m [Rule 41+47]`,ox+siteW*SCALE/2,oy+osrH2/2+4);
+    } else if(osrReq){
+      ctx.fillStyle='#155724';ctx.font='9px Arial';ctx.textAlign='left';
+      ctx.fillText(`⚠ OSR ${(siteW*siteD*0.10).toFixed(0)}m² required — increase site depth`,ox+4,oy+13);
+    }
+
+    // PPR boxes
+    const pprBW=Math.min(68,siteW*SCALE*0.13),pprBH=Math.max(15,Math.min(20,osrH2-3));
+    if(pprBH>8){
+      ctx.fillStyle='#ffd0e0';ctx.fillRect(ox+siteW*SCALE-pprBW*2-2,oy+2,pprBW,pprBH);
+      ctx.strokeStyle='#c00';ctx.lineWidth=0.8;ctx.strokeRect(ox+siteW*SCALE-pprBW*2-2,oy+2,pprBW,pprBH);
+      ctx.fillStyle='#700';ctx.font='bold 8px Arial';ctx.textAlign='center';
+      ctx.fillText(`PPR LB ${(siteW*siteD*0.005).toFixed(0)}m²`,ox+siteW*SCALE-pprBW*2-2+pprBW/2,oy+2+pprBH/2+3);
+      ctx.fillStyle='#ffe0b0';ctx.fillRect(ox+siteW*SCALE-pprBW,oy+2,pprBW,pprBH);
+      ctx.strokeStyle='#a06000';ctx.strokeRect(ox+siteW*SCALE-pprBW,oy+2,pprBW,pprBH);
+      ctx.fillStyle='#5a3000';ctx.fillText(`PPR TN ${(siteW*siteD*0.005).toFixed(0)}m²`,ox+siteW*SCALE-pprBW+pprBW/2,oy+2+pprBH/2+3);
+    }
+
+    // Corner splays
+    const splM=mainRW<=9?1.5:3,splPx=splM*SCALE;
+    G.splayList=[];
+    function splay(jx,jy,q){
+      let ax,ay,bx,by;
+      if(q==='NE'){ax=jx+splPx;ay=jy;bx=jx;by=jy-splPx;}
+      if(q==='NW'){ax=jx-splPx;ay=jy;bx=jx;by=jy-splPx;}
+      if(q==='SE'){ax=jx+splPx;ay=jy;bx=jx;by=jy+splPx;}
+      if(q==='SW'){ax=jx-splPx;ay=jy;bx=jx;by=jy+splPx;}
+      ctx.fillStyle='rgba(255,200,0,.75)';ctx.strokeStyle='#aa7700';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(jx,jy);ctx.lineTo(ax,ay);ctx.lineTo(bx,by);
+      ctx.closePath();ctx.fill();ctx.stroke();
+      if(splPx>=11){
+        ctx.fillStyle='#664400';ctx.font=`bold ${Math.max(6,Math.min(8,splPx*.4))}px Arial`;
+        ctx.textAlign='center';ctx.fillText(`${splM}m`,(jx+ax)/2,jy+(q[0]==='N'?-3:+9));
+        ctx.save();ctx.translate(jx+(q[1]==='E'?-8:+8),(jy+by)/2);
+        ctx.rotate(-Math.PI/2);ctx.fillText(`${splM}m`,0,0);ctx.restore();
+      }
+      const toMX=px=>(px-ox)/SCALE,toMY=py=>(oy+siteD*SCALE-py)/SCALE;
+      G.splayList.push([[toMX(jx),toMY(jy)],[toMX(ax),toMY(ay)],[toMX(bx),toMY(by)]]);
+    }
+
+    // A) Col road meets entry road top
+    colTracks.forEach((t,ci)=>{
+      if(t!=='road') return;
+      const lx=colX[ci],rx=colX[ci]+colWd[ci],jy=entryTopY;
+      if(lx>ox+1) splay(lx,jy,'NW');
+      if(rx<ox+siteW*SCALE-1) splay(rx,jy,'NE');
+    });
+    // B) Entry road mouth corners
+    if(colTracks[0]==='plot') splay(ox,entryTopY,'NE');
+    if(colTracks[colTracks.length-1]==='plot') splay(ox+siteW*SCALE,entryTopY,'NW');
+    // C) Between-row roads × col roads
+    rowTracks.forEach((rt,ri)=>{
+      if(rt!=='road'||ri===0) return;
+      const hT=rowY[ri],hB=rowY[ri]+rowH[ri];
+      colTracks.forEach((ct,ci)=>{
+        if(ct!=='road') return;
+        const lx=colX[ci],rx=colX[ci]+colWd[ci];
+        if(lx>ox+1&&hT>oy+1) splay(lx,hT,'NW');
+        if(rx<ox+siteW*SCALE-1&&hT>oy+1) splay(rx,hT,'NE');
+        if(lx>ox+1) splay(lx,hB,'SW');
+        if(rx<ox+siteW*SCALE-1) splay(rx,hB,'SE');
+      });
+    });
+    // D) Top of col road T-junction
+    colTracks.forEach((t,ci)=>{
+      if(t!=='road') return;
+      const lx=colX[ci],rx=colX[ci]+colWd[ci],jy=plotZoneTopY;
+      if(lx>ox+1) splay(lx,jy,'SW');
+      if(rx<ox+siteW*SCALE-1) splay(rx,jy,'SE');
+    });
+
+    ctx.fillStyle='#664400';ctx.font='bold 8px Arial';ctx.textAlign='left';
+    ctx.fillText(`Splay:${splM}m×${splM}m [R47(5)]`,ox+3,oy+siteD*SCALE-3);
+  }
+
+  // ── FIND BOTTOM EDGE (lowest Y side) of polygon ───────────────
+  // Bottom edge = side whose midpoint has the lowest Y value (in DXF coords)
+  // Public road runs parallel to this edge, offset OUTWARD (away from site)
+  let roadEdge = null;
+  let roadEdgeMetre = null;
+
+  if(G.poly && G.bbox){
+    const bb = G.bbox;
+    const toCanvasX = mx => ox + (mx-bb.minX)/bb.w * siteW*SCALE;
+    const toCanvasY = my => oy + siteD*SCALE - (my-bb.minY)/bb.h * siteD*SCALE;
+    const pts = G.poly;
+
+    // Find bottom edge (lowest Y midpoint in DXF space)
+    let minMidY = Infinity, bestI = 0;
+    for(let i=0;i<pts.length;i++){
+      const j=(i+1)%pts.length;
+      const midY = (pts[i].y + pts[j].y) / 2;
+      if(midY < minMidY){ minMidY=midY; bestI=i; }
+    }
+    const p1=pts[bestI], p2=pts[(bestI+1)%pts.length];
+
+    // Canvas coords of the bottom edge
+    roadEdge = {
+      x1:toCanvasX(p1.x), y1:toCanvasY(p1.y),
+      x2:toCanvasX(p2.x), y2:toCanvasY(p2.y)
+    };
+    // Metres coords normalised to 0,0
+    roadEdgeMetre = {
+      x1:p1.x-bb.minX, y1:p1.y-bb.minY,
+      x2:p2.x-bb.minX, y2:p2.y-bb.minY
+    };
+    G.roadEdge = roadEdgeMetre;
+    G.roadEdgeCanvas = roadEdge;
+
+    // Compute polygon centroid (in canvas coords) to determine outward direction
+    let cxSum=0, cySum=0;
+    pts.forEach(p=>{ cxSum+=toCanvasX(p.x); cySum+=toCanvasY(p.y); });
+    G.centroidCanvas = { x:cxSum/pts.length, y:cySum/pts.length };
+
+    // Metres centroid
+    let mxSum=0, mySum=0;
+    pts.forEach(p=>{ mxSum+=p.x-bb.minX; mySum+=p.y-bb.minY; });
+    G.centroidMetre = { x:mxSum/pts.length, y:mySum/pts.length };
+  }
+
+  // ── offsetEdge: push edge outward (away from polygon centroid) ──
+  // Works in canvas coords or metre coords
+  // centroid = {x,y} of the polygon in same coordinate system
+  function offsetEdge(x1,y1,x2,y2,d,centroid){
+    const dx=x2-x1, dy=y2-y1;
+    const len=Math.sqrt(dx*dx+dy*dy)||1;
+    // Two candidate perpendicular normals
+    let nx=dy/len, ny=-dx/len;  // rotate 90° CW
+    // The outward direction must point AWAY from centroid
+    // Midpoint of edge
+    const mx=(x1+x2)/2, my=(y1+y2)/2;
+    // Dot product of normal with (midpoint→centroid) vector
+    // If positive → normal points toward centroid → flip it
+    if(centroid){
+      const toCx = centroid.x-mx, toCy = centroid.y-my;
+      const dot = nx*toCx + ny*toCy;
+      if(dot > 0){ nx=-nx; ny=-ny; } // flip to point away from centroid
+    }
+    return {
+      x1:x1+nx*d, y1:y1+ny*d,
+      x2:x2+nx*d, y2:y2+ny*d,
+      nx, ny
+    };
+  }
+
+  // ── PUBLIC ROAD — parallel to bottom edge, OUTSIDE boundary ───
+  if(roadEdge && G.centroidCanvas){
+    const {x1,y1,x2,y2} = roadEdge;
+    const d = pubRH; // road width in pixels
+    const outer = offsetEdge(x1,y1,x2,y2,d,G.centroidCanvas);
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(x1,y1);
+    ctx.lineTo(x2,y2);
+    ctx.lineTo(outer.x2,outer.y2);
+    ctx.lineTo(outer.x1,outer.y1);
+    ctx.closePath();
+    ctx.fillStyle='#a8b4c0'; ctx.fill();
+
+    // Centre line dashed
+    const mid = offsetEdge(x1,y1,x2,y2,d/2,G.centroidCanvas);
+    ctx.setLineDash([10,7]); ctx.strokeStyle='#fff'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(mid.x1,mid.y1); ctx.lineTo(mid.x2,mid.y2); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Road label
+    ctx.fillStyle='#111'; ctx.font='bold 10px Arial'; ctx.textAlign='center';
+    ctx.fillText(`PUBLIC ROAD — ${road} m`, (mid.x1+mid.x2)/2, (mid.y1+mid.y2)/2+4);
+    ctx.restore();
+
+    // Entry arrow at boundary edge midpoint
+    ctx.fillStyle='#142bc8'; ctx.font='bold 9px Arial'; ctx.textAlign='center';
+    ctx.fillText('▲ Entry', (x1+x2)/2, (y1+y2)/2-6);
+
+  } else {
+    // Rectangular fallback (no DXF polygon)
+    ctx.fillStyle='#a8b4c0'; ctx.fillRect(ox,oy+siteD*SCALE,siteW*SCALE,pubRH);
+    ctx.setLineDash([10,7]); ctx.strokeStyle='#fff'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(ox,oy+siteD*SCALE+pubRH/2);
+    ctx.lineTo(ox+siteW*SCALE,oy+siteD*SCALE+pubRH/2); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#111'; ctx.font='bold 10px Arial'; ctx.textAlign='center';
+    ctx.fillText(`PUBLIC ROAD — ${road} m`,ox+siteW*SCALE/2,oy+siteD*SCALE+pubRH/2+4);
+    ctx.fillStyle='#142bc8'; ctx.font='bold 9px Arial'; ctx.textAlign='left';
+    ctx.fillText('▲ Entry',ox+4,entryTopY+arW/2+4);
+  }
+
+  // Dimension lines
+  function dim(x1,y1,x2,y2,lbl,vert=false){
+    ctx.save();ctx.strokeStyle='#142bc8';ctx.fillStyle='#142bc8';
+    ctx.lineWidth=0.8;ctx.font='9px Arial';ctx.textAlign='center';
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+    if(!vert){
+      ctx.beginPath();ctx.moveTo(x1,y1-4);ctx.lineTo(x1,y1+4);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x2,y2-4);ctx.lineTo(x2,y2+4);ctx.stroke();
+      ctx.fillText(lbl,(x1+x2)/2,y1-3);
+    } else {
+      ctx.beginPath();ctx.moveTo(x1-4,y1);ctx.lineTo(x1+4,y1);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x2-4,y2);ctx.lineTo(x2+4,y2);ctx.stroke();
+      ctx.save();ctx.translate(x1-3,(y1+y2)/2);ctx.rotate(-Math.PI/2);ctx.fillText(lbl,0,0);ctx.restore();
+    }
+    ctx.restore();
+  }
+  dim(ox,oy-16,ox+siteW*SCALE,oy-16,`${siteW}m`);
+  dim(ox-20,oy,ox-20,oy+siteD*SCALE,`${siteD}m`,true);
+  const fp=colTracks.findIndex(t=>t==='plot');
+  if(fp>=0) dim(colX[fp],oy+siteD*SCALE+pubRH+8,colX[fp]+apW,oy+siteD*SCALE+pubRH+8,`${pW}m`);
+  const bpy=plotRowYs.length>0?Math.max(...plotRowYs):oy;
+  dim(ox+siteW*SCALE+10,bpy,ox+siteW*SCALE+10,bpy+apH,`${pDp}m`,true);
+
+  // North + border
+  ctx.fillStyle='#111';ctx.font='bold 12px Arial';ctx.textAlign='center';
+  ctx.fillText('N ↑',ox+siteW*SCALE/2,oy-24);
+  ctx.strokeStyle='#111';ctx.lineWidth=2.5;ctx.strokeRect(ox,oy,siteW*SCALE,siteD*SCALE);
+
+  // Store layout for DXF export
+  const nHR=pattern==='grid'?pRows:1;
+  const roadRects=[];
+  roadRects.push({mx:0,my:0,mw:siteW,mh:mainRW}); // entry road
+  rowTracks.forEach((t,ri)=>{
+    if(t!=='road'||ri===0) return;
+    roadRects.push({mx:0,my:(oy+siteD*SCALE-rowY[ri]-rowH[ri])/SCALE,mw:siteW,mh:mainRW});
+  });
+  colTracks.forEach((t,ci)=>{
+    if(t!=='road') return;
+    roadRects.push({mx:(colX[ci]-ox)/SCALE,my:(oy+siteD*SCALE-entryTopY)/SCALE,
+                    mw:mainRW,mh:(entryTopY-plotZoneTopY)/SCALE});
+  });
+  const osrReq=(siteW*siteD)>3000;
+  const osrZH=(plotZoneTopY-oy)/SCALE;
+  // roadEdge for rectangular site (no DXF polygon)
+  if(!G.roadEdge) G.roadEdge=null;
+  G.layoutData={siteW,siteD,mainRW,pW,pDp,totalPlots:pRows*pCols,
+    roadRects,osrReq,osrH:osrZH,osrArea:osrReq?(siteW*siteD*0.10).toFixed(0):0,
+    ewsTrig:(vv('lyType')==='residential'||vv('lyType')==='mixed')&&(siteW*siteD)>10000};
+  document.getElementById('expBtn').disabled=false;
+
+  computeChecks(type,local,road,siteW,siteD,mainRW,pRows,pCols,pW,pDp,nColR,pattern);
+}
+
+// ══════════════════════════════════════════════════════════════════
+// RULE 47 CHECKS
+// ══════════════════════════════════════════════════════════════════
+function computeChecks(type,local,road,siteW,siteD,mainRW,pRows,pCols,pW,pDp,nColR,pattern){
+  const sA=nv('siteArea')||siteW*siteD;
+  const nHR=pattern==='grid'?pRows:1;
+  const rdA=siteW*mainRW*nHR+nColR*mainRW*pRows*pDp+(pattern==='cul'?81:0);
+  const netA=Math.max(0,sA-rdA);
+  const isR=(type==='residential'||type==='mixed'),isI=(type==='industrial');
+  const osrA=sA>3000?sA*0.10:0,osrReq=sA>3000;
+  const pprLB=netA*0.005,pprTN=netA*0.005;
+  const ewsTrig=isR&&sA>10000,ewsA=ewsTrig?netA*0.10:0;
+  const saleable=Math.max(0,netA-osrA-pprLB-pprTN-ewsA);
+  const totalPlots=pRows*pCols;
+  let minRd=isI?9:local==='villagepanchayat'?6:local==='townpanchayat'?6.5:7.2;
+  const longestR=Math.max(siteW,siteD);
+  const reqRW=longestR<=60?3.6:longestR<=250?6:longestR<=500?9:12;
+  const minPA=isI?892:72;
+
+  const C=[];
+  const c=(t,d,s)=>C.push({t,d,s});
+  c(`Layout classification`,`${totalPlots} plots → ${totalPlots>8?'LAYOUT (>8 plots) — full Rule 47 applies':'SUB-DIVISION (≤8 plots)'}`,totalPlots>8?'info':'warn');
+  c(`Approach road — Rule 47(1)(a)`,`${road}m entered | Min required: ${minRd}m (${local==='corp'?'Corp/Mun':local==='townpanchayat'?'Town Panchayat':'Village Panchayat'})`,road>=minRd?'pass':'fail');
+  c(`Internal road width — Rule 47(3)`,`${mainRW}m | Longest road ≈${longestR}m → min ${reqRW}m`,mainRW>=reqRW?'pass':'fail');
+  if(pattern==='cul') c(`Cul-de-sac — Rule 47(4)`,`Spine ≈${siteD}m | Max 60m | Turnaround 9×9m required`,siteD<=60?'pass':'fail');
+  c(`Plot area — Rule 47 Note 1`,`Each plot: ${(pW*pDp).toFixed(0)} sq.m | Min: ${minPA} sq.m`,pW*pDp>=minPA?'pass':'fail');
+  if(isR) c(`Plot frontage — Rule 47 Note 1`,`Width: ${pW}m | Min 4.5m`,pW>=4.5?'pass':'fail');
+  c(`Width-to-depth ratio`,`${pDp}/${pW}=${(pDp/pW).toFixed(1)} | Max 2.5`,(pDp/pW)<=2.5?'pass':'warn');
+  c(`Corner splay — Rule 47(5)`,`${mainRW<=9?1.5:3}m × ${mainRW<=9?1.5:3}m at all road junctions (road ${mainRW}m ${mainRW<=9?'≤':'>'} 9m) — drawn on plan`,'info');
+  c(`OSR — Rule 41 + Rule 47`,osrReq?`Required: ${osrA.toFixed(0)} sq.m (10% of ${sA.toFixed(0)} sq.m) | ${sA<=10000?'Payment in lieu permitted':'Physical only — no payment'}`:  `Not required — site ${sA.toFixed(0)} sq.m ≤ 3,000 sq.m`,osrReq?'fail':'pass');
+  c(`PPR — Rule 47(8)`,`Local Body: ${pprLB.toFixed(1)} sq.m (0.5%) + TANGEDCO: ${pprTN.toFixed(1)} sq.m (0.5%) = ${(pprLB+pprTN).toFixed(1)} sq.m | Gift deed before sanction`,'info');
+  c(`EWS — Rule 47(9)`,ewsTrig?`TRIGGERED (site>10,000 sq.m) | Required: ${ewsA.toFixed(0)} sq.m | Min 32 sq.m/plot | No conversion`:`Not triggered — site ${sA.toFixed(0)} sq.m ≤ 10,000 sq.m`,ewsTrig?'fail':'pass');
+  c(`Commercial — Rule 47(10)`,sA>=200000?`TRIGGERED (≥20ha) | 3% = ${(sA*0.03).toFixed(0)} sq.m`:`Not triggered — site < 20 ha (${(sA/10000).toFixed(2)} ha)`,sA>=200000?'warn':'pass');
+  const fsi=sA*2;
+  c(`Shelter charges — Rule 34`,`Est. FSI: ${fsi.toFixed(0)} sq.m ${fsi>4000?'> 4,000 → TRIGGERED — 10% LIG housing or pay 1% GLV':'≤ 4,000 — not triggered'}`,fsi>4000?'warn':'pass');
+  c(`Gift deed — Rule 47(7)(8)`,`Roads + OSR + PPR LB (${pprLB.toFixed(0)} sq.m) + PPR TN (${pprTN.toFixed(0)} sq.m) — registered Gift Deed before layout sanction`,'info');
+  if(G.poly) c(`Irregular site boundary`,`DXF boundary loaded: ${G.poly.length} vertices | Layout placed inside bounding box | Check all plots fall within actual boundary`,'warn');
+
+  const pass=C.filter(x=>x.s==='pass').length,fail=C.filter(x=>x.s==='fail').length,warn=C.filter(x=>x.s==='warn').length;
+  const icons={pass:'✅',fail:'❌',warn:'⚠️',info:'ℹ️'};
+  let html=`<div style="display:flex;gap:7px;margin-bottom:8px;flex-wrap:wrap;font-size:11px">
+    <span style="background:#eafaf0;color:#155724;padding:3px 9px;border-radius:3px;font-weight:700">✅ ${pass} Pass</span>
+    <span style="background:#fff0f0;color:#7a0000;padding:3px 9px;border-radius:3px;font-weight:700">❌ ${fail} Fail</span>
+    <span style="background:#fffbe6;color:#6b4c00;padding:3px 9px;border-radius:3px;font-weight:700">⚠️ ${warn} Warn</span>
+    <span style="background:#f0f4ff;color:#142bc8;padding:3px 9px;border-radius:3px;font-weight:700">ℹ️ ${C.length-pass-fail-warn} Info</span>
+  </div>`+C.map(x=>`<div class="ci ${x.s}"><div style="font-size:13px;flex-shrink:0">${icons[x.s]}</div><div><div class="ci-t">${x.t}</div><div class="ci-d">${x.d}</div></div></div>`).join('');
+  document.getElementById('chkDiv').innerHTML=html;
+
+  // Area statement
+  const ar=(l,v,tot,rule)=>{
+    const pct=typeof v==='number'&&tot>0?((v/tot)*100).toFixed(1)+'%':'—';
+    return `<tr style="border-bottom:1px solid #eee"><td style="padding:3px 7px">${l}</td><td style="padding:3px 7px;text-align:right;font-weight:700">${typeof v==='number'?v.toFixed(1):v}</td><td style="padding:3px 7px;text-align:right;color:#555">${pct}</td><td style="padding:3px 7px;color:#777;font-size:10px">${rule}</td></tr>`;
+  };
+  document.getElementById('areaDiv').innerHTML=`
+  <div class="sg">
+    <div class="sb"><div class="sv">${sA.toFixed(0)}</div><div class="sl">Gross site (sq.m)</div></div>
+    <div class="sb"><div class="sv">${rdA.toFixed(0)}</div><div class="sl">Road area (sq.m)</div></div>
+    <div class="sb"><div class="sv">${netA.toFixed(0)}</div><div class="sl">Net excl. roads</div></div>
+    <div class="sb"><div class="sv" style="color:${osrReq?'#c00':'#2a9a50'}">${osrA.toFixed(0)}</div><div class="sl">OSR [Rule 41+47]</div></div>
+    <div class="sb"><div class="sv">${pprLB.toFixed(1)}</div><div class="sl">PPR Local Body</div></div>
+    <div class="sb"><div class="sv">${pprTN.toFixed(1)}</div><div class="sl">PPR TANGEDCO</div></div>
+    <div class="sb"><div class="sv" style="color:${ewsTrig?'#7a00a0':'#2a9a50'}">${ewsA.toFixed(0)}</div><div class="sl">EWS [Rule 47(9)]</div></div>
+    <div class="sb"><div class="sv">${saleable.toFixed(0)}</div><div class="sl">Saleable plots</div></div>
+    <div class="sb"><div class="sv">${totalPlots}</div><div class="sl">Total plots</div></div>
+  </div>
+  <table style="width:100%;border-collapse:collapse;font-size:11px">
+  <thead><tr style="background:#222;color:#fff"><th style="padding:4px 7px;text-align:left">Item</th><th style="padding:4px 7px;text-align:right">sq.m</th><th style="padding:4px 7px;text-align:right">%</th><th style="padding:4px 7px;text-align:left">Rule</th></tr></thead>
+  <tbody>
+  ${ar('Gross site area',sA,sA,'—')}
+  ${ar('Internal roads',rdA,sA,'Rule 47(3)')}
+  ${ar('Net area (excl. roads)',netA,sA,'—')}
+  ${ar('OSR',osrA,sA,'Rule 41+47')}
+  ${ar('PPR Local Body (0.5%)',pprLB,sA,'Rule 47(8)')}
+  ${ar('PPR TANGEDCO (0.5%)',pprTN,sA,'Rule 47(8)')}
+  ${ewsTrig?ar('EWS plots (10% net)',ewsA,sA,'Rule 47(9)'):ar('EWS plots','Not triggered',sA,'Rule 47(9)')}
+  ${ar('Saleable plot area',saleable,sA,'—')}
+  </tbody></table>
+  <div style="margin-top:7px;font-size:10px;color:#555;border-top:1px solid #ddd;padding-top:5px">
+  Site area from DXF: ${G.poly?`actual polygon area = ${shoelaceArea(G.poly).toFixed(2)} sq.m`:'bounding box W×D'}.
+  Road area estimated from inputs. Click ⬇ Export DXF to download AC1015 file.</div>`;
+
+  if(fail>0) document.querySelectorAll('.tb')[1].click();
+}
+
+// DXF EXPORT — AC1009 (R12) — No handles, no APPID, AutoCAD 2026 compatible
+
+function exportDXF(){
+  if(!G.layoutData){alert('Draw layout first.');return;}
+  const d=G.layoutData;
+  const sW=d.siteW, sH=d.siteD, mRW=d.mainRW;
+  const road=nv('lyRoad'), pattern=vv('roadPat');
+  const pW=d.pW, pDp=d.pDp;
+  const pRows=nv('plotR'), pCols=nv('plotC');
+  const nColR=nv('nColR');
+
+  // AC1009 (R12) DXF — simplest valid format, no handles required
+  // AutoCAD 2026 reads R12 natively. Zero handle collision possible.
+  let out='';
+
+  // HEADER
+  out+='  0\nSECTION\n  2\nHEADER\n';
+  out+='  9\n$ACADVER\n  1\nAC1009\n';
+  out+='  9\n$INSBASE\n 10\n0.0\n 20\n0.0\n 30\n0.0\n';
+  out+=`  9\n$EXTMIN\n 10\n-5.0\n 20\n${(-road-3).toFixed(1)}\n 30\n0.0\n`;
+  out+=`  9\n$EXTMAX\n 10\n${(sW+5).toFixed(1)}\n 20\n${(sH+5).toFixed(1)}\n 30\n0.0\n`;
+  out+='  9\n$LTSCALE\n 40\n1.0\n';
+  out+='  9\n$LUNITS\n 70\n2\n';
+  out+='  9\n$MEASUREMENT\n 70\n1\n';
+  out+='  0\nENDSEC\n';
+
+  // TABLES — only LAYER needed for R12
+  const layers=[
+    ['SITE_BOUNDARY',5],['INTERNAL_ROAD',8],['PLOT',3],['OSR',3],
+    ['PPR',1],['EWS_PLOT',6],['CORNER_SPLAY',2],
+    ['DIMENSION',4],['LABEL',7],['PUBLIC_ROAD',8]
+  ];
+  out+=`  0\nSECTION\n  2\nTABLES\n  0\nTABLE\n  2\nLAYER\n 70\n${layers.length}\n`;
+  for(const[n,c] of layers)
+    out+=`  0\nLAYER\n  2\n${n}\n 70\n0\n 62\n${c}\n  6\nContinuous\n`;
+  out+='  0\nENDTAB\n  0\nENDSEC\n';
+
+  // BLOCKS — required section, can be empty
+  out+='  0\nSECTION\n  2\nBLOCKS\n  0\nENDSEC\n';
+
+  // ENTITIES
+  out+='  0\nSECTION\n  2\nENTITIES\n';
+
+  // R12 uses POLYLINE+VERTEX+SEQEND (not LWPOLYLINE)
+  const poly=(L,pts,closed=true)=>{
+    out+=`  0\nPOLYLINE\n  8\n${L}\n 66\n1\n 70\n${closed?1:0}\n`;
+    for(const[x,y] of pts) out+=`  0\nVERTEX\n  8\n${L}\n 10\n${x.toFixed(4)}\n 20\n${y.toFixed(4)}\n 30\n0.0\n`;
+    out+=`  0\nSEQEND\n  8\n${L}\n`;
+  };
+  const rect=(L,x,y,w,h)=>poly(L,[[x,y],[x+w,y],[x+w,y+h],[x,y+h]]);
+  const mt=(L,x,y,txt,sz=0.5)=>{
+    out+=`  0\nTEXT\n  8\n${L}\n 10\n${x.toFixed(4)}\n 20\n${y.toFixed(4)}\n 30\n0.0\n 40\n${sz.toFixed(3)}\n  1\n${txt}\n 72\n1\n 11\n${x.toFixed(4)}\n 21\n${y.toFixed(4)}\n 31\n0.0\n`;
+  };
+  const ln=(L,x1,y1,x2,y2)=>{
+    out+=`  0\nLINE\n  8\n${L}\n 10\n${x1.toFixed(4)}\n 20\n${y1.toFixed(4)}\n 30\n0.0\n 11\n${x2.toFixed(4)}\n 21\n${y2.toFixed(4)}\n 31\n0.0\n`;
+  };
+
+  // ── POLYGON CLIPPING HELPERS ──────────────────────────────────
+  // For irregular DXF sites: only export entities that fall INSIDE
+  // the actual polygon (not just the bounding box rectangle).
+  // Uses ray-casting for point-in-polygon, and checks all 4 corners
+  // plus the centre of each rectangle.
+
+  // Normalised polygon (shifted to 0,0 origin matching our DXF coords)
+  const normPoly = G.poly && G.bbox
+    ? G.poly.map(p=>({x:p.x-G.bbox.minX, y:p.y-G.bbox.minY}))
+    : null;
+
+  function ptInNormPoly(px,py){
+    if(!normPoly) return true; // no polygon loaded = rectangular site, all inside
+    let inside=false;
+    for(let i=0,j=normPoly.length-1;i<normPoly.length;j=i++){
+      const xi=normPoly[i].x,yi=normPoly[i].y;
+      const xj=normPoly[j].x,yj=normPoly[j].y;
+      if(((yi>py)!==(yj>py))&&(px<(xj-xi)*(py-yi)/(yj-yi)+xi)) inside=!inside;
+    }
+    return inside;
+  }
+
+  // Check if rectangle (x,y,w,h) overlaps polygon sufficiently
+  // Strategy: check centre + all 4 corners + 4 edge midpoints
+  // If MAJORITY of sample points are inside → include the entity
+  function rectOverlapsPoly(x,y,w,h,threshold=0.5){
+    if(!normPoly) return true;
+    const cx=x+w/2, cy=y+h/2;
+    const samples=[
+      [cx,cy],          // centre
+      [x+w*0.25,y+h*0.25],[x+w*0.75,y+h*0.25], // inner quarter points
+      [x+w*0.25,y+h*0.75],[x+w*0.75,y+h*0.75],
+      [x+w*0.1,cy],[x+w*0.9,cy],[cx,y+h*0.1],[cx,y+h*0.9] // edge midpoints
+    ];
+    const inside=samples.filter(([px,py])=>ptInNormPoly(px,py)).length;
+    return inside/samples.length >= threshold;
+  }
+
+  // ── 1. Site boundary ─────────────────────────────────────────
+  if(G.poly&&G.bbox){
+    const bb=G.bbox;
+    const norm=G.poly.map(p=>[(p.x-bb.minX),(p.y-bb.minY)]);
+    poly('SITE_BOUNDARY',norm,true);
+    for(let i=0;i<G.poly.length;i++){
+      const j=(i+1)%G.poly.length;
+      const p1=G.poly[i],p2=G.poly[j];
+      const dist=Math.sqrt((p2.x-p1.x)**2+(p2.y-p1.y)**2);
+      const mx=(p1.x-bb.minX+p2.x-bb.minX)/2, my=(p1.y-bb.minY+p2.y-bb.minY)/2;
+      mt('LABEL',mx,my,`${dist.toFixed(3)}m`,0.4);
+    }
+  } else {
+    rect('SITE_BOUNDARY',0,0,sW,sH);
+  }
+  mt('LABEL',sW/2,sH+1.5,`SITE ${sW}x${sH}m Area:${(nv('siteArea')||sW*sH).toFixed(0)}m2`,0.7);
+
+  // ── 2. Public road — parallel to bottom edge, OUTSIDE boundary ─
+  if(G.roadEdge && G.centroidMetre){
+    const {x1,y1,x2,y2} = G.roadEdge; // metres, normalised to 0,0
+    const dx=x2-x1, dy=y2-y1;
+    const len=Math.sqrt(dx*dx+dy*dy)||1;
+    let nx=dy/len, ny=-dx/len; // candidate normal
+    // Must point AWAY from centroid
+    const mx=(x1+x2)/2, my=(y1+y2)/2;
+    const toCx=G.centroidMetre.x-mx, toCy=G.centroidMetre.y-my;
+    if(nx*toCx+ny*toCy > 0){ nx=-nx; ny=-ny; } // flip if pointing inward
+    // Outer edge
+    const ox1=x1+nx*road, oy1=y1+ny*road;
+    const ox2=x2+nx*road, oy2=y2+ny*road;
+    // Road parallelogram
+    poly('PUBLIC_ROAD',[[x1,y1],[x2,y2],[ox2,oy2],[ox1,oy1]],true);
+    // Centre line
+    const mx1=(x1+ox1)/2,my1=(y1+oy1)/2;
+    const mx2=(x2+ox2)/2,my2=(y2+oy2)/2;
+    ln('PUBLIC_ROAD',mx1,my1,mx2,my2);
+    mt('LABEL',(mx1+mx2)/2,(my1+my2)/2,`PUBLIC ROAD - ${road}m`,0.5);
+    mt('LABEL',(x1+x2)/2,(y1+y2)/2,`ENTRY`,0.4);
+  } else {
+    rect('PUBLIC_ROAD',0,-road,sW,road);
+    mt('LABEL',sW/2,-road/2,`PUBLIC ROAD - ${road}m`,0.5);
+    ln('PUBLIC_ROAD',0,-road/2,sW,-road/2);
+  }
+
+  // ── 3. Build tracks ───────────────────────────────────────────
+  const colTracks=[], ppg=pCols/(nColR+1); let ri2=0,pc2=0;
+  for(let c=0;c<pCols;c++){
+    if(ri2<nColR&&pc2>0&&Math.round(pc2/ppg)>ri2){colTracks.push('road');ri2++;}
+    colTracks.push('plot');pc2++;
+  }
+  const rowTracks=['road'];
+  for(let r=0;r<pRows;r++){rowTracks.push('plot');if(pattern==='grid'&&r<pRows-1)rowTracks.push('road');}
+
+  const colX=[],colWd=[]; let cx2=0;
+  for(const t of colTracks){colX.push(cx2);const w=t==='road'?mRW:pW;colWd.push(w);cx2+=w;}
+  const rowY=[],rowH=[]; let cy2=sH;
+  for(const t of rowTracks){const h=t==='road'?mRW:pDp;cy2-=h;rowY.push(cy2);rowH.push(h);}
+
+  const entryTopY=rowY[0];
+  const plotOnlyYs=rowTracks.map((t,i)=>t==='plot'?rowY[i]:null).filter(y=>y!==null);
+  const plotZoneTopY=plotOnlyYs.length>0?Math.min(...plotOnlyYs):entryTopY;
+  const plotRowYs=rowTracks.map((t,i)=>t==='plot'?rowY[i]:null).filter(y=>y!==null);
+
+  // ── 4. Horizontal roads — only if overlapping polygon ─────────
+  rowTracks.forEach((t,ri)=>{
+    if(t!=='road') return;
+    // For each horizontal road segment, clip to polygon width
+    // Sample at multiple X positions to find which parts are inside
+    if(!normPoly){
+      rect('INTERNAL_ROAD',0,rowY[ri],sW,rowH[ri]);
+      mt('LABEL',sW/2,rowY[ri]+rowH[ri]/2,`${mRW}m`,0.4);
+      return;
+    }
+    // Find the X extents of the polygon at this road's Y mid-point
+    const yMid=rowY[ri]+rowH[ri]/2;
+    let xMin=sW, xMax=0;
+    // Sample 20 points across width
+    for(let s=0;s<=20;s++){
+      const px=s/20*sW;
+      if(ptInNormPoly(px,yMid)){ xMin=Math.min(xMin,px); xMax=Math.max(xMax,px); }
+    }
+    if(xMax>xMin){
+      rect('INTERNAL_ROAD',xMin,rowY[ri],xMax-xMin,rowH[ri]);
+      mt('LABEL',(xMin+xMax)/2,rowY[ri]+rowH[ri]/2,`${mRW}m`,0.4);
+    }
+  });
+
+  // ── 5. Vertical col roads — clip to polygon ───────────────────
+  colTracks.forEach((t,ci)=>{
+    if(t!=='road') return;
+    if(!normPoly){
+      const he=entryTopY-plotZoneTopY;
+      rect('INTERNAL_ROAD',colX[ci],plotZoneTopY,colWd[ci],he);
+      mt('LABEL',colX[ci]+colWd[ci]/2,plotZoneTopY+he/2,`${mRW}m`,0.35);
+      return;
+    }
+    // Find Y extents inside polygon for this col road
+    const xMid=colX[ci]+colWd[ci]/2;
+    let yMin=sH, yMax=0;
+    for(let s=0;s<=20;s++){
+      const py=s/20*sH;
+      if(ptInNormPoly(xMid,py)&&py>=plotZoneTopY&&py<=entryTopY){
+        yMin=Math.min(yMin,py); yMax=Math.max(yMax,py);
+      }
+    }
+    if(yMax>yMin){
+      rect('INTERNAL_ROAD',colX[ci],yMin,colWd[ci],yMax-yMin);
+      mt('LABEL',colX[ci]+colWd[ci]/2,(yMin+yMax)/2,`${mRW}m`,0.35);
+    }
+  });
+
+  // ── 6. Plots — only inside polygon ────────────────────────────
+  const totalPlots=pRows*pCols;
+  const ewsTrig=(vv('lyType')==='residential'||vv('lyType')==='mixed')&&(sW*sH)>10000;
+  const ewsCnt=ewsTrig?Math.ceil(totalPlots*0.10):0;
+  let pNum=0, pNumInside=0;
+  for(let r=0;r<pRows;r++){
+    const rY=plotRowYs[r];
+    colTracks.forEach((t,ci)=>{
+      if(t!=='plot') return;
+      pNum++;
+      // Check if this plot is inside the polygon
+      if(!rectOverlapsPoly(colX[ci],rY,colWd[ci],pDp,0.5)) return; // SKIP if outside
+      pNumInside++;
+      const isEWS=ewsTrig&&pNum>totalPlots-ewsCnt;
+      rect(isEWS?'EWS_PLOT':'PLOT',colX[ci],rY,colWd[ci],pDp);
+      mt('LABEL',colX[ci]+colWd[ci]/2,rY+pDp/2,`P${pNumInside} ${pW}x${pDp}m`,0.4);
+    });
+  }
+
+  // ── 7. OSR — clipped to polygon ───────────────────────────────
+  const osrZH=plotZoneTopY;
+  if(sW*sH>3000&&osrZH>0.1){
+    if(!normPoly){
+      rect('OSR',0,plotZoneTopY,sW,sH-plotZoneTopY);
+    } else {
+      // Draw OSR only where it overlaps the polygon
+      const osrY=plotZoneTopY, osrH2=sH-plotZoneTopY;
+      const yMidOSR=osrY+osrH2/2;
+      let xMinOSR=sW,xMaxOSR=0;
+      for(let s=0;s<=30;s++){
+        const px=s/30*sW;
+        if(ptInNormPoly(px,yMidOSR)){xMinOSR=Math.min(xMinOSR,px);xMaxOSR=Math.max(xMaxOSR,px);}
+      }
+      if(xMaxOSR>xMinOSR) rect('OSR',xMinOSR,osrY,xMaxOSR-xMinOSR,osrH2);
+    }
+    mt('LABEL',sW/2,plotZoneTopY+(sH-plotZoneTopY)/2,`OSR ${(sW*sH*0.10).toFixed(0)}m2 (10% gross)`,0.5);
+  }
+
+  // ── 8. PPR — place only if corners inside polygon ─────────────
+  const pA=(sW*sH*0.005).toFixed(1);
+  if(rectOverlapsPoly(sW-3,sH-1.5,1.5,1.5,0.3)){
+    rect('PPR',sW-3,sH-1.5,1.5,1.5); mt('LABEL',sW-2.25,sH-0.75,`PPR LB ${pA}m2`,0.35);
+  }
+  if(rectOverlapsPoly(sW-1.5,sH-1.5,1.5,1.5,0.3)){
+    rect('PPR',sW-1.5,sH-1.5,1.5,1.5); mt('LABEL',sW-0.75,sH-0.75,`PPR TN ${pA}m2`,0.35);
+  }
+
+  // ── 9. Corner splays — only at junctions inside polygon ───────
+  const splM=mRW<=9?1.5:3.0;
+  const sp=(jx,jy,q)=>{
+    if(!ptInNormPoly(jx,jy)) return; // skip splays outside polygon
+    let pts;
+    if(q==='NE') pts=[[jx,jy],[jx+splM,jy],[jx,jy+splM]];
+    else if(q==='NW') pts=[[jx,jy],[jx-splM,jy],[jx,jy+splM]];
+    else if(q==='SE') pts=[[jx,jy],[jx+splM,jy],[jx,jy-splM]];
+    else pts=[[jx,jy],[jx-splM,jy],[jx,jy-splM]];
+    poly('CORNER_SPLAY',pts,true);
+  };
+  colTracks.forEach((t,i)=>{
+    if(t!=='road') return;
+    const lx=colX[i],rx=colX[i]+colWd[i];
+    if(lx>0.01) sp(lx,entryTopY,'NW');
+    if(rx<sW-0.01) sp(rx,entryTopY,'NE');
+  });
+  if(colTracks[0]==='plot') sp(0,entryTopY,'NE');
+  if(colTracks[colTracks.length-1]==='plot') sp(sW,entryTopY,'NW');
+  rowTracks.forEach((t,i)=>{
+    if(t!=='road'||i===0) return;
+    const hT=rowY[i],hB=rowY[i]+rowH[i];
+    colTracks.forEach((ct,j)=>{
+      if(ct!=='road') return;
+      const lx=colX[j],rx=colX[j]+colWd[j];
+      if(lx>0.01&&hT>0.01) sp(lx,hT,'NW');
+      if(rx<sW-0.01&&hT>0.01) sp(rx,hT,'NE');
+      if(lx>0.01) sp(lx,hB,'SW');
+      if(rx<sW-0.01) sp(rx,hB,'SE');
+    });
+  });
+  colTracks.forEach((t,i)=>{
+    if(t!=='road') return;
+    const lx=colX[i],rx=colX[i]+colWd[i];
+    if(lx>0.01) sp(lx,plotZoneTopY,'SW');
+    if(rx<sW-0.01) sp(rx,plotZoneTopY,'SE');
+  });
+
+  // 10. Dimensions
+  ln('DIMENSION',0,sH+1.5,sW,sH+1.5); mt('DIMENSION',sW/2,sH+2.2,`${sW}m`,0.5);
+  ln('DIMENSION',-1.5,0,-1.5,sH); mt('DIMENSION',-2.8,sH/2,`${sH}m`,0.5);
+  if(G.plotRects&&G.plotRects.length>0){
+    const fp=G.plotRects[0];
+    ln('DIMENSION',fp.mx,-1.2,fp.mx+fp.mw,-1.2); mt('DIMENSION',fp.mx+fp.mw/2,-1.8,`${pW}m`,0.4);
+  }
+
+  // 11. Title
+  mt('LABEL',sW/2,-road-2,'SWP Layout - TNCDBR 2019 Rule 47 - B.Muthukumar 95979-43222',0.5);
+  mt('LABEL',sW/2,-road-3,`Splay:${splM}mx${splM}m [R47(5)] | OSR:${(sW*sH*0.10).toFixed(0)}m2 | PPR LB+TN:${(sW*sH*0.01).toFixed(0)}m2`,0.4);
+
+  out+='  0\nENDSEC\n  0\nEOF\n';
+
+  const blob=new Blob([out],{type:'application/dxf'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url;
+  a.download=`SWP_Layout_R47_${Date.now()}.dxf`;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+
+// ══════════════════════════════════════════════════════════════════
+// RESET
+// ══════════════════════════════════════════════════════════════════
+function resetAll(){
+  G={poly:null,bbox:null,layoutData:null};
+  hideMsg();
+  document.getElementById('fi').value='';
+  ['siteW','siteD','siteArea','siteVerts'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('siteW').value=80;
+  document.getElementById('siteD').value=60;
+  document.getElementById('mainRW').value=7.2;
+  document.getElementById('plotR').value=2;
+  document.getElementById('plotC').value=4;
+  document.getElementById('pW').value=10;
+  document.getElementById('pDp').value=20;
+  document.getElementById('lyRoad').value=9;
+  document.getElementById('nColR').value=1;
+  document.getElementById('expBtn').disabled=true;
+  const c=document.getElementById('cv');
+  c.getContext('2d').clearRect(0,0,c.width,c.height);
+  document.getElementById('chkDiv').innerHTML='<p style="color:#888;padding:20px;text-align:center">Click ▶ Draw Layout first.</p>';
+  document.getElementById('areaDiv').innerHTML='<p style="color:#888;padding:20px;text-align:center">Click ▶ Draw Layout first.</p>';
+}
+
+window.onload=()=>{
+  document.getElementById('siteArea').value=(80*60).toFixed(2);
+  autoCalcPlots();
+  draw();
+};
+</script>
+</div><!-- /#swpToolContent -->
+
+<script>
+// ══ SWP License System ══════════════════════════════════
+const LICENSE_API      = 'https://swp-license.bmkumar07.workers.dev/';
+const STORAGE_KEY_LIC  = 'swp_license_key';
+const STORAGE_KEY_DEV  = 'swp_device_id';
+const STORAGE_KEY_NAME = 'swp_customer_name';
+const STORAGE_KEY_EXP  = 'swp_expiry';
+
+function getDeviceId() {
+  let id = localStorage.getItem(STORAGE_KEY_DEV);
+  if (!id) {
+    id = 'DEV-' + Math.random().toString(36).substr(2,8).toUpperCase()
+               + '-' + Math.random().toString(36).substr(2,8).toUpperCase();
+    localStorage.setItem(STORAGE_KEY_DEV, id);
+  }
+  return id;
+}
+
+async function verifyLicense(licKey, deviceId) {
+  const resp = await fetch(LICENSE_API, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({action:'verify', license_key:licKey, device_id:deviceId})
+  });
+  return await resp.json();
+}
+
+async function doActivate() {
+  const btn = document.getElementById('activateBtn');
+  const key = document.getElementById('licKeyInput').value.trim().toUpperCase();
+  if (!key) { showActMsg('Enter your license key.','err'); return; }
+  btn.disabled = true; btn.textContent = 'Checking...';
+  showActMsg('Contacting license server...','checking');
+  try {
+    const result = await verifyLicense(key, getDeviceId());
+    if (result.success) {
+      localStorage.setItem(STORAGE_KEY_LIC,  key);
+      localStorage.setItem(STORAGE_KEY_NAME, result.customer_name || 'Licensed User');
+      localStorage.setItem(STORAGE_KEY_EXP,  result.expiry_date  || '');
+      showActMsg('✅ Activated! Welcome, ' + (result.customer_name||''), 'ok');
+      setTimeout(showTool, 900);
+    } else {
+      showActMsg('❌ ' + (result.message||'Invalid license key.'), 'err');
+      btn.disabled = false; btn.textContent = 'Activate';
+    }
+  } catch(e) {
+    showActMsg('❌ Network error. Check internet connection.','err');
+    btn.disabled = false; btn.textContent = 'Activate';
+  }
+}
+
+function showActMsg(t, cls) {
+  const el = document.getElementById('actMsg');
+  el.textContent = t; el.className = 'act-msg ' + cls;
+}
+
+function showTool() {
+  document.getElementById('licOverlay').style.display = 'none';
+  document.getElementById('swpToolContent').style.display = '';
+}
+
+function showOverlay() {
+  document.getElementById('licOverlay').style.display = 'flex';
+  document.getElementById('swpToolContent').style.display = 'none';
+  document.getElementById('activateBtn').disabled = false;
+  document.getElementById('activateBtn').textContent = 'Activate';
+  document.getElementById('actMsg').textContent = '';
+}
+
+function licSwitchTab(tab) {
+  ['activate','classes'].forEach(t => {
+    document.getElementById('licTabContent_' + t).classList.toggle('active', t===tab);
+    document.getElementById('licTab_' + t).classList.toggle('active', t===tab);
+  });
+}
+
+async function licStartup() {
+  const savedKey = localStorage.getItem(STORAGE_KEY_LIC);
+  if (!savedKey) { showOverlay(); return; }
+  // Show overlay while verifying
+  document.getElementById('licOverlay').style.display = 'flex';
+  document.getElementById('swpToolContent').style.display = 'none';
+  const btn = document.getElementById('activateBtn');
+  btn.disabled = true; btn.textContent = 'Verifying...';
+  showActMsg('Verifying license...','checking');
+  try {
+    const result = await verifyLicense(savedKey, getDeviceId());
+    if (result.success) {
+      localStorage.setItem(STORAGE_KEY_NAME, result.customer_name||'Licensed User');
+      localStorage.setItem(STORAGE_KEY_EXP,  result.expiry_date||'');
+      showTool();
+    } else {
+      localStorage.removeItem(STORAGE_KEY_LIC);
+      showOverlay();
+      showActMsg('❌ ' + (result.message||'License invalid. Re-enter key.'), 'err');
+    }
+  } catch(e) {
+    // Offline grace — let user in
+    showTool();
+  }
+}
+
+document.getElementById('licKeyInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doActivate();
+});
+
+licStartup();
+// ════════════════════════════════════════════════════════
+</script>
+
+</body>
+</html>
