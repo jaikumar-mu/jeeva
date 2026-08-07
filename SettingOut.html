@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Setting Out — MADURAI - IDS</title>
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        html,body{height:100%;background:#0d1117;color:#c9d1d9;font-family:ui-monospace,"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace}
+
+        /* ── ACTIVATION SCREEN ── */
+        #activationScreen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:20px;padding:24px;}
+        .act-box{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:28px 28px 24px;width:100%;max-width:360px;display:flex;flex-direction:column;gap:14px;}
+        .act-label{font-size:11px;color:#8b949e;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;}
+        .act-input{width:100%;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#e6edf3;font-family:ui-monospace,monospace;font-size:13px;padding:11px 13px;outline:none;letter-spacing:.06em;}
+        .act-input:focus{border-color:#58a6ff;}
+        .act-btn{width:100%;padding:12px;background:#238636;border:none;border-radius:6px;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;cursor:pointer;font-family:ui-monospace,monospace;}
+        .act-btn:hover{background:#2ea043;}
+        .act-btn:disabled{background:#21262d;color:#484f58;cursor:not-allowed;}
+        .act-msg{font-size:12px;text-align:center;min-height:18px;padding:4px;}
+        .act-msg.ok{color:#3fb950;}
+        .act-msg.err{color:#f85149;}
+        .act-msg.checking{color:#d29922;}
+
+        /* ── APP CONTENT ── */
+        #appContent{display:none;min-height:100vh;background:#f5f5f5;}
+
+        .app-header{
+            background:#161b22;border-bottom:1px solid #30363d;
+            padding:10px 20px;display:flex;align-items:center;justify-content:space-between;
+        }
+        .app-title{font-size:13px;color:#e6edf3;letter-spacing:.06em;}
+        .lic-badge{font-size:10px;color:#3fb950;border:1px solid #238636;border-radius:4px;padding:3px 10px;letter-spacing:.1em;text-transform:uppercase;}
+        .logout-btn{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#8b949e;padding:5px 10px;border:1px solid #30363d;border-radius:4px;cursor:pointer;background:none;}
+        .logout-btn:hover{color:#f85149;border-color:#f85149;}
+
+        .container{max-width:800px;margin:20px auto;background:white;padding:20px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.1);}
+        h1{font-family:Arial,sans-serif;font-size:22px;color:#111;margin-bottom:18px;}
+        .input-group{margin-bottom:15px;}
+        label{display:block;margin-bottom:5px;font-weight:bold;font-family:Arial,sans-serif;font-size:14px;color:#111;}
+        input,textarea{width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;font-family:Arial,sans-serif;}
+        textarea{height:150px;font-family:monospace;}
+        .run-btn{background:#007cba;color:white;padding:12px 24px;border:none;border-radius:4px;cursor:pointer;font-size:16px;margin-right:10px;font-family:Arial,sans-serif;}
+        .run-btn:hover{background:#005a87;}
+        .copy-button{background:#28a745;color:white;padding:12px 24px;border:none;border-radius:4px;cursor:pointer;font-size:16px;margin-right:10px;font-family:Arial,sans-serif;}
+        .copy-button:hover{background:#218838;}
+        .results{margin-top:20px;padding:15px;background:#f8f9fa;border-radius:5px;}
+        .path-table{width:100%;border-collapse:collapse;margin-top:15px;}
+        .path-table th,.path-table td{border:1px solid #ddd;padding:8px;text-align:center;font-family:Arial,sans-serif;}
+        .path-table th{background:#007cba;color:white;}
+    </style>
+</head>
+<body>
+
+<!-- ── ACTIVATION SCREEN ── -->
+<div id="activationScreen">
+
+    <div style="padding:16px 0 4px;text-align:center;">
+        <div style="font-size:32px;">🔐</div>
+        <div style="font-size:18px;font-weight:700;color:#e6edf3;letter-spacing:.04em;margin:6px 0 2px;">MADURAI - IDS</div>
+        <div style="font-size:10px;color:#484f58;letter-spacing:.1em;text-transform:uppercase;">Setting Out — License Required</div>
+    </div>
+
+    <div class="act-box">
+        <div>
+            <div class="act-label">License Key</div>
+            <input class="act-input" id="licKeyInput" type="text" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="24" autocomplete="off" spellcheck="false">
+        </div>
+        <button class="act-btn" id="activateBtn" onclick="doActivate()">Activate</button>
+        <div class="act-msg" id="actMsg"></div>
+    </div>
+
+    <div style="text-align:center;padding:12px 0 4px;display:flex;flex-direction:column;align-items:center;gap:8px;max-width:360px;">
+        <div style="color:#8b949e;font-size:10px;letter-spacing:.08em;text-transform:uppercase;">Guided By</div>
+        <div style="color:#f0883e;font-size:12px;font-weight:700;letter-spacing:.06em;">C.Jaikumar B.E</div>
+        <a href="https://www.caddacademy.in/" target="_blank" style="color:#3fb950;font-size:10px;text-decoration:none;border:1px solid #238636;border-radius:4px;padding:3px 10px;">🌐 www.caddacademy.in</a>
+        <div style="color:#8b949e;font-size:10px;">📞 99427-81728</div>
+        <div style="border-top:1px solid #30363d;width:100%;margin:4px 0;"></div>
+        <div style="color:#e6edf3;font-size:10px;letter-spacing:.08em;text-transform:uppercase;">Created By</div>
+        <div style="color:#58a6ff;font-size:12px;font-weight:700;letter-spacing:.08em;">B.Muthukumar B.E</div>
+        <div style="margin-top:4px;font-size:11px;color:#8b949e;">To get license key, contact:</div>
+        <a href="https://wa.me/919597943222?text=Name%3A%20%0ADistrict%3A%20" target="_blank"
+           style="color:#25D366;font-size:13px;font-weight:700;text-decoration:none;border:1px solid #25D366;border-radius:6px;padding:8px 18px;display:inline-block;">
+            💬 WhatsApp: 95979-43222
+        </a>
+        <div style="display:flex;flex-direction:column;gap:4px;align-items:center;">
+            <span style="color:#e6edf3;font-size:11px;">📝 Send your <span style="color:#58a6ff;font-weight:700;">Name</span> and <span style="color:#58a6ff;font-weight:700;">District</span></span>
+        </div>
+    </div>
+
+</div>
+
+<!-- ── APP CONTENT ── -->
+<div id="appContent">
+
+    <div class="app-header">
+        <span class="app-title">⚙️ Setting Out &nbsp;—&nbsp; MADURAI - IDS</span>
+        <div style="display:flex;align-items:center;gap:10px;">
+            <span class="lic-badge" id="licBadge">✓ Licensed</span>
+            <span id="licName" style="font-size:11px;color:#8b949e;"></span>
+            <span id="licExp"  style="font-size:11px;color:#8b949e;"></span>
+            <button class="logout-btn" onclick="doLogout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>Setting Out</h1>
+
+        <div class="input-group">
+            <label>Start Point (X, Y):</label>
+            <input type="text" id="startPoint" placeholder="0, 0" value="0, 0">
+        </div>
+
+        <div class="input-group">
+            <label>End Point (X, Y):</label>
+            <input type="text" id="endPoint" placeholder="10, 10" value="10, 10">
+        </div>
+
+        <div class="input-group">
+            <label>Points (X, Y coordinates - one per line):</label>
+            <textarea id="pointsData" placeholder="1, 2&#10;3, 4&#10;5, 6">1, 2
+3, 4
+5, 6
+7, 8
+9, 1
+2, 9
+6, 3
+8, 7
+4, 5
+1, 8</textarea>
+        </div>
+
+        <button class="run-btn" onclick="_0x4a5b.runTSP()">Run</button>
+
+        <div id="results" class="results" style="display:none;">
+            <h3 style="font-family:Arial,sans-serif;margin-bottom:10px;">Results:</h3>
+            <div id="summary" style="font-family:Arial,sans-serif;margin-bottom:10px;"></div>
+            <button class="copy-button" onclick="_0x4a5b.copyXYResults()">Copy X,Y</button>
+            <table class="path-table">
+                <thead>
+                    <tr><th>Order</th><th>X</th><th>Y</th></tr>
+                </thead>
+                <tbody id="pathTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// ── SWP License System (same as MADURAI - IDS Launcher) ───────────────────
+const LICENSE_API     = 'https://swp-license.bmkumar07.workers.dev/';
+const STORAGE_KEY_LIC  = 'swp_license_key';
+const STORAGE_KEY_DEV  = 'swp_device_id';
+const STORAGE_KEY_NAME = 'swp_customer_name';
+const STORAGE_KEY_EXP  = 'swp_expiry';
+
+function getDeviceId() {
+    let id = localStorage.getItem(STORAGE_KEY_DEV);
+    if (!id) {
+        id = 'DEV-' + Date.now() + '-' + Math.random().toString(36).slice(2, 9).toUpperCase();
+        localStorage.setItem(STORAGE_KEY_DEV, id);
+    }
+    return id;
+}
+
+async function verifyLicense(licKey, deviceId) {
+    const resp = await fetch(LICENSE_API, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({action: 'verify', license_key: licKey, device_id: deviceId})
+    });
+    return await resp.json();
+}
+
+async function doActivate() {
+    const key = document.getElementById('licKeyInput').value.trim();
+    if (!key) { showActMsg('Enter your license key.', 'err'); return; }
+    document.getElementById('activateBtn').disabled = true;
+    showActMsg('Contacting license server...', 'checking');
+    try {
+        const result = await verifyLicense(key, getDeviceId());
+        if (result.success) {
+            localStorage.setItem(STORAGE_KEY_LIC,  key);
+            localStorage.setItem(STORAGE_KEY_NAME, result.customer_name || 'Licensed User');
+            localStorage.setItem(STORAGE_KEY_EXP,  result.expiry_date  || '');
+            showActMsg('✅ Activated! Welcome, ' + (result.customer_name || ''), 'ok');
+            setTimeout(showApp, 900);
+        } else {
+            showActMsg('❌ ' + (result.message || 'Invalid license key.'), 'err');
+        }
+    } catch(e) {
+        showActMsg('❌ Network error. Check internet connection.', 'err');
+    }
+    document.getElementById('activateBtn').disabled = false;
+}
+
+async function checkStoredLicense() {
+    const savedKey = localStorage.getItem(STORAGE_KEY_LIC);
+    if (!savedKey) { showActivation(); return; }
+    showActMsg('Verifying license...', 'checking');
+    try {
+        const result = await verifyLicense(savedKey, getDeviceId());
+        if (result.success) {
+            localStorage.setItem(STORAGE_KEY_NAME, result.customer_name || 'Licensed User');
+            localStorage.setItem(STORAGE_KEY_EXP,  result.expiry_date  || '');
+            showApp();
+        } else {
+            localStorage.removeItem(STORAGE_KEY_LIC);
+            showActMsg('❌ ' + (result.message || 'License invalid. Re-enter key.'), 'err');
+            showActivation();
+        }
+    } catch(e) {
+        showApp(); // offline grace — allow if key was saved
+    }
+}
+
+function showActMsg(t, cls) {
+    const el = document.getElementById('actMsg');
+    el.textContent = t;
+    el.className = 'act-msg ' + (cls || '');
+}
+
+function showApp() {
+    const name = localStorage.getItem(STORAGE_KEY_NAME) || '';
+    const exp  = localStorage.getItem(STORAGE_KEY_EXP)  || '';
+    document.getElementById('activationScreen').style.display = 'none';
+    document.getElementById('appContent').style.display = 'block';
+    if (name) document.getElementById('licName').textContent = name;
+    if (exp)  document.getElementById('licExp').textContent  = 'Exp: ' + exp;
+    setTimeout(() => _0x4a5b.runTSP(), 150);
+}
+
+function showActivation() {
+    document.getElementById('activationScreen').style.display = 'flex';
+    document.getElementById('appContent').style.display = 'none';
+}
+
+function doLogout() {
+    localStorage.removeItem(STORAGE_KEY_LIC);
+    localStorage.removeItem(STORAGE_KEY_NAME);
+    localStorage.removeItem(STORAGE_KEY_EXP);
+    showActivation();
+    showActMsg('', '');
+    document.getElementById('licKeyInput').value = '';
+}
+
+// Enter key on license input
+document.getElementById('licKeyInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') doActivate();
+});
+
+// ── TSP Engine (original logic preserved) ────────────────────────────────
+const _0x4a5b = {
+    '_0x1f2a': [],
+
+    '_0xa1b2': function(_0x2c3d) {
+        const _0x4e5f = _0x2c3d.trim().split('\n');
+        const _0x7a8b = [];
+        for (let _0x9c0d of _0x4e5f) {
+            if (_0x9c0d.trim()) {
+                const _0x1e2f = _0x9c0d.split(',').map(_0x3a4b => parseFloat(_0x3a4b.trim()));
+                if (_0x1e2f.length === 2 && !isNaN(_0x1e2f[0]) && !isNaN(_0x1e2f[1])) {
+                    _0x7a8b.push({ x: _0x1e2f[0], y: _0x1e2f[1] });
+                }
+            }
+        }
+        return _0x7a8b;
+    },
+
+    '_0xb2c3': function(_0x5c6d, _0x8e9f) {
+        return Math.sqrt(Math.pow(_0x5c6d.x - _0x8e9f.x, 2) + Math.pow(_0x5c6d.y - _0x8e9f.y, 2));
+    },
+
+    '_0xc3d4': function(_0x6d7e, _0x9fa0) {
+        let _0x2b3c = _0x9fa0[0];
+        let _0x5e6f = this['_0xb2c3'](_0x6d7e, _0x9fa0[0]);
+        for (let _0x8a9b = 1; _0x8a9b < _0x9fa0.length; _0x8a9b++) {
+            const _0xbcde = this['_0xb2c3'](_0x6d7e, _0x9fa0[_0x8a9b]);
+            if (_0xbcde < _0x5e6f) { _0x5e6f = _0xbcde; _0x2b3c = _0x9fa0[_0x8a9b]; }
+        }
+        return _0x2b3c;
+    },
+
+    '_0xd4e5': function(_0x7e8f, _0xab0c) {
+        return _0xab0c.filter(_0x3d4e => !(Math.abs(_0x3d4e.x - _0x7e8f.x) < 1e-8 && Math.abs(_0x3d4e.y - _0x7e8f.y) < 1e-8));
+    },
+
+    '_0xe5f6': function(_0x8f9a) {
+        let _0x1b2c = 0.0;
+        for (let _0x4d5e = 0; _0x4d5e < _0x8f9a.length - 1; _0x4d5e++) {
+            _0x1b2c += this['_0xb2c3'](_0x8f9a[_0x4d5e], _0x8f9a[_0x4d5e + 1]);
+        }
+        return _0x1b2c;
+    },
+
+    '_0xf6a7': function(_0x9a0b, _0x2c3d, _0x5e6f) {
+        return _0x9a0b.slice(_0x2c3d, _0x2c3d + _0x5e6f);
+    },
+
+    '_0xa7b8': function(_0x0b1c, _0x3d4e, _0x6f7a) {
+        const _0x9b0c = [];
+        for (let _0x2d3e = 0; _0x2d3e <= _0x3d4e; _0x2d3e++) _0x9b0c.push(_0x0b1c[_0x2d3e]);
+        for (let _0x5f6a = _0x6f7a; _0x5f6a > _0x3d4e; _0x5f6a--) _0x9b0c.push(_0x0b1c[_0x5f6a]);
+        for (let _0x8b9c = _0x6f7a + 1; _0x8b9c < _0x0b1c.length; _0x8b9c++) _0x9b0c.push(_0x0b1c[_0x8b9c]);
+        return _0x9b0c;
+    },
+
+    '_0xb8c9': function(_0x1c2d, _0x4e5f, _0x7a8b) {
+        let _0xad0e = true;
+        while (_0xad0e) {
+            _0xad0e = false;
+            const _0x0e1f = [_0x4e5f, ..._0x1c2d, _0x7a8b];
+            for (let _0x3f4a = 0; _0x3f4a < _0x0e1f.length - 3; _0x3f4a++) {
+                for (let _0x6b7c = _0x3f4a + 2; _0x6b7c < _0x0e1f.length - 1; _0x6b7c++) {
+                    const _0x9d8e = this['_0xa7b8'](_0x0e1f, _0x3f4a, _0x6b7c);
+                    if (this['_0xe5f6'](_0x9d8e) < this['_0xe5f6'](_0x0e1f)) {
+                        _0x1c2d = this['_0xf6a7'](_0x9d8e, 1, _0x9d8e.length - 2);
+                        _0xad0e = true; break;
+                    }
+                }
+                if (_0xad0e) break;
+            }
+        }
+        return _0x1c2d;
+    },
+
+    copyXYResults: function() {
+        if (this['_0x1f2a'].length === 0) { alert("No results to copy. Please run the TSP first."); return; }
+        const _0xc9da = this['_0x1f2a'].map(_0xeafb => `${_0xeafb.x},${_0xeafb.y}`).join('\n');
+        navigator.clipboard.writeText(_0xc9da).then(function() {
+            alert("X,Y coordinates copied to clipboard!");
+        }).catch(function() {
+            const _0x0c1d = document.createElement('textarea');
+            _0x0c1d.value = _0xc9da;
+            document.body.appendChild(_0x0c1d);
+            _0x0c1d.focus(); _0x0c1d.select();
+            try { document.execCommand('copy'); alert("X,Y coordinates copied to clipboard!"); }
+            catch(e) { alert("Failed to copy. Please select and copy manually."); }
+            document.body.removeChild(_0x0c1d);
+        });
+    },
+
+    '_0xd9ea': function(_0x2e3f, _0x5a6b) {
+        document.getElementById('results').style.display = 'block';
+        document.getElementById('summary').innerHTML =
+            `<strong>Path Length:</strong> ${_0x5a6b.toFixed(2)}<br><strong>Points in Path:</strong> ${_0x2e3f.length}`;
+        const _0x8c7d = document.getElementById('pathTable');
+        _0x8c7d.innerHTML = '';
+        for (let _0xbe9f = 0; _0xbe9f < _0x2e3f.length; _0xbe9f++) {
+            const _0xfa0b = _0x8c7d.insertRow();
+            _0xfa0b.insertCell(0).textContent = _0xbe9f + 1;
+            _0xfa0b.insertCell(1).textContent = _0x2e3f[_0xbe9f].x.toFixed(2);
+            _0xfa0b.insertCell(2).textContent = _0x2e3f[_0xbe9f].y.toFixed(2);
+        }
+    },
+
+    runTSP: function() {
+        try {
+            const _0x3f4a = document.getElementById('pointsData').value;
+            let _0x6b7c = this['_0xa1b2'](_0x3f4a);
+            if (_0x6b7c.length < 2) { alert("Need at least 2 points!"); return; }
+
+            const _0x9d8e = document.getElementById('startPoint').value.split(',');
+            const _0xcedf = document.getElementById('endPoint').value.split(',');
+            const _0x0f1a = { x: parseFloat(_0x9d8e[0].trim()), y: parseFloat(_0x9d8e[1].trim()) };
+            const _0x2b3c = { x: parseFloat(_0xcedf[0].trim()), y: parseFloat(_0xcedf[1].trim()) };
+
+            const _0x4d5e = this['_0xc3d4'](_0x0f1a, _0x6b7c);
+            const _0x7f8a = this['_0xc3d4'](_0x2b3c, _0x6b7c);
+            _0x6b7c = this['_0xd4e5'](_0x4d5e, _0x6b7c);
+            _0x6b7c = this['_0xd4e5'](_0x7f8a, _0x6b7c);
+
+            let _0xab0c = [];
+            if (_0x6b7c.length > 0) {
+                const _0xdc1d = [];
+                let _0x1e2f = _0x4d5e;
+                let _0x5a6b = [..._0x6b7c];
+                while (_0x5a6b.length > 0) {
+                    const _0x8c7d = this['_0xc3d4'](_0x1e2f, _0x5a6b);
+                    _0xdc1d.push(_0x8c7d);
+                    _0x5a6b = this['_0xd4e5'](_0x8c7d, _0x5a6b);
+                    _0x1e2f = _0x8c7d;
+                }
+                _0xab0c = this['_0xb8c9'](_0xdc1d, _0x4d5e, _0x7f8a);
+            }
+
+            const _0xbe9f = [_0x4d5e, ..._0xab0c, _0x7f8a];
+            this['_0x1f2a'] = _0xbe9f;
+            const _0xfa0b = this['_0xe5f6'](_0xbe9f);
+            this['_0xd9ea'](_0xbe9f, _0xfa0b);
+        } catch(e) {
+            alert(`Error: ${e.message}`);
+        }
+    }
+};
+
+// ── Init ─────────────────────────────────────────────────────────────────
+window.onload = function() { checkStoredLicense(); };
+
+// DevTools protection
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('keydown', function(e) {
+    if (e.keyCode == 123 ||
+        (e.ctrlKey && e.shiftKey && e.keyCode == 73) ||
+        (e.ctrlKey && e.shiftKey && e.keyCode == 74) ||
+        (e.ctrlKey && e.keyCode == 85)) {
+        e.preventDefault(); return false;
+    }
+});
+</script>
+</body>
+</html>
