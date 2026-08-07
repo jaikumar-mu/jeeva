@@ -1,0 +1,1786 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SWP CAD Scrutiny Report</title>
+<style>
+*{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;margin:0;background:#eef2f6;color:#111;font-size:13px}.wrap{max-width:1100px;margin:22px auto;padding:0 14px}
+/* Tabs */
+.tabs{display:flex;gap:0;margin-bottom:0;border-bottom:2px solid #222}
+.tab-btn{padding:10px 22px;border:1px solid #bbb;border-bottom:none;background:#dde3ea;cursor:pointer;font-weight:700;font-size:13px;margin-right:3px;border-radius:4px 4px 0 0}
+.tab-btn.active{background:#fff;border-bottom:2px solid #fff;margin-bottom:-2px;color:#142bc8}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.input-card,.report{background:#fff;border:1px solid #bbb;padding:18px;margin-bottom:18px}.input-card h1{text-align:center;font-size:22px;margin:0 0 4px}.sub{text-align:center;margin:0 0 18px;color:#444}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.field label{display:block;font-weight:700;margin-bottom:5px}.field input,.field select{width:100%;padding:8px;border:1px solid #999;background:#fff}.field small{display:block;font-weight:400;margin-top:4px;color:#555}.actions{margin-top:16px;display:flex;gap:8px}.actions button{padding:9px 16px;border:1px solid #222;background:#fff;cursor:pointer}.actions .primary{background:#222;color:#fff}.report{display:none}.report.show{display:block}.report-title{text-align:center;font-weight:700;font-size:18px;text-decoration:underline;margin:0 0 8px}.status{text-align:center;font-weight:700;margin:8px 0 12px}.section-title{font-size:17px;color:#111;margin:20px 0 7px}.blue{color:#142bc8}.scrutiny{width:100%;border-collapse:collapse;margin:0 0 13px;table-layout:fixed}.scrutiny th,.scrutiny td{border:1px solid #222;padding:5px 6px;vertical-align:top;word-wrap:break-word}.scrutiny th{font-weight:400;text-align:center}.scrutiny td:first-child{font-size:12px}.req-title{font-size:14px;margin:12px 0 3px}.muted{color:#555}.footer-note{border:1px solid #d22;color:#c11;padding:6px;margin-top:12px}.auth{border:1px solid #222;padding:8px;margin-top:10px;font-weight:700}.print-footer{display:none}.screen-only{}.hidden{display:none!important}
+/* General Manual */
+.gm-card{background:#fff;border:1px solid #bbb;padding:16px;margin-bottom:18px}
+.gm-card h2{font-size:18px;margin:0 0 12px;color:#142bc8}
+.gm-filter{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;align-items:center}
+.gm-filter label{font-weight:700}
+.gm-filter select,.gm-filter input{padding:7px;border:1px solid #999;font-size:13px}
+.gm-filter input{width:220px}
+.gm-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.gm-tbl th{background:#222;color:#fff;padding:6px 7px;text-align:left;position:sticky;top:0}
+.gm-tbl td{border:1px solid #ccc;padding:5px 7px;vertical-align:top}
+.gm-tbl tr:nth-child(even){background:#f5f7fa}
+.gm-tbl tr.group-hdr td{background:#e8ecf5;font-weight:700;color:#142bc8}
+.badge{display:inline-block;padding:2px 7px;border-radius:3px;font-size:11px;font-weight:700}
+.b-yes{background:#d4edda;color:#155724}
+.b-no{background:#f8d7da;color:#721c24}
+.b-opt{background:#fff3cd;color:#856404}
+.b-cond{background:#d1ecf1;color:#0c5460}
+.gm-sno{color:#888;font-size:11px}
+@media(max-width:760px){.grid{grid-template-columns:1fr}.scrutiny{font-size:11px}.gm-tbl{font-size:11px}}
+@page{size:A4;margin:13mm 12mm 15mm}
+@media print{
+  body{background:#fff;font-size:10.5px}
+  .wrap{max-width:none;margin:0;padding:0}
+  .input-card,.screen-only,.tabs,.tab-btn,.gm-filter,.ly-inputs,.ly-calc-btn{display:none!important}
+  /* Only show the active tab panel */
+  .tab-panel{display:none!important}
+  .tab-panel.active{display:block!important}
+  /* Scrutiny report */
+  .report{display:block!important;border:0;padding:0}
+  .report-title{font-size:15px}
+  .section-title{font-size:14px;margin-top:13px}
+  .req-title{font-size:11px;page-break-after:avoid}
+  .scrutiny{page-break-inside:auto;margin-bottom:8px}
+  .scrutiny tr{page-break-inside:avoid;page-break-after:auto}
+  .scrutiny th,.scrutiny td{padding:3px 4px}
+  .print-footer{display:block;text-align:center;margin-top:8px;font-size:10px}
+  .footer-note,.auth{page-break-inside:avoid}
+  /* General Manual */
+  .gm-card{border:0;padding:0}
+  .gm-tbl th{background:#222!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .gm-tbl tr:nth-child(even){background:#f5f7fa!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  /* Layout Approval */
+  .ly-print-header{display:block!important}
+  #lyReport table{page-break-inside:auto;font-size:10px}
+  #lyReport table tr{page-break-inside:avoid}
+  #lyReport div[style*="background:#fff8e1"]{display:none}
+  #lyReport div[style*="background:#f0f4ff"]{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style><style>
+#licOverlay{display:flex;flex-direction:column;align-items:center;justify-content:center;position:fixed;inset:0;z-index:9999;background:#0d1117;padding:24px;overflow-y:auto;}
+#licOverlay .act-box{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:28px 28px 24px;width:100%;max-width:380px;display:flex;flex-direction:column;gap:14px;}
+#licOverlay .act-label{font-size:11px;color:#8b949e;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;font-family:ui-monospace,monospace;}
+#licOverlay .act-input{width:100%;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#e6edf3;font-family:ui-monospace,monospace;font-size:13px;padding:11px 13px;outline:none;letter-spacing:.06em;}
+#licOverlay .act-input:focus{border-color:#58a6ff;}
+#licOverlay .act-btn{width:100%;padding:12px;background:#238636;border:none;border-radius:6px;color:#fff;font-size:13px;font-weight:700;letter-spacing:.06em;cursor:pointer;font-family:ui-monospace,monospace;}
+#licOverlay .act-btn:hover{background:#2ea043;}
+#licOverlay .act-btn:disabled{background:#21262d;color:#484f58;cursor:not-allowed;}
+#licOverlay .act-msg{font-size:12px;text-align:center;min-height:18px;padding:4px;font-family:ui-monospace,monospace;}
+#licOverlay .act-msg.ok{color:#3fb950;}
+#licOverlay .act-msg.err{color:#f85149;}
+#licOverlay .act-msg.checking{color:#d29922;}
+#licOverlay .tab-bar{display:flex;gap:0;border-bottom:1px solid #30363d;width:100%;max-width:420px;}
+#licOverlay .tab-bar button{flex:1;padding:10px;background:#0d1117;border:none;border-bottom:2px solid transparent;color:#8b949e;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;font-family:ui-monospace,monospace;transition:.15s;}
+#licOverlay .tab-bar button.active{background:#161b22;color:#58a6ff;border-bottom-color:#58a6ff;}
+#licOverlay .tab-content{display:none;width:100%;max-width:420px;}
+#licOverlay .tab-content.active{display:block;}
+</style>
+</head><body>
+<div id="licOverlay">
+  <div class="tab-bar"><button id="licTab_activate" class="active" onclick="licSwitchTab('activate')">🔐 Activate</button><button id="licTab_classes" onclick="licSwitchTab('classes')">🎓 Online Class</button></div>
+  <div id="licTabContent_activate" class="tab-content active">
+    <div style="padding:24px 0 8px;text-align:center;"><div style="font-size:32px;">🔐</div><div style="font-size:18px;font-weight:700;color:#e6edf3;letter-spacing:.04em;margin:6px 0 2px;font-family:ui-monospace,monospace;">SWP CAD Tools</div><div style="font-size:13px;color:#58a6ff;font-weight:700;letter-spacing:.04em;font-family:ui-monospace,monospace;">Scrutiny Report</div><div style="font-size:10px;color:#484f58;letter-spacing:.1em;text-transform:uppercase;margin-top:4px;font-family:ui-monospace,monospace;">License Activation Required</div></div>
+    <div class="act-box"><div><div class="act-label">License Key</div><input class="act-input" id="licKeyInput" type="text" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="24" autocomplete="off" spellcheck="false"></div><button class="act-btn" id="activateBtn" onclick="doActivate()">Activate</button><div class="act-msg" id="actMsg"></div></div>
+    <div style="text-align:center;padding:16px 0 8px;display:flex;flex-direction:column;align-items:center;gap:8px;font-family:ui-monospace,monospace;">
+      <div style="color:#8b949e;font-size:10px;letter-spacing:.08em;text-transform:uppercase;">Guided By</div><div style="color:#f0883e;font-size:12px;font-weight:700;">C.Jaikumar B.E</div><a href="https://www.caddacademy.in/" target="_blank" style="color:#3fb950;font-size:10px;text-decoration:none;border:1px solid #238636;border-radius:4px;padding:3px 10px;">🌐 www.caddacademy.in</a><div style="color:#8b949e;font-size:10px;">📞 99427-81728</div>
+      <div style="border-top:1px solid #30363d;width:100%;margin:4px 0;"></div>
+      <div style="color:#e6edf3;font-size:10px;letter-spacing:.08em;text-transform:uppercase;">Created By</div><div style="color:#58a6ff;font-size:12px;font-weight:700;">B.Muthukumar B.E</div>
+      <div style="color:#8b949e;font-size:10px;margin-top:4px;">Send your <b style="color:#e6edf3;">Name</b> &amp; <b style="color:#e6edf3;">District</b> — Get License Key for <b style="color:#3fb950;">90 Days Demo</b></div>
+      <a href="https://wa.me/919597943222?text=Name%3A%20%0ADistrict%3A%20%0AGet%20License%20Key%20For%2090%20Days%20Demo" target="_blank" style="color:#25D366;font-size:13px;font-weight:700;text-decoration:none;border:1px solid #25D366;border-radius:6px;padding:8px 18px;display:inline-block;">💬 WhatsApp: 95979-43222</a>
+      <span style="background:linear-gradient(90deg,#f78166,#ffa657);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:12px;font-weight:700;">🎉 First 3 Months FREE!</span>
+      <a href="https://www.youtube.com/@SWPCAD" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#FF0000;color:#fff;font-size:12px;font-weight:700;text-decoration:none;border-radius:6px;padding:10px 18px;">▶ YouTube: @SWPCAD</a>
+    </div>
+  </div>
+  <div id="licTabContent_classes" class="tab-content">
+    <div style="padding:20px 0 8px;text-align:center;"><div style="font-size:28px;">🎓</div><div style="font-size:16px;font-weight:700;color:#e6edf3;font-family:ui-monospace,monospace;">Online / Offline Classes</div></div>
+    <div style="background:#161b22;border:1px solid #30363d;border-radius:10px;padding:20px;margin:0 0 12px;"><div style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px;"><div style="background:#0d1117;border-left:3px solid #3fb950;border-radius:0 4px 4px 0;padding:6px 10px;font-size:11px;color:#e6edf3;font-family:ui-monospace,monospace;">✦ Setback &amp; FSI Calculation</div><div style="background:#0d1117;border-left:3px solid #58a6ff;border-radius:0 4px 4px 0;padding:6px 10px;font-size:11px;color:#e6edf3;font-family:ui-monospace,monospace;">✦ Scrutiny Report Generation</div><div style="background:#0d1117;border-left:3px solid #f0883e;border-radius:0 4px 4px 0;padding:6px 10px;font-size:11px;color:#e6edf3;font-family:ui-monospace,monospace;">✦ CMDA / DTCP / Panchayat Rules</div></div>
+    <div style="border-top:1px solid #21262d;padding-top:12px;text-align:center;"><div style="color:#58a6ff;font-size:12px;font-weight:700;font-family:ui-monospace,monospace;">B.Muthukumar B.E</div><a href="https://wa.me/919597943222?text=Name%3A%20%0ADistrict%3A%20%0AGet%20License%20Key%20For%2090%20Days%20Demo" target="_blank" style="color:#25D366;font-size:12px;font-weight:700;text-decoration:none;border:1px solid #25D366;border-radius:6px;padding:8px 18px;display:inline-block;margin-top:8px;">💬 WhatsApp: 95979-43222</a><a href="https://www.youtube.com/@SWPCAD" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#FF0000;color:#fff;font-size:12px;font-weight:700;text-decoration:none;border-radius:6px;padding:10px 18px;margin-top:8px;">▶ YouTube: @SWPCAD</a></div></div>
+  </div>
+</div>
+<div id="swpToolContent" style="display:none">
+<div class="wrap">
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('scrutiny',this)">📋 Scrutiny Report</button>
+  <button class="tab-btn" onclick="showTab('manual',this)">📖 General Manual</button>
+  <button class="tab-btn" onclick="showTab('layout',this)">🗺️ Layout Approval</button>
+</div>
+<div id="tab-scrutiny" class="tab-panel active"><section class="input-card"><h1>SWP CAD Scrutiny Report</h1><p class="sub">TNCDBR 2019 requirements calculator — Created By B.Muthukumar Cell:95979-43222</p><p class="sub" style="font-size:11px;color:#c60;margin:-10px 0 12px">⚠ Updated to latest amendments: G.O. Ms. No.69 (Mar 2024) · G.O. Ms. No.133 (Jul 2024) · G.O. Ms. No.154 (Oct 2025) · Layout road width relaxation (2026)</p>
+<div class="grid">
+<div class="field"><label>Plot width (m)</label><input id="plotW" type="number" min="0" step="0.01"></div>
+<div class="field"><label>Plot length (m)</label><input id="plotL" type="number" min="0" step="0.01"></div>
+<div class="field"><label>Plot area (sq.m)</label><input id="plotA" type="number" min="0" step="0.01" placeholder="Auto from width × length"></div>
+<div class="field"><label>Local body</label><select id="local"><option>Corporation</option><option>Municipality</option><option>Panchayat</option></select></div>
+<div class="field"><label>Development area type</label><select id="areaType"><option>Other Area</option><option>Continuous Building Area</option><option>EWS Area</option></select></div>
+<div class="field"><label>Abutting road width (m)</label><input id="roadW" type="number" min="0" step="0.01"></div>
+<div class="field"><label>Number of floors excluding ground floor<small>0 = Ground only | 1 = Ground + First | 2 = Ground + First + Second</small></label><input id="floors" type="number" step="1" min="0" value="0"></div>
+<div class="field"><label>Building height (m)</label><input id="height" type="number" min="0" step="0.01" value="3"></div>
+<div class="field"><label>Maximum geometric floor envelope (sq.m) — Auto</label><input id="bua" readonly><small>Setback-based one-floor geometric envelope only. NOT automatically used for parking.</small></div>
+<div class="field"><label>Maximum permissible FSI floor area (sq.m) — Auto</label><input id="fsi" readonly><small>Plot area × permissible FSI. NOT automatically used for parking.</small></div>
+<div class="field"><label>Occupancy</label><select id="occ"><option>Residential</option><option>Shops</option><option>AutoShowroom</option><option>GovernmentOffice</option><option>OtherOffice</option><option>Bank</option><option>ATM</option><option>PostOffice</option><option>ITOffice</option><option>Restaurant</option><option>MajorHotel</option><option>OtherHotel</option><option>Hostel</option><option>Auditorium</option><option>GovernmentSchool</option><option>PrivateSchool</option><option>College</option><option>Tutorial</option><option>Training</option><option>Hospital</option><option>HealthClub</option><option>RecreationalClub</option><option>Industry</option><option>Godown</option><option>ColdStorage</option><option>Religious</option></select></div>
+<div class="field"><label>Is plot in an Approved Layout?<small>OSR already surrendered at layout stage if Yes</small></label><select id="approvedLayout"><option value="no">No / Not Known</option><option value="yes">Yes — Approved Layout</option></select></div>
+<div class="field"><label>Sub-Occupancy</label><select id="subOcc"></select><small>As per SWP Sub-Occupancy sheet</small></div>
+</div><div id="dynamic" class="grid" style="margin-top:12px"></div>
+<div class="actions"><button class="primary" onclick="calculate()">Generate Scrutiny Report</button><button onclick="resetForm()">Reset</button></div></section><section id="report" class="report">
+<h2 class="report-title">SWP CAD Scrutiny Report</h2><div class="status">STATUS : <span id="swpStatus">Requirements Generated</span></div>
+<h3 class="section-title">PROJECT DETAILS</h3><table class="scrutiny"><tbody>
+<tr><td>1</td><td>OCCUPANCY TYPE</td><td id="pOcc"></td><td>2</td><td>LOCAL BODY</td><td id="pLocal"></td></tr>
+<tr><td>1a</td><td>SUB-OCCUPANCY</td><td id="pSubOcc" colspan="3"></td></tr>
+<tr><td>3</td><td>AREA TYPE</td><td id="pAreaType"></td><td>4</td><td>ROAD WIDTH in m</td><td id="pRoad"></td></tr>
+<tr><td>5</td><td>PLOT AREA in m²</td><td id="pPlot"></td><td>6</td><td>BUILDING HEIGHT in m</td><td id="pHeight"></td></tr>
+<tr><td>7</td><td>FLOORS</td><td id="pFloors"></td><td>8</td><td>PERMISSIBLE FSI</td><td id="pFsi"></td></tr></tbody></table>
+<table class="scrutiny"><tbody>
+<tr><td>9</td><td>PARKING CALCULATION BASIS</td><td colspan="4" id="pParkingBasis"></td></tr>
+</tbody></table>
+<div style="border:1px solid #222;padding:8px;margin:10px 0">
+<b>Calculation rule:</b> Setback envelope, FSI potential and parking calculation area are kept separate. Parking is calculated only from the applicable occupancy-specific input required by Annexure IV.
+</div><h3 class="section-title blue">Overall Summary</h3><table class="scrutiny"><thead><tr><th>Maximum Geometric Floor Envelope in m²</th><th>Maximum Permissible FSI Area in m²</th><th>Envelope × Proposed Floors in m²</th><th>Comparison Limit in m²</th></tr></thead><tbody><tr><td id="sFoot"></td><td id="sMaxFsi"></td><td id="sGross"></td><td id="sAllow"></td></tr></tbody></table>
+<div style="border:1px solid #222;padding:8px;margin:10px 0">
+<b>TNCDRBR parking interpretation:</b> The calculator rounds upward only where the applicable parking row expressly says “or part thereof”. Residential Corporation/Municipality floor area above 75 sq.m uses completed 75 sq.m units because that row states “1 car space for every 75 sq.m” without “or part thereof”.
+</div><h3 class="section-title blue">Common - Scrutiny Details</h3>
+<div id="swpSections"></div>
+<div style="border:1px solid #222;padding:7px;margin:10px 0">
+<b>Applicable-requirements logic:</b> The report displays only requirements determinable from the entered project data. Parking driveway, entry/exit gate, ramp and parking headroom are not automatically listed unless the corresponding parking facility/layout is known to be applicable.
+</div>
+<div class="footer-note">This report shows the TNCDBR requirements calculated from the entered project information. “Provided” and “Verified” values are not fabricated because no CAD drawing has been scrutinized.</div>
+<div class="auth">Note : Requirements are generated for preliminary scrutiny and must be checked against the rules applicable to the application.</div>
+<div class="actions screen-only"><button class="primary" onclick="window.print()">Generate PDF</button></div><div class="print-footer">SWP CAD Scrutiny Report</div>
+<span id="rCars" class="hidden"></span><span id="rTW" class="hidden"></span><span id="rCycles" class="hidden"></span><span id="rLorry" class="hidden"></span><span id="rPlot" class="hidden"></span><span id="rLocal" class="hidden"></span><span id="rOcc" class="hidden"></span><span id="rFH" class="hidden"></span><span id="rParkArea" class="hidden"></span><span id="rBaseCars" class="hidden"></span><span id="rVCars" class="hidden"></span><span id="rBaseTW" class="hidden"></span><span id="rVTW" class="hidden"></span><span id="rBuildW" class="hidden"></span><span id="rBuildL" class="hidden"></span><span id="rFootprint" class="hidden"></span><span id="rPermFSI" class="hidden"></span><span id="rMaxFSI" class="hidden"></span><span id="rGross" class="hidden"></span><span id="rAllowable" class="hidden"></span><span id="rFront" class="hidden"></span><span id="rRear" class="hidden"></span><span id="rSide" class="hidden"></span><span id="rSetbackRule" class="hidden"></span><span id="rAccessible" class="hidden"></span><span id="rEV" class="hidden"></span><span id="rRule" class="hidden"></span><table class="hidden"><tbody id="generalReq"></tbody></table><table class="hidden"><tbody id="sanReq"></tbody></table><table class="hidden"><tbody id="specialReq"></tbody></table><span id="rNote" class="hidden"></span></section><script>
+const $=id=>document.getElementById(id), ceil=x=>Math.ceil((+x||0)-1e-12), round=x=>Math.round(+x||0);
+const urban=()=>["Corporation","Municipality"].includes($("local").value);
+function f(id,label,help="",type="number",value=""){
+  return `<div class="field"><label>${label}</label><input id="${id}" type="${type}" min="0" step="0.01" value="${value}">${help?`<small>${help}</small>`:""}</div>`;
+}
+function sel(id,label,opts){return `<div class="field"><label>${label}</label><select id="${id}">${opts.map(x=>`<option>${x}</option>`).join("")}</select></div>`}
+
+// ── Sub-Occupancy data per SWP User Manual Sub-Occupancy sheet ───────────
+const SUB_OCC={
+  "Residential":[
+    {code:1,  name:"Individual Residence"},
+    {code:2,  name:"Bungalow"},
+    {code:3,  name:"Apartment / Service Apartments"},
+    {code:4,  name:"Villas"},
+    {code:5,  name:"Group Housing"},
+    {code:6,  name:"Row House"},
+    {code:7,  name:"Quarters"},
+    {code:51, name:"Special Residential / Agricultural Area"},
+    {code:87, name:"Club House"},
+    {code:95, name:"Old Age Homes / Orphanage"},
+    {code:96, name:"Service Blocks"},
+    {code:101,name:"Crematorium"}
+  ],
+  "Shops":[
+    {code:13, name:"Shops / Shopping Centres / Departmental Stores / Super Markets"},
+    {code:21, name:"Gold and Silver Smithy"}
+  ],
+  "AutoShowroom":[
+    {code:52, name:"Automobile Showrooms"}
+  ],
+  "GovernmentOffice":[
+    {code:53, name:"Government Offices"},
+    {code:32, name:"Government & Quasi Government Offices and Institutions"}
+  ],
+  "OtherOffice":[
+    {code:18, name:"Private Offices / Commercial Offices"},
+    {code:112,name:"Professional and Business Offices"}
+  ],
+  "Bank":[
+    {code:19, name:"Banks"}
+  ],
+  "ATM":[
+    {code:54, name:"ATM Centres"}
+  ],
+  "PostOffice":[
+    {code:55, name:"Post Offices / Telegraph / Telephone Offices and Similar"}
+  ],
+  "ITOffice":[
+    {code:20, name:"IT, ITES Buildings"},
+    {code:62, name:"IT Industries / Software / Bio Informatics Industries"}
+  ],
+  "Restaurant":[
+    {code:56, name:"Restaurants / Fast Food Outlets"},
+    {code:97, name:"Dining Hall with Kitchen (Commercial)"},
+    {code:98, name:"Dining Hall with Kitchen (Institutional)"}
+  ],
+  "MajorHotel":[
+    {code:9,  name:"Starred Hotels / Major Hotels and Lodges"}
+  ],
+  "OtherHotel":[
+    {code:14, name:"Unstarred Hotels / Other Hotels / Lodges & Mansion"},
+    {code:15, name:"Lodging Houses"}
+  ],
+  "Hostel":[
+    {code:17, name:"Hostels (Unisex)"},
+    {code:75, name:"Mens Hostel"},
+    {code:76, name:"Womens Hostel"},
+    {code:29, name:"Students Hostels (Institutional)"},
+    {code:77, name:"Boys Hostel"},
+    {code:78, name:"Girls Hostel"},
+    {code:30, name:"Dormitories (Institutional)"},
+    {code:113,name:"Dormitories (Transport Terminal)"},
+    {code:103,name:"Dormitories (Cottage Industries)"},
+    {code:104,name:"Dormitories (Green & Orange Industries)"},
+    {code:105,name:"Dormitories (Red Industries)"}
+  ],
+  "Auditorium":[
+    {code:8,  name:"Auditorium / Community / Kalyana Mandapam / Exhibition Hall"},
+    {code:11, name:"Assembly Halls / Conference Halls"},
+    {code:16, name:"Cinema Theatres"},
+    {code:99, name:"Sports Stadium"},
+    {code:100,name:"Open Air Theatre"},
+    {code:114,name:"Auditorium or Meeting Hall (Institutional)"}
+  ],
+  "GovernmentSchool":[
+    {code:57, name:"Government Schools / Local Body Schools"},
+    {code:23, name:"Nursery / Play Schools"},
+    {code:24, name:"Primary Schools"}
+  ],
+  "PrivateSchool":[
+    {code:26, name:"Secondary Schools"},
+    {code:23, name:"Nursery / Play Schools"},
+    {code:24, name:"Primary Schools"}
+  ],
+  "College":[
+    {code:27, name:"Colleges"},
+    {code:28, name:"Higher Educational / Technical & Research Institutions"}
+  ],
+  "Tutorial":[
+    {code:58, name:"Tutorial / Parallel Colleges"}
+  ],
+  "Training":[
+    {code:59, name:"Software / Hardware and Other Training Institutes"}
+  ],
+  "Hospital":[
+    {code:12, name:"Hospitals / Nursing Homes"},
+    {code:125,name:"Primary Health Centre without Inpatient (Area ≤ 500 sq.m)"}
+  ],
+  "HealthClub":[
+    {code:60, name:"Health Clubs and Recreational Centres"},
+    {code:22, name:"Swimming Pool"}
+  ],
+  "RecreationalClub":[
+    {code:61, name:"Recreational Clubs"},
+    {code:88, name:"Club House (Commercial)"},
+    {code:87, name:"Club House (Residential)"}
+  ],
+  "Industry":[
+    {code:44, name:"Cottage — Manufacturing / Service / Biotechnology Industries"},
+    {code:45, name:"Green & Orange — Manufacturing / Service / Biotechnology Industries"},
+    {code:46, name:"Green & Orange — Garments / Packaging Industries"},
+    {code:47, name:"Green & Orange — Electrical and Electronic Industries incl. Computer Hardware"},
+    {code:62, name:"Green & Orange — IT Industries / Software / Bio Informatics"},
+    {code:50, name:"Green & Orange — Cold Storage"},
+    {code:48, name:"Red — Manufacturing / Service / Biotechnology Industries"},
+    {code:122,name:"Cottage — Flatted Factories"},
+    {code:123,name:"Green & Orange — Flatted Factories"},
+    {code:124,name:"Red — Flatted Factories"}
+  ],
+  "Godown":[
+    {code:49, name:"Godown / Warehouses / Freight Stations / Containerisation Units"}
+  ],
+  "ColdStorage":[
+    {code:50, name:"Cold Storage (Green & Orange Industry — F-CS)"}
+  ],
+  "Religious":[
+    {code:74, name:"Religious Buildings — Floor Area up to 300 sq.m"},
+    {code:25, name:"Religious Buildings — Floor Area exceeding 300 sq.m"}
+  ]
+};
+
+function renderSubOcc(){
+  const o=$("occ").value, sel=$("subOcc");
+  const opts=SUB_OCC[o]||[];
+  sel.innerHTML=opts.map(x=>`<option value="${x.code}">[${x.code}] ${x.name}</option>`).join("");
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
+function renderDynamic(){
+  const o=$("occ").value,d=$("dynamic"); let h="";
+
+  // Preserve current values before wiping the dynamic section
+  const prev={};
+  ["units","unitArea","rooms","nonRoom","restArea","area","officeArea","workshopArea","industryFloor",
+   "maleOcc","femaleOcc","publicOcc","students"].forEach(id=>{
+    const el=$(id); if(el) prev[id]=el.value;
+  });
+  const prevIndustryType=($("industryType")||{}).value;
+  const prevGodownType=($("godownType")||{}).value;
+  if(o==="Residential") h+=f("units","Number of dwelling units","","number","1")+f("unitArea","Proposed floor area PER dwelling unit for parking (sq.m)","Required for residential Annexure IV parking. Exclude common corridors, staircases and other common areas.","number","0");
+  else if(["MajorHotel","OtherHotel"].includes(o)) h+=f("rooms","Guest rooms","","number","")+f("nonRoom","Non-room area excluding restaurant (sq.m)")+f("restArea","Restaurant area within hotel (sq.m)","Enter 0 if none.","number","0");
+  else if(["GovernmentSchool","PrivateSchool","College","Tutorial"].includes(o)) h+=f("area","Class-room area (sq.m)","Required because Annexure IV parking uses class-room area.");
+  else if(o==="Industry") h+=sel("industryType","Industry type",["Manufacturing","Cottage","Garment / Packaging","Electrical / Electronic","IT / Software / Bio-Informatics"])+f("officeArea","Office floor area (sq.m)")+f("workshopArea","Workshop floor area (sq.m)")+f("industryFloor","Total floor area for IT industry (sq.m)","Used only for IT industry.");
+  else if(o==="Godown") h+=sel("godownType","Area basis",["Covered","Open"])+f("area","Applicable covered / open plot area (sq.m)");
+  else if(o==="Hostel") h+=f("rooms","Number of rooms","","number","");
+  else {
+    const labels={Shops:"Shop / shopping floor area",AutoShowroom:"Gross area including office / service / wash area",GovernmentOffice:"Government office floor area",OtherOffice:"Office floor area",Bank:"Bank floor area",ATM:"ATM floor area",PostOffice:"Floor area",ITOffice:"IT / ITES floor area",Restaurant:"Restaurant floor area",Auditorium:"Auditorium / hall area",Training:"Training institute floor area",Hospital:"Hospital / nursing-home floor area",HealthClub:"Health club / recreational-centre floor area",RecreationalClub:"Recreational club floor area",ColdStorage:"Cold-storage floor area",Religious:"Religious-building floor area"};
+    h+=f("area",(labels[o]||"Floor area")+" (sq.m)","Required because Annexure IV parking is based on the applicable occupancy floor/class-room/service area.");
+  }
+
+  // ── Occupant fields — shown only when needed for sanitation calculation ──
+  const needsMF=["Shops","AutoShowroom","GovernmentOffice","OtherOffice","Bank","ATM",
+    "PostOffice","ITOffice","MajorHotel","OtherHotel","Hostel","Hospital",
+    "Industry","Godown","ColdStorage"].includes(o);
+  const needsPublic=["Auditorium","Restaurant"].includes(o);
+  const needsStudents=["GovernmentSchool","PrivateSchool","College","Tutorial","Training"].includes(o);
+
+  if(needsMF){
+    h+=`<div style="grid-column:1/-1;font-weight:700;margin-top:8px;border-top:1px solid #ccc;padding-top:6px">Occupants / Users (for Sanitation)</div>`;
+    h+=f("maleOcc","Male occupants / staff","","number","0");
+    h+=f("femaleOcc","Female occupants / staff","","number","0");
+  }
+  if(needsPublic){
+    h+=`<div style="grid-column:1/-1;font-weight:700;margin-top:8px;border-top:1px solid #ccc;padding-top:6px">Occupants / Users (for Sanitation)</div>`;
+    h+=f("publicOcc","Public seats / persons","","number","0");
+  }
+  if(needsStudents){
+    h+=`<div style="grid-column:1/-1;font-weight:700;margin-top:8px;border-top:1px solid #ccc;padding-top:6px">Occupants / Users (for Sanitation)</div>`;
+    h+=f("students","Students / pupils","","number","0");
+  }
+  // ─────────────────────────────────────────────────────────────────────────
+
+  d.innerHTML=h;
+
+  // Restore previously entered values (survives occupancy re-render)
+  Object.entries(prev).forEach(([id,val])=>{
+    const el=$(id); if(el && val!==undefined) el.value=val;
+  });
+  if(prevIndustryType){const el=$("industryType");if(el)el.value=prevIndustryType;}
+  if(prevGodownType){const el=$("godownType");if(el)el.value=prevGodownType;}
+}
+function n(id){const e=$(id);return e?+e.value||0:0}
+function result(c=0,tw=0,cy=0,lo=0,vc=0,vt=0,rule="",note=""){return {c,tw,cy,lo,vc,vt,rule,note}}
+function calcOne(o){
+  let a=n("area"),r;
+  switch(o){
+    case "Residential":{
+      const u=Math.max(1,Math.floor(n("units")||1)), ua=n("unitArea"); let c=0,tw=0,vc=0,vt=0;
+      // Oct 2025 amendment (G.O. Ms. No.154): residential parking relaxed.
+      // Car: 1 per 150 sq.m (was 1 per 75 sq.m for urban Corporation/Municipality).
+      // Two-Wheeler: 1 per 75 sq.m.
+      if(urban()){
+        if(ua<=25){c=0;tw=0}
+        else if(ua<=75){tw=u}
+        else if(ua<=150){c=ceil(u/2);tw=u}
+        else{c=u*Math.floor(ua/150);tw=u*Math.floor(ua/75)}
+      }else{
+        if(ua<=50){c=0;tw=0}
+        else if(ua<=75){tw=u}
+        else if(ua<=150){c=ceil(u/2);tw=u}
+        else{c=u*ceil(ua/150);tw=u*ceil(ua/75)}
+      }
+      let note="Residential dwelling area excludes common areas. Oct 2025 amendment: 1 car per 150 sq.m (relaxed from 75 sq.m); 1 two-wheeler per 75 sq.m.";
+      // 2025 substituted Note 5: individual single dwelling cap.
+      if(u===1){
+        const cap=ua<=300?2:4;
+        c=Math.min(c,cap); tw=Math.min(tw,cap);
+        note+=` Individual-house cap applied: maximum ${cap} car and ${cap} two-wheeler spaces for a single dwelling ${ua<=300?"≤ 300 sq.m":"> 300 sq.m"}.`;
+      }
+      if(u>6){vc=round(c*.10);vt=round(tw*.10)}
+      return result(c,tw,0,0,vc,vt,"Annexure IV Part-I (1) Residential + G.O. Ms. No.154 Oct 2025 amendment",note);
+    }
+    case "Shops":{let x=urban()?50:75,q=a<=x?0:ceil((a-x)/x);return result(q,q,0,0,0,0,"Annexure IV Part-I (2) Shops / Shopping Centres / Departmental Stores / Super Markets",`First ${x} sq.m excluded.`)}
+    case "AutoShowroom":return result(ceil(a/100),0,0,0,0,0,"Annexure IV Part-I (3) Automobile Showrooms","1 car / 100 sq.m gross area.");
+    case "GovernmentOffice":{let c=ceil(a/(a<=500?150:100)),tw=ceil(a/25);return result(c,tw,0,0,Math.max(1,round(c*.1)),Math.max(1,round(tw*.1)),"Annexure IV Part-I (4) Government Offices","Visitor parking 10%, minimum 1 car and 1 two-wheeler.")}
+    case "OtherOffice":{let c=ceil(a/100),tw=ceil(a/25);return result(c,tw,0,0,Math.max(1,round(c*.1)),Math.max(1,round(tw*.1)),"Annexure IV Part-I (5) Other Offices","Visitor parking 10%, minimum 1 car and 1 two-wheeler.")}
+    case "Bank":return result(ceil(a/(urban()?75:125)),ceil(a/25),0,0,0,0,"Annexure IV Part-I (6) Banks — service branches","");
+    case "ATM":return result(ceil(a/25),0,0,0,0,0,"Annexure IV Part-I (7) ATM Centres","");
+    case "PostOffice":return result(ceil(a/(urban()?150:250)),ceil(a/(urban()?50:100)),0,0,0,0,"Annexure IV Part-I (8) Post / Telegraph / Telephone Offices","");
+    case "ITOffice":return result(ceil(a/50),ceil(a/25),0,0,0,0,"Annexure IV Part-I (9) IT Offices / ITES / Bio Informatics","");
+    case "Restaurant":return result(ceil(a/(urban()?50:100)),ceil(a/(urban()?25:50)),0,0,0,0,"Annexure IV Part-I (10)(a) Restaurants / Fast Food outlets","");
+    case "MajorHotel":
+    case "OtherHotel":{
+      const rooms=n("rooms"),nr=n("nonRoom"),ra=n("restArea"),major=o==="MajorHotel";
+      let c=ceil(rooms/(major?4:10))+ceil(nr/100),tw=ceil(nr/50);
+      if(ra>0){c+=ceil(ra/(urban()?50:100));tw+=ceil(ra/(urban()?25:50))}
+      return result(c,tw,0,0,0,0,major?"Annexure IV Part-I (10)(b) Starred / Major Hotels":"Annexure IV Part-I (10)(c) Unstarred / Other Hotels","Restaurant component calculated separately.");
+    }
+    case "Hostel":return result(0,ceil(n("rooms")/10),0,0,0,0,"Annexure IV Part-I (11) Hostels","");
+    case "Auditorium":{let q=ceil(a/(urban()?20:50));return result(q,q,0,0,0,0,"Annexure IV Part-I (12) Auditorium / Kalyana Mandapam / Cinema Halls","")}
+    case "GovernmentSchool":return urban()?result(ceil(a/500),ceil(a/50),ceil(a/10),0,0,0,"Annexure IV Part-I (13)(a) Government / Local Body Schools",""):result(0,ceil(a/50),ceil(a/5),0,0,0,"Annexure IV Part-I (13)(a) Government / Local Body Schools","");
+    case "PrivateSchool":return urban()?result(ceil(a/100),ceil(a/50),ceil(a/10),0,0,0,"Annexure IV Part-I (13)(b) Private Schools","50% of car spaces shall be in front abutting road for drop/pick-up."):result(ceil(a/300),ceil(a/50),ceil(a/5),0,0,0,"Annexure IV Part-I (13)(b) Private Schools","50% of car spaces shall be in front abutting road for drop/pick-up.");
+    case "College":return result(ceil(a/100),ceil(a/50),0,0,0,0,"Annexure IV Part-I (13)(c) Colleges","");
+    case "Tutorial":return result(ceil(a/200),ceil(a/50),0,0,0,0,"Annexure IV Part-I (13)(d) Tutorial / Parallel colleges","");
+    case "Training":return result(ceil(a/100),ceil(a/30),0,0,0,0,"Annexure IV Part-I (13)(e) Training institutes","");
+    case "Hospital":{let d=urban()?(a<=3000?50:75):(a<=3000?100:150),q=ceil(a/d);return result(q,q,0,0,0,0,"Annexure IV Part-I (14) Hospitals and Nursing Homes","")}
+    case "HealthClub":{let q=ceil(a/(urban()?50:75));return result(q,q,0,0,0,0,"Annexure IV Part-I (15) Health Clubs and Recreational Centres","")}
+    case "RecreationalClub":return result(ceil(a/(urban()?75:100)),0,0,0,0,0,"Annexure IV Part-I (16) Recreational Clubs","");
+    case "Industry":{
+      const t=$("industryType").value,of=n("officeArea"),wa=n("workshopArea"),fa=n("industryFloor");
+      if(t.startsWith("IT")) return result(ceil(fa/50),ceil(fa/25),0,0,0,0,"Annexure IV Part-I (17)(e) IT Industries / Software / Bio Informatics","");
+      let cd=t.startsWith("Garment")?200:100,c=ceil(of/cd),tw=ceil(wa/50),cy=ceil(wa/50),lo=t==="Manufacturing"?ceil(wa/500):0;
+      return result(c,tw,cy,lo,0,0,"Annexure IV Part-I (17) Industries",t);
+    }
+    case "Godown":return result(0,0,0,ceil(a/300),0,0,"Annexure IV Part-I (18)(a) Godowns / Warehouses / Freight Stations / Containerisation Units","1 lorry / 300 sq.m or part thereof.");
+    case "ColdStorage":return result(0,0,0,ceil(a/500),0,0,"Annexure IV Part-I (18)(b) Cold Storage","");
+    case "Religious":return result(ceil(a/(urban()?100:250)),ceil(a/(urban()?50:100)),0,0,0,0,"Annexure IV Part-I (19) Religious Buildings","");
+  }
+  return result();
+}
+
+// ── Minimum Road Width check per TNCDBR 2019 ──────────────────────────────
+function calcMinRoadWidth(o){
+  // Rule 39 — High Rise: checked separately; not in this NHR calculator.
+  // Rule 38 — Transport Terminals: 9m (container 18m) — no occupancy in this tool.
+
+  // Area type overrides — Rule 35(1)(a): EWS = 1.0 m, CBA = 1.5 m.
+  // These apply to all residential/small commercial in those declared areas.
+  const areaType=$("areaType").value;
+  if(areaType==="EWS Area")
+    return {min:1.0,"rule":"Rule 35(1)(a) — Economically Weaker Section Area: minimum road width 1.0 m."};
+  if(areaType==="Continuous Building Area")
+    return {min:1.5,"rule":"Rule 35(1)(a) — Continuous Building Area: minimum road width 1.5 m."};
+
+  // Rule 35(1)(vi) special assembly minimums.
+  if(o==="Auditorium")  return {min:15,"rule":"Rule 35(1)(vi) — Community/Kalyana Mandapam/Exhibition Hall/Auditorium: min 15 m."};
+  if(["MajorHotel"].includes(o)) return {min:18,"rule":"Rule 35(1)(vi) — Star hotels / Multiplex / Malls: min 18 m."};
+  if(["OtherHotel"].includes(o)) return {min:9, "rule":"Rule 35(1)(b) — Lodging houses / Other Hotels: min 9 m."};
+
+  // Rule 36 — Industrial: min 7 m for all categories.
+  if(["Industry","Godown","ColdStorage"].includes(o))
+    return {min:7,"rule":"Rule 36 — Industries/Godowns/Cold Storage: min 7 m."};
+
+  // Rule 37 — Institutional.
+  const schoolUpToHSC=["GovernmentSchool","PrivateSchool"].includes(o);
+  if(schoolUpToHSC||o==="Training")
+    return {min:7.2,"rule":"Rule 37 — Schools (up to Higher Secondary) / Training Institutes: min 7.2 m."};
+  if(["College","Tutorial"].includes(o))
+    return {min:9,"rule":"Rule 37 — Colleges and Higher Educational Institutions: min 9 m."};
+  if(o==="Hostel")
+    return {min:7.2,"rule":"Rule 37 — Student Hostels / Dormitories (Institutional category): min 7.2 m."};
+
+  // Rule 35(1)(b) — NHR >16 DU or >300 sq.m commercial: min 9 m.
+  // Rule 35(1)(a) — NHR ≤16 DU or ≤300 sq.m: min 3 m.
+  // For non-residential commercial occupancies we apply Rule 35(1)(b) default (9m)
+  // unless they are small developments ≤300 sq.m (checked at runtime via entered area).
+  const smallCommercial=["Shops","AutoShowroom","Bank","ATM","PostOffice","ITOffice",
+    "GovernmentOffice","OtherOffice","Restaurant","HealthClub","RecreationalClub","Religious"].includes(o);
+  if(smallCommercial){
+    const area=n("area");
+    if(area>0 && area<=300)
+      return {min:3,"rule":"Rule 35(1)(a) — Commercial ≤ 300 sq.m: min 3 m (6 m and above road acceptable)."};
+    return {min:9,"rule":"Rule 35(1)(b) — Commercial > 300 sq.m (or area not entered): min 9 m."};
+  }
+  // Hospital — public building, Rule 35(1)(b) ≥9 m.
+  if(o==="Hospital") return {min:9,"rule":"Rule 35(1)(b) / Rule 35(1)(vii) — Hospital: min 9 m."};
+
+  // Residential: Rule 35(1)(a) ≤16 DU → 3m (Panchayat); >16 DU → 9m.
+  // 2026 amendment: Village Panchayat layout min road = 6m; Town Panchayat = 6.5m (for building permit, 3m/9m still applies).
+  if(o==="Residential"){
+    const units=Math.max(1,Math.floor(n("units")||1));
+    if(units<=16) return {min:3,"rule":`Rule 35(1)(a) — Residential ≤ 16 DU (${units} DU): min 3 m. Note: Layout road min = 6m (Village Panchayat) / 6.5m (Town Panchayat) / 7m (Corp/Mun) per 2026 amendment.`};
+    return {min:9,"rule":`Rule 35(1)(b) — Residential > 16 DU (${units} DU): min 9 m.`};
+  }
+  return {min:3,"rule":"Rule 35(1)(a) — General minimum: 3 m."};
+}
+// ────────────────────────────────────────────────────────────────────────────
+
+function calcSetbacks(o){
+  const road=n("roadW"), h=n("height"), pw=n("plotW"), areaType=$("areaType").value;
+  let front=0,rear=0,side="",rule="";
+
+  // Rule 35(1)(vii): public buildings — setback all around not less than 6.0 m.
+  const publicUses=["MajorHotel","OtherHotel","Auditorium","Hospital"].includes(o);
+  if(publicUses){
+    return {front:6,rear:6,side:"6.00 m on each side",rule:"Rule 35(1)(vii) — Public building (hotel/hospital/auditorium): setback all around ≥ 6.0 m."};
+  }
+
+  // Rule 36: Industrial buildings.
+  if(o==="Industry"){
+    const t=($("industryType")||{}).value||"";
+    if(t==="Manufacturing"||t.startsWith("Cottage")){
+      // Cottage: front by road, side 1.5m, rear Nil. Rule 36.
+      front = road<9?1.5:road<=18?3.0:road<=30.5?4.5:6.0;
+      return {front,rear:0,side:"1.50 m on each side",rule:"Rule 36 — Cottage Industry: front by road width, side 1.5 m, rear Nil."};
+    } else if(t.startsWith("Garment")||t.startsWith("Electrical")||t==="Manufacturing"){
+      // Green/Orange: front 6m, side 3m, rear 2m. Rule 36.
+      return {front:6,rear:2,side:"3.00 m on each side",rule:"Rule 36 — Green/Orange Industry: front 6 m, side 3 m, rear 2 m."};
+    } else if(t.startsWith("IT")){
+      // IT/Software treated as Green industry for setback purposes. Rule 36.
+      return {front:6,rear:2,side:"3.00 m on each side",rule:"Rule 36 — IT/Software Industry (Green category): front 6 m, side 3 m, rear 2 m."};
+    }
+    // Default to Green/Orange if type not yet selected.
+    front = road<9?1.5:road<=18?3.0:road<=30.5?4.5:6.0;
+    return {front,rear:2,side:"3.00 m on each side",rule:"Rule 36 — Industry: front by road width, side 3 m, rear 2 m (Green/Orange default)."};
+  }
+
+  // Rule 37: Institutional buildings.
+  const school=["GovernmentSchool","PrivateSchool"].includes(o);
+  const institutional=school||["College","Tutorial","Training","Hostel"].includes(o);
+  if(institutional){
+    if(areaType==="Continuous Building Area"){
+      return {front:6,rear:0,side:"Nil",rule:"Rule 37 Institutional Buildings — Continuous Building Area: front 6 m, side Nil, rear Nil."};
+    }
+    return {front:6,rear:school?2:6,side:school?"2.00 m on each side":"6.00 m on each side",rule:"Rule 37 Institutional Buildings — Other Areas: front 6 m, side/rear "+(school?"2 m":"6 m")+"."};
+  }
+
+  // Rule 35(1)(a) — small/CBA/EWS.
+  if(areaType==="Continuous Building Area"){
+    return {front:1.5,rear:0,side:"Nil",rule:"Rule 35(1)(a) — Continuous Building Area: front 1.5 m, side Nil, rear Nil."};
+  }
+  if(areaType==="EWS Area"){
+    return {front:1.0,rear:0,side:"Nil",rule:"Rule 35(1)(a) — Economically Weaker Section Area: front 1.0 m, side Nil, rear Nil."};
+  }
+
+  // Rule 35 — Other Areas: front by road width.
+  front = road<=9 ? 1.5 : road<=18 ? 3.0 : road<=30.5 ? 4.5 : 6.0;
+
+  // Side/rear: Rule 35(1)(a) table for plot width ≤12m; Rule 35(1)(b) for wider plots.
+  if(pw<=7){
+    side = h<=9 ? "1.00 m on one side" : "1.00 m on each side";
+  } else if(pw<=12){
+    side = h<=6 ? "1.00 m on one side" : h<=9 ? "1.50 m on one side" : "1.50 m on each side";
+  } else {
+    side = h<=7 ? "1.00 m" : h<=12 ? "1.50 m" : h<=16 ? "2.50 m" : "3.00 m";
+  }
+  rear = h<=7 ? 0 : h<=12 ? 1.5 : h<=16 ? 2.5 : 3.0;
+
+  rule="Rule 35 — Non High Rise Building, Other Area: front by road width; side/rear by plot width and building-height band.";
+  return {front,rear,side,rule};
+}
+
+
+function calcDevelopment(sb){
+  const plotW=n("plotW"), plotL=n("plotL");
+  const plotA=n("plotA") || (plotW*plotL);
+  let left=0,right=0;
+  const txt=(sb.side||"").toLowerCase();
+  const m=parseFloat(txt)||0;
+  if(txt.includes("each side") || (!txt.includes("one side") && m>0)){left=m;right=m;}
+  else if(txt.includes("one side")){left=m;right=0;}
+
+  const buildW=Math.max(0,plotW-left-right);
+  const buildL=Math.max(0,plotL-(+sb.front||0)-(+sb.rear||0));
+  const footprint=(plotW>0&&plotL>0)?buildW*buildL:0;
+
+  // FSI by occupancy: Rule 36 Industry/Godown/ColdStorage = 1.5; Rule 37 Institutional = 2.0; Rule 35 others = 2.0.
+  const o_fsi=$("occ").value;
+  const permissibleFSI=["Industry","Godown","ColdStorage"].includes(o_fsi)?1.5:2.0;
+  const maxFSIArea=plotA*permissibleFSI;
+  const floors=Math.max(1,Math.floor(n("floors")||1));
+  const geometricTotal=footprint*floors;
+  const allowable=Math.min(maxFSIArea,geometricTotal);
+
+  $("bua").value=footprint?footprint.toFixed(2):"";
+  $("fsi").value=maxFSIArea?maxFSIArea.toFixed(2):"";
+  return {plotA,buildW,buildL,footprint,permissibleFSI,maxFSIArea,geometricTotal,allowable};
+}
+
+
+function reqRow(item,req,ref){
+  return `<tr><th>${item}</th><td>${req}</td><td class="rule">${ref}</td></tr>`;
+}
+function urinalsMale(m){
+  if(m<=6)return 0;if(m<=20)return 1;if(m<=45)return 2;if(m<=70)return 3;if(m<=100)return 4;
+  if(m<=200)return 4+ceil((m-100)*.03);
+  return 7+ceil((m-200)*.025);
+}
+function generalRequirements(o,floors,height){
+  const residential=o==="Residential";
+  const hostelHotel=["Hostel","MajorHotel","OtherHotel"].includes(o);
+  const hasHabitableRooms=residential||hostelHotel;
+  const hasKitchen=residential;
+  const assembly=["Auditorium"].includes(o);
+  const educational=["GovernmentSchool","PrivateSchool","College","Tutorial","Training"].includes(o);
+  const industrial=["Industry","Godown","ColdStorage"].includes(o);
+  let stair= residential ? "Ordinary residential: 0.75 m; other residential: 0.90 m"
+    : hostelHotel ? "0.90 m (other residential category)"
+    : assembly ? "2.00 m"
+    : educational ? "2.00 m"
+    : "1.50 m";
+  let rows="";
+  rows+=reqRow("Plinth height","Minimum 0.45 m above surrounding ground level; flood-prone sites above notified maximum flood level.","Rule 52(1)");
+  if(hasHabitableRooms)
+    rows+=reqRow("Habitable room","Minimum height 2.75 m; minimum area 7.5 sq.m; minimum width 2.4 m; clear headroom under beam/eaves 2.4 m.","Rule 52(5)");
+  if(hasKitchen){
+    rows+=reqRow("Kitchen","Height 2.75 m. Separate dining: min 5.0 sq.m and 1.8 m width; with separate store kitchen may be 4.5 sq.m; kitchen-cum-dining: min 7.5 sq.m and 2.1 m width.","Rule 52(6)");
+  }
+  if(hasHabitableRooms){
+    rows+=reqRow("Bathroom","Height 2.10 m; minimum area 1.4 sq.m; minimum width 1.0 m.","Rule 52(7)");
+    rows+=reqRow("Water closet (W.C.)","Height 2.10 m; floor area 1.0 sq.m; minimum width 0.9 m.","Rule 52(7)");
+    rows+=reqRow("Combined bath + W.C.","Minimum 2.4 sq.m; minimum width 1.2 m.","Rule 52(7)");
+    rows+=reqRow("Bath/W.C. ventilation","Window or ventilator to shaft/open space not less than 0.3 sq.m; door shall not open directly to kitchen.","Rule 52(7)");
+  }
+  rows+=reqRow("Parapet / handrail","1.20 m minimum and 1.50 m maximum above finished floor level.","Rule 52(13)");
+  if(!industrial)
+    rows+=reqRow("Natural lighting / ventilation","Openings excluding doors: minimum 1/8 of floor area"+(hasKitchen?"; kitchen opening area increased by 25%":"")+".","Rule 52(16)");
+  rows+=reqRow("Minimum staircase width",stair,"Rule 52(17)(a)");
+  const resStair=residential||hostelHotel;
+  rows+=reqRow("Stair tread",resStair?"Minimum 250 mm without nosing.":"Minimum 300 mm.","Rule 52(17)(b)");
+  rows+=reqRow("Stair riser",resStair?"Maximum 190 mm.":"Maximum 150 mm.","Rule 52(17)(c)");
+  rows+=reqRow("Steps per flight","Maximum 15 risers per flight.","Rule 52(17)(c)");
+  rows+=reqRow("Stair headroom","Minimum clear headroom 2.20 m.","Rule 52(17)(d)");
+  const travel=["Residential","GovernmentSchool","PrivateSchool","College","Tutorial","Training","Hospital"].includes(o)?"22.50 m":"30.00 m";
+  rows+=reqRow("Maximum travel distance to exit",travel,"Rule 53(4)");
+  rows+=reqRow("Lift",height>18.3?"Required for High Rise building in addition to staircase; number/location as per NBC.":"Rule 53 expressly requires lifts for High Rise buildings (>18.3m); other lift/accessibility provisions must also be checked.","Rule 53(5)");
+  rows+=reqRow("Completion Certificate","Required for all buildings except residential ≤ 14m height not exceeding 8 dwelling units or 750 sq.m (amended threshold — G.O. Ms. No. 154, Oct 2025). CC mandatory for utility connections for larger buildings.","Rule 20 + G.O. Ms. No.154/2025");
+  rows+=reqRow("Rainwater harvesting","Required within each premises; structures as prescribed in Annexure XXII.","Rule 63(1)");
+  rows+=reqRow("Ground-floor W.C. level","Floor level of water closets at least 0.90 m above road level.","Rule 63(2)(a)");
+  rows+=reqRow("Fire safety / Fire Safety Certificate","Fire protection/extinguishing systems to conform to NBC. TN Fire &amp; Rescue Services Act 2025 (replaces 1985 Act): Fire Safety Certificate (FSC) mandatory — periodic third-party audits required. NOC system replaced by FSC system.","Rule 64 + TN Fire &amp; Rescue Services Act 2025");
+  return rows;
+}
+function sanitationRequirements(o){
+  const m=Math.floor(n("maleOcc")),f=Math.floor(n("femaleOcc")),p=Math.floor(n("publicOcc")),stu=Math.floor(n("students"));
+  let rows="";
+  if(o==="Residential"){
+    rows+=reqRow("Bath room","One with water tap per dwelling with individual conveniences.","Annexure X Table 7");
+    rows+=reqRow("Water closet","One per dwelling with individual conveniences. If only one W.C. is provided, bath and W.C. shall be separately accommodated.","Annexure X Table 7");
+    rows+=reqRow("Sink / Nahani","One in floor per dwelling with individual conveniences.","Annexure X Table 7");
+    rows+=reqRow("Water tap","One per dwelling.","Annexure X Table 7");
+    return rows;
+  }
+  if(["GovernmentSchool","PrivateSchool","College","Tutorial","Training"].includes(o)){
+    rows+=reqRow("Boys' W.C.",stu?`${ceil(stu/2/40)} based on assumed 50% boys`:"Enter student count; rule is 1 per 40 boys or part thereof for other educational institutions.","Annexure X Table 4");
+    rows+=reqRow("Girls' W.C.",stu?`${ceil(stu/2/25)} based on assumed 50% girls`:"Enter student count; rule is 1 per 25 girls or part thereof.","Annexure X Table 4");
+    rows+=reqRow("Boys' urinals",stu?`${ceil(stu/2/20)} based on assumed 50% boys`:"1 per 20 boys or part thereof.","Annexure X Table 4");
+    rows+=reqRow("Wash basins",stu?`${ceil(stu/2/40)} boys + ${ceil(stu/2/40)} girls`:"1 per 40 pupils or part thereof for each group.","Annexure X Table 4");
+    rows+=reqRow("Drinking-water fountains",stu?`${ceil(stu/50)}`:"1 per 50 pupils or part thereof.","Annexure X Table 4");
+    rows+=reqRow("Cleaner’s sink","Minimum one per floor.","Annexure X Table 4");
+    return rows;
+  }
+  if(o==="Auditorium"){
+    rows+=reqRow("Public male W.C.",p?`${p<=400?ceil(p/100):4+ceil((p-400)/250)}`:"1 per 100 persons up to 400; over 400 add 1 per 250.","Annexure X Table 8");
+    rows+=reqRow("Public female W.C.",p?`${p<=200?2*ceil(p/100):4+ceil((p-200)/100)}`:"2 per 100 persons up to 200; over 200 add 1 per 100.","Annexure X Table 8");
+    rows+=reqRow("Public male urinals",p?`${ceil(p/50)}`:"1 per 50 persons or part thereof.","Annexure X Table 8");
+    rows+=reqRow("Drinking-water fountain",p?`${ceil(p/100)}`:"1 per 100 persons or part thereof.","Annexure X Table 8");
+    rows+=reqRow("Cleaner’s sink","One per floor.","Annexure X Table 8");
+    return rows;
+  }
+  if(o==="Restaurant"){
+    rows+=reqRow("Public male W.C.",p?`${p<=200?ceil(p/50):4+ceil((p-200)/100)}`:"1 per 50 seats up to 200; over 200 add 1 per 100 seats.","Annexure X Table 10");
+    rows+=reqRow("Public female W.C.",p?`${p<=200?ceil(p/50):4+ceil((p-200)/100)}`:"1 per 50 seats up to 200; over 200 add 1 per 100 seats.","Annexure X Table 10");
+    rows+=reqRow("Public male urinals",p?`${ceil(p/50)}`:"1 per 50 persons or part thereof.","Annexure X Table 10");
+    rows+=reqRow("Cleaner's sink","One per floor.","Annexure X Table 10");
+    return rows;
+  }
+  if(["MajorHotel","OtherHotel"].includes(o)){
+    // Annexure X Table 9 — Hotels
+    rows+=reqRow("Male W.C. (staff)",m?`${ceil(m/50)}`:"1 per 50 male staff or part thereof.","Annexure X Table 9");
+    rows+=reqRow("Female W.C. (staff)",f?`${ceil(f/30)}`:"1 per 30 female staff or part thereof.","Annexure X Table 9");
+    rows+=reqRow("Male urinals (staff)",m?`${urinalsMale(m)}`:"Per standard urinal table.","Annexure X Table 9");
+    rows+=reqRow("Guest room bathroom","1 WC + 1 bath/shower + 1 wash basin per guest room.","Annexure X Table 9");
+    rows+=reqRow("Public WC (lobby/lounge)","Separate male and female WC accessible from lobby; minimum 1 each.","Annexure X Table 9");
+    rows+=reqRow("Drinking-water tap","One per floor; potable water accessible to guests.","Annexure X Table 9");
+    rows+=reqRow("Cleaner's sink","Minimum one per floor.","Annexure X Table 9");
+    return rows;
+  }
+  if(o==="Hostel"){
+    // Annexure X Table 5 — Hostels / Dormitories
+    rows+=reqRow("W.C. (male)",m?`${ceil(m/25)}`:"1 per 25 male residents or part thereof.","Annexure X Table 5");
+    rows+=reqRow("W.C. (female)",f?`${ceil(f/15)}`:"1 per 15 female residents or part thereof.","Annexure X Table 5");
+    rows+=reqRow("Urinals (male)",m?`${urinalsMale(m)}`:"Per standard urinal table.","Annexure X Table 5");
+    rows+=reqRow("Bath rooms (male)",m?`${ceil(m/15)}`:"1 per 15 male residents or part thereof.","Annexure X Table 5");
+    rows+=reqRow("Bath rooms (female)",f?`${ceil(f/10)}`:"1 per 10 female residents or part thereof.","Annexure X Table 5");
+    rows+=reqRow("Wash basins",(m+f)?`${ceil((m+f)/25)}`:"1 per 25 residents or part thereof.","Annexure X Table 5");
+    rows+=reqRow("Drinking-water fountains",(m+f)?`${ceil((m+f)/100)}`:"1 per 100 residents or part thereof, minimum 1.","Annexure X Table 5");
+    rows+=reqRow("Cleaner's sink","Minimum one per floor.","Annexure X Table 5");
+    return rows;
+  }
+  if(o==="Hospital"){
+    // Annexure X Table 3 — Hospitals / Nursing Homes
+    rows+=reqRow("W.C. (male staff)",m?`${ceil(m/25)}`:"1 per 25 male staff or part thereof.","Annexure X Table 3");
+    rows+=reqRow("W.C. (female staff)",f?`${ceil(f/15)}`:"1 per 15 female staff or part thereof.","Annexure X Table 3");
+    rows+=reqRow("Urinals (male staff)",m?`${urinalsMale(m)}`:"Per standard urinal table.","Annexure X Table 3");
+    rows+=reqRow("Patient WC","1 WC per 8 beds (general ward); 1 per 4 beds in isolation ward.","Annexure X Table 3");
+    rows+=reqRow("Patient bathroom","1 bath per 8 beds (general ward); 1 per 4 beds in isolation ward.","Annexure X Table 3");
+    rows+=reqRow("Wash basins","1 per 8 beds; plus at each nurse station.","Annexure X Table 3");
+    rows+=reqRow("Drinking-water fountains",(m+f)?`${ceil((m+f)/100)}`:"1 per 100 persons or part thereof.","Annexure X Table 3");
+    rows+=reqRow("Cleaner's sink","1 per floor; minimum 1 per 30 beds.","Annexure X Table 3");
+    return rows;
+  }
+  if(["Industry","Godown","ColdStorage"].includes(o)){
+    // Annexure X Table 1 — Factories / Industrial
+    rows+=reqRow("Male W.C.",m?`${m<=100?ceil(m/25):4+ceil((m-100)/50)}`:"1 per 25 male workers (first 100); 1 per 50 above 100.","Annexure X Table 1");
+    rows+=reqRow("Female W.C.",f?`${f<=100?ceil(f/15):4+ceil((f-100)/25)}`:"1 per 15 female workers (first 100); 1 per 25 above 100.","Annexure X Table 1");
+    rows+=reqRow("Male urinals",m?`${urinalsMale(m)}`:"Nil ≤6; 1 for 7–20; 2 for 21–45; 3 for 46–70; 4 for 71–100; per table above.","Annexure X Table 1");
+    rows+=reqRow("Wash basins",(m+f)?`${ceil((m+f)/25)}`:"1 per 25 workers or part thereof.","Annexure X Table 1");
+    rows+=reqRow("Drinking-water tap",(m+f)?`${Math.max(Math.max(1,Math.floor(n("floors"))),ceil((m+f)/100))}`:"1 per 100 workers, minimum one on each floor.","Annexure X Table 1");
+    rows+=reqRow("Cleaner's sink","Minimum one per floor.","Annexure X Table 1");
+    return rows;
+  }
+  // Shops / commercial offices / office-type sanitation.
+  if(["Shops","AutoShowroom","OtherOffice","Bank","ATM","PostOffice","ITOffice","GovernmentOffice"].includes(o)){
+    rows+=reqRow("Male W.C.",m?`${ceil(m/25)}`:"1 for every 25 male personnel/persons or part thereof, subject to the applicable table threshold.","Annexure X Table 1 / Table 6");
+    rows+=reqRow("Female W.C.",f?`${ceil(f/15)}`:"1 for every 15 female personnel/persons or part thereof, subject to the applicable table threshold.","Annexure X Table 1 / Table 6");
+    rows+=reqRow("Male urinals",m?`${urinalsMale(m)}`:"Nil up to 6; 1 for 7–20; 2 for 21–45; 3 for 46–70; 4 for 71–100; higher loads per table.","Annexure X Table 1 / Table 6");
+    rows+=reqRow("Wash basins",(m+f)?`${ceil((m+f)/25)}`:"1 per 25 persons or part thereof.","Annexure X Table 1 / Table 6");
+    rows+=reqRow("Drinking-water fountains",(m+f)?`${Math.max(Math.max(1,Math.floor(n("floors"))),ceil((m+f)/100))}`:"1 per 100 persons, minimum one on each floor.","Annexure X Table 1 / Table 6");
+    rows+=reqRow("Cleaner’s sink","Minimum one per floor.","Annexure X Table 1 / Table 6");
+    return rows;
+  }
+  rows+=reqRow("Sanitary fittings","Occupancy-specific sanitation is governed by Annexure X. Enter occupant/user data where applicable; detailed table verification is required for this occupancy.","Annexure X");
+  return rows;
+}
+function specialRequirements(o,dev,height,totalC,totalTW,totalLo){
+  let rows="";
+  const needsParking=(totalC||0)>0||(totalTW||0)>0||(totalLo||0)>0;
+  // Rule 44(1) solar triggers: High Rise; Hospital floor area > 150 sq.m; Hotel floor area > 150 sq.m;
+  // Residential footprint > 150 sq.m; Auditorium area > 200 sq.m; Industry (all types).
+  // GovernmentOffice is NOT listed in Rule 44(1).
+  const solar = height>18.3 ||
+    (o==="Hospital" && dev.allowable>150) ||
+    (["MajorHotel","OtherHotel","Hostel"].includes(o) && dev.allowable>150) ||
+    (o==="Residential" && dev.footprint>150) ||
+    (o==="Auditorium" && dev.allowable>200) ||
+    o==="Industry";
+  rows+=reqRow("Solar-assisted water heating",solar?"Applicable — Rule 44(1) condition met for this occupancy/area.":"Not triggered for entered occupancy/area; verify if any special use conditions under Rule 44(1) apply.","Rule 44(1)");
+  if(["GovernmentSchool","PrivateSchool"].includes(o)){
+    rows+=reqRow("School staircase","Minimum 1.6 m; one staircase for every 6 classrooms; mid-landing minimum 1.6 m; continuous ground to terrace.","Annexure XV");
+    rows+=reqRow("School classroom","Minimum 6 m × 6 m for strength up to 40; headroom minimum 3.0 m; at least 2 doors and 2 windows.","Annexure XV");
+    rows+=reqRow("School corridor / verandah","Covered verandah/corridor in front of classrooms minimum 1.8 m.","Annexure XV");
+    rows+=reqRow("School stair travel distance","From any part of upper floors to staircase not more than 22.6 m.","Annexure XV");
+  }
+  // Self-certification scheme — G.O. Ms. No. 133 (18 Jul 2024)
+  if(o==="Residential"){
+    rows+=reqRow("Self-Certification Scheme (G.O. Ms. No.133, Jul 2024)","Applicable if: plot ≤ 2,500 sq.ft + BUA ≤ 3,500 sq.ft + max 2 DU + height ≤ 10m. Fast-track online approval; no scrutiny fee; no I&A charges; CC exemption for utility connections.","G.O. Ms. No. 133, 18 Jul 2024");
+  }
+  if(needsParking){
+    rows+=reqRow("Parking stall size","Car 2.5×5.0 m; Two-wheeler 1.0×1.8 m; LCV 3.5×7.0 m; Lorry/Bus 3.5×10.0 m.","Annexure IV Part II(A)");
+    rows+=reqRow("Parking driveway","3.0 m one-way; 6.0 m two-way.","Annexure IV Part II(C)");
+    rows+=reqRow("Parking entry/exit gate","Minimum 3.0 m.","Annexure IV Part II(D)");
+    rows+=reqRow("Parking ramp","3.0 m one-way; 6.0 m two-way; gradient not steeper than 1:8.","Annexure IV Part II(G)");
+    rows+=reqRow("Parking headroom","Minimum 2.2 m including approaching ramps/covered access.","Annexure IV Part II(H)");
+  }
+  return rows;
+}
+
+// ── OSR — Rule 41 TNCDBR 2019 ─────────────────────────────────────────────
+// Rule 41(1): Reservation of land for community recreational purposes.
+// OSR TABLE (from Rule 41, page 56 of official TNCDBR 2019 PDF):
+//   Plot extent           | OSR %  | Notes
+//   Up to 750 sq.m        | NIL    | Exempted
+//   751 – 3,000 sq.m      | 10%    | Gifted / Buyback / Retain
+//   3,001 – 10,000 sq.m   | 10%    | (first 3,000 sq.m exempted in layout sub-division context)
+//   Above 10,000 sq.m     | 10%    | OSR must be gifted in approved layout; for building permit it is 10% of full plot
+//
+// Exemptions / special conditions per Rule 41:
+//   (a) EWS area — OSR NOT required (Rule 35(1)(a) context, EWS developments)
+//   (b) Approved layout — OSR already surrendered at layout stage; NOT required again at building permit
+//   (c) Industrial & Institutional — OSR not gifted to local body; owner retains and maintains
+//   (d) Existing development ≥ 25% ground coverage — buyback (GLV) may be opted
+//   (e) OSR must be exclusive of setbacks; contiguous; abutting a public road; free from construction
+//   (f) Minimum OSR dimensions: not less than 10m × 10m; not less than 100 sq.m
+//   (g) Rule 41(6): Watchman booth, toilet, gardener room allowed in OSR; total ≤ 5% of OSR area
+//   (h) Rule 41(7): Public parking permitted in basement below OSR
+//   (i) Rule 41(8): RWH tanks and STP permitted below OSR
+//   (j) Rule 34 Shelter Charges: If FSI area > 4,000 sq.m → 10% of FSI area for LIG housing (separate from OSR)
+
+function calcOSR(o, plotA, areaType, approvedLayout, height){
+  const industrial=["Industry","Godown","ColdStorage"].includes(o);
+  const institutional=["GovernmentSchool","PrivateSchool","College","Tutorial","Training",
+    "GovernmentOffice","Hospital","Hostel","Auditorium","HealthClub","RecreationalClub","Religious"].includes(o);
+
+  // EWS — OSR not applicable per TNCDBR 2019 EWS provisions
+  if(areaType==="EWS Area"){
+    return {
+      applicable:false,
+      osrArea:0,
+      reason:"OSR NOT REQUIRED — EWS Area: Exempted per TNCDBR 2019 EWS development provisions.",
+      surrender:"—",
+      rule:"Rule 41 read with Rule 35(1)(a) — EWS Area"
+    };
+  }
+
+  // Approved layout — OSR already handed over at layout stage
+  if(approvedLayout==="yes"){
+    return {
+      applicable:false,
+      osrArea:0,
+      reason:"OSR NOT REQUIRED — Plot is in an Approved Layout: OSR would have been reserved and gifted at layout approval stage. Not required again at building permit stage per Rule 35(1)(x) and Rule 41 Explanation (ii).",
+      surrender:"Already surrendered at layout stage",
+      rule:"Rule 41 Explanation (ii) — Approved Layout"
+    };
+  }
+
+  // Plot ≤ 750 sq.m — OSR exempted
+  if(plotA<=750){
+    return {
+      applicable:false,
+      osrArea:0,
+      reason:`OSR NOT REQUIRED — Plot area ${plotA.toFixed(2)} sq.m ≤ 750 sq.m: Exempted from OSR requirement per Rule 41(1) table.`,
+      surrender:"—",
+      rule:"Rule 41(1) — Plot ≤ 750 sq.m exemption"
+    };
+  }
+
+  // OSR applicable — 10% of plot area
+  const osrArea=plotA*0.10;
+  const minDim="10.0 m × 10.0 m (minimum), ≥ 100 sq.m, contiguous, abutting public road";
+
+  // Industrial / Institutional — owner retains, no gift deed required
+  if(industrial||institutional){
+    return {
+      applicable:true,
+      osrArea,
+      reason:`OSR APPLICABLE — Plot area ${plotA.toFixed(2)} sq.m > 750 sq.m. OSR = 10% = ${osrArea.toFixed(2)} sq.m. For Industrial/Institutional developments, gifting to local body is NOT required — owner maintains under local body supervision per Rule 41 Explanation (i).`,
+      surrender:"RETAIN — Owner maintains under Local Body supervision (gift deed not required for Industrial/Institutional)",
+      minDim,
+      extras:[
+        "OSR must be exclusive of setback spaces and spacing between blocks — Rule 41(2)",
+        "OSR must be free from any construction or structure — Rule 41(2)",
+        "OSR must be at ground level, contiguous, abutting a public road — Rule 41(1)",
+        "Structures permitted in OSR: watchman booth, toilet, gardener room — total ≤ 5% of OSR area — Rule 41(6)",
+        "Public parking permitted in basement below OSR — Rule 41(7)",
+        "RWH tanks and STP permitted below OSR — Rule 41(8)"
+      ],
+      rule:"Rule 41(1) + Rule 41 Explanation(i) — Industrial/Institutional: Retain & Maintain"
+    };
+  }
+
+  // Residential / Commercial — Surrender, Buyback, or Retain options
+  const opts=plotA>750?"SURRENDER (Gift Deed to Local Body) / BUYBACK (pay Guideline Value of OSR area) — Rule 41(4) / RETAIN (if Local Body agrees)":"—";
+  return {
+    applicable:true,
+    osrArea,
+    reason:`OSR APPLICABLE — Plot area ${plotA.toFixed(2)} sq.m > 750 sq.m. OSR = 10% of plot area = ${osrArea.toFixed(2)} sq.m. Must be reserved at ground level, contiguous, abutting public road — Rule 41(1).`,
+    surrender:opts,
+    minDim,
+    extras:[
+      "OSR must be exclusive of setback spaces and spacing between blocks — Rule 41(2)",
+      "OSR must be free from any construction or structure — Rule 41(2)",
+      "OSR must be at ground level, contiguous, abutting a public road — Rule 41(1)",
+      `Minimum OSR dimensions: ${minDim}`,
+      "If existing ground coverage ≥ 25% of plot area (existing development): Local Body may collect Guideline Value in lieu — Rule 41(3) & Rule 41(4)",
+      "Structures permitted in OSR: watchman booth, toilet, gardener room — total ≤ 5% of OSR area — Rule 41(6)",
+      "Public parking permitted in basement below OSR — Rule 41(7)",
+      "RWH tanks and STP permitted below OSR — Rule 41(8)",
+      "OSR area is included in plot area for FSI calculation — Rule 41 Explanation(ii)",
+      "FSI benefit shall be permitted for land left for OSR wherever insisted by competent authority — Rule 35(1)(viii)"
+    ],
+    rule:"Rule 41(1) — OSR 10% of Plot Area"
+  };
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
+function calculate(){
+  const o=$("occ").value,upperFloors=Math.max(0,Math.floor(n("floors"))),floors=upperFloors+1,height=n("height");
+  const sb=calcSetbacks(o);
+  const dev=calcDevelopment(sb);
+
+  // Validation
+  const areaRequired=["Shops","AutoShowroom","GovernmentOffice","OtherOffice","Bank","ATM","PostOffice","ITOffice","Restaurant","Auditorium","GovernmentSchool","PrivateSchool","College","Tutorial","Training","Hospital","HealthClub","RecreationalClub","Godown","ColdStorage","Religious"];
+
+  if(areaRequired.includes(o) && n("area")<=0){
+    alert("Please enter the applicable floor / class-room area (sq.m) for parking calculation.");
+    return;
+  }
+  if(o==="Residential" && n("units")<=0){
+    alert("Please enter the number of dwelling units.");
+    return;
+  }
+const r=calcOne(o);
+  const totalC=r.c+r.vc,totalTW=r.tw+r.vt;
+  const bua=dev.allowable, fsi=dev.maxFSIArea;
+  let accessible=floors>2?`${Math.max(2,ceil(totalC*.10))} car + ${Math.max(2,ceil(totalTW*.10))} two-wheeler spaces reserved near entrance (within required parking).`:"Not triggered: building has 2 floors or fewer.";
+  let ev="No EV charging requirement triggered by the 2025 Annexure-IV EV amendment for the entered data.";
+  if(o==="Residential"){
+    const units=n("units");
+    const exempt=(height<=14 && (units<=8 || bua<=750));
+    if(!exempt){
+      ev=`Charging point for each required car and two-wheeler parking space (${totalC} car points + ${totalTW} 2W points).`;
+      if(units>50) ev+=" Visitor car and two-wheeler spaces must have fast charging points.";
+    } else ev="Residential EV exception applies based on entered height / dwelling units / built-up area.";
+  }else{
+    const commercial=["Shops","AutoShowroom","GovernmentOffice","OtherOffice","Bank","ATM","PostOffice","ITOffice","Restaurant","MajorHotel","OtherHotel","Hostel","Auditorium","HealthClub","RecreationalClub","Religious"].includes(o);
+    const institutional=["GovernmentSchool","PrivateSchool","College","Tutorial","Training","Hospital"].includes(o);
+    const industrial=o==="Industry";
+    if((commercial||institutional||industrial)&&fsi>300){
+      ev=`Minimum 10% of car or two-wheeler parking spaces to be earmarked for EVs and provided with fast charging points.`;
+    }
+  }
+  $("rCars").textContent=totalC;$("rTW").textContent=totalTW;$("rCycles").textContent=r.cy;$("rLorry").textContent=r.lo;
+  $("rPlot").textContent=(n("plotA")||n("plotW")*n("plotL")).toFixed(2)+" sq.m";$("rLocal").textContent=$("local").value;$("rOcc").textContent=$("occ").selectedOptions[0].text;
+  $("rFH").textContent=`${upperFloors===0 ? "Ground Floor only" : "Ground + "+upperFloors+" upper floor(s)"} (${floors} total floor(s)) / ${height.toFixed(2)} m`;
+  $("rParkArea").textContent=(o==="Residential" ? (n("unitArea").toFixed(2)+" sq.m per dwelling (entered actual area)") : (n("area")>0 ? n("area").toFixed(2)+" sq.m (entered applicable area)" : "See occupancy inputs"));
+  $("rBaseCars").textContent=r.c;$("rVCars").textContent=r.vc;$("rBaseTW").textContent=r.tw;$("rVTW").textContent=r.vt; 
+  $("rBuildW").textContent=dev.buildW.toFixed(2)+" m";
+  $("rBuildL").textContent=dev.buildL.toFixed(2)+" m";
+  $("rFootprint").textContent=dev.footprint.toFixed(2)+" sq.m";
+  $("rPermFSI").textContent=dev.permissibleFSI.toFixed(2);
+  $("rMaxFSI").textContent=dev.maxFSIArea.toFixed(2)+" sq.m";
+  $("rGross").textContent=dev.geometricTotal.toFixed(2)+" sq.m";
+  $("rAllowable").textContent=dev.allowable.toFixed(2)+" sq.m";
+  $("rFront").textContent=Number(sb.front).toFixed(2)+" m";
+  $("rRear").textContent=Number(sb.rear).toFixed(2)+" m";
+  $("rSide").textContent=sb.side;
+  $("rSetbackRule").textContent=sb.rule;
+  $("rAccessible").textContent=accessible;$("rEV").textContent=ev;$("rRule").textContent=r.rule;$("rNote").textContent=r.note||"Requirement calculated from the selected Annexure IV occupancy category.";
+  $("generalReq").innerHTML=generalRequirements(o,floors,height);
+  $("sanReq").innerHTML=sanitationRequirements(o);
+  $("specialReq").innerHTML=specialRequirements(o,dev,height,totalC,totalTW,r.lo);
+  // Road width adequacy warning (non-blocking — report still generates).
+  const _rw=calcMinRoadWidth(o), _entered=n("roadW");
+  if(_entered>0 && _entered<_rw.min){
+    // Non-blocking: report shows with FAIL row highlighted.
+  }
+  $("report").classList.add("show");$("report").scrollIntoView({behavior:"smooth"});
+}
+function resetForm(){document.querySelectorAll("input").forEach(x=>x.value="");$("floors").value=1;$("height").value=3;$("local").value="Corporation";$("areaType").value="Other Area";$("occ").value="Residential";$("approvedLayout").value="no";renderDynamic();renderSubOcc();$("report").classList.remove("show")}
+$("plotW").addEventListener("input",()=>{if(n("plotW")&&n("plotL"))$("plotA").value=(n("plotW")*n("plotL")).toFixed(2)});
+$("plotL").addEventListener("input",()=>{if(n("plotW")&&n("plotL"))$("plotA").value=(n("plotW")*n("plotL")).toFixed(2)});
+$("occ").addEventListener("change",()=>{renderDynamic();renderSubOcc();});
+renderDynamic();
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function swpTable(title,rows,cols){
+  const heads=cols||['As per TNCDBR','Description','Required'];
+  return `<div class="req-title">${esc(title)}</div><table class="scrutiny"><thead><tr>${heads.map(x=>`<th>${esc(x)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(x=>`<td>${x}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+}
+function parseReqRows(id){
+ const root=$(id); if(!root) return [];
+ return [...root.querySelectorAll('tr')].map(tr=>[...tr.children].map(td=>td.innerHTML));
+}
+function buildSWPReport(){
+ const o=$('occ').value, upper=Math.max(0,Math.floor(n('floors'))), floors=upper+1, h=n('height');
+ const sb=calcSetbacks(o), dev=calcDevelopment(sb), r=calcOne(o), totalC=r.c+r.vc, totalTW=r.tw+r.vt;
+ $('pOcc').textContent=o; $('pLocal').textContent=$('local').value; $('pAreaType').textContent=$('areaType').value;
+ const subSel=$('subOcc'), subText=subSel&&subSel.selectedOptions[0]?subSel.selectedOptions[0].text:'—';
+ $('pSubOcc').textContent=subText;
+ $('pRoad').textContent=n('roadW').toFixed(2); $('pPlot').textContent=dev.plotA.toFixed(2); $('pHeight').textContent=h.toFixed(2);
+ $('pFloors').textContent=upper===0?'Ground Floor only':`Ground + ${upper} upper floor(s)`; $('pFsi').textContent=dev.permissibleFSI.toFixed(2);
+ $('pParkingBasis').textContent = o==="Residential"
+   ? `${n("unitArea").toFixed(2)} sq.m per dwelling × ${Math.max(1,Math.floor(n("units")||1))} dwelling(s)`
+   : (n("area")>0 ? `${n("area").toFixed(2)} sq.m applicable occupancy area` : "Occupancy-specific input");
+
+ $('sFoot').textContent=dev.footprint.toFixed(2); $('sMaxFsi').textContent=dev.maxFSIArea.toFixed(2); $('sGross').textContent=dev.geometricTotal.toFixed(2); $('sAllow').textContent=dev.allowable.toFixed(2);
+ let html='';
+ // ── Applicable Amendments Notice ─────────────────────────────────────────
+ html+=`<div style="background:#fff8e1;border:1px solid #f0a;padding:8px 12px;margin-bottom:10px;font-size:11px">
+  <b style="color:#c60">⚠ TNCDBR 2019 Latest Amendments Applied in this Report:</b><br>
+  <b>G.O. Ms. No. 69 (11 Mar 2024):</b> NHR small development max height raised from 12m to <b>14m</b> (Rule 35 table).<br>
+  <b>G.O. Ms. No. 133 (18 Jul 2024):</b> Self-Certification Scheme for plots ≤ 2,500 sq.ft / BUA ≤ 3,500 sq.ft / max 2 DU / height ≤ 10m — no scrutiny fee.<br>
+  <b>G.O. Ms. No. ~154 (Nov 2024):</b> High-Rise Industrial buildings on roads ≥ 30m + plot ≥ 4,000 sq.m — height restriction removed (AAI clearance required). Industrial FSI in industrial parks: up to 4.875 (road ≥12m); industrial plots: FSI up to 6. Private industrial parks brought under TNCDBR.<br>
+  <b>G.O. Ms. No. 154 (Oct 2025):</b> Parking relaxed — residential 1 car/150 sq.m (from 75 sq.m); CC exemption raised to ≤ 14m height or ≤ 8 DU (from 3 DU/750 sq.m).<br>
+  <b>Layout Amendment (2026):</b> Village Panchayat min road for layout = 6m; Town Panchayat = 6.5m.<br>
+  <b>TN Fire &amp; Rescue Services Act 2025:</b> Fire Safety Certificate (FSC) replaces NOC; periodic third-party audits mandatory.
+ </div>`;
+ html+=swpTable('1.FSI',[[esc('Part VI Pt.35 / pt.36 / pt.37 / pt.38 / pt.39'),'FSI',`<= ${dev.permissibleFSI.toFixed(2)}`]]);
+ const parkingRows=[
+  [esc(r.rule),'Car Parking',String(totalC)],
+  [esc(r.rule),'Two Wheeler Parking',String(totalTW)]
+ ];
+ // Show only slot standards that correspond to a calculated parking requirement.
+ if(totalC>0) parkingRows.push(['Annexure IV Part II(A)','Car Parking Space','5.0 m × 2.5 m']);
+ if(totalTW>0) parkingRows.push(['Annexure IV Part II(A)','Two Wheeler Parking Space','1.0 m × 1.8 m']);
+ // Do NOT automatically show driveway, gate, ramp or parking headroom.
+ // Those depend on the actual parking layout/facility, which this requirements-only
+ // calculator does not know from plot dimensions and occupancy inputs alone.
+ html+=swpTable('2.Parking',parkingRows);
+ const rw=calcMinRoadWidth(o), enteredRoad=n('roadW');
+ const rwPass=enteredRoad>0 && enteredRoad>=rw.min;
+ const rwFail=enteredRoad>0 && enteredRoad<rw.min;
+ const rwStatus=enteredRoad<=0
+   ? `<span style="color:#c60">NOT ENTERED — minimum required: ${rw.min.toFixed(1)} m</span>`
+   : rwPass
+     ? `<span style="color:#080">✔ PASS — entered ${enteredRoad.toFixed(2)} m ≥ required ${rw.min.toFixed(1)} m</span>`
+     : `<span style="color:#c00">✘ FAIL — entered ${enteredRoad.toFixed(2)} m &lt; required ${rw.min.toFixed(1)} m</span>`;
+ html+=swpTable('3.Setback',[
+  [esc(rw.rule),'Minimum road width required',`${rw.min.toFixed(1)} m`],
+  [`${esc(rw.rule)}<br><i>Entered road width status</i>`,'Abutting road width check',rwStatus],
+  [esc(sb.rule),'Front setback',`${(+sb.front||0).toFixed(2)} m`],
+  [esc(sb.rule),'Rear setback',`${(+sb.rear||0).toFixed(2)} m`],
+  [esc(sb.rule),'Side setback',esc(sb.side||'—')]]);
+ const g=parseReqRows('generalReq'); if(g.length) html+=swpTable('4.General Building Requirements',g);
+ const san=parseReqRows('sanReq'); if(san.length) html+=swpTable('5.Sanitation / W.C. Requirements',san);
+ // Re-render specialReq with correct parking counts before parsing
+ $('specialReq').innerHTML=specialRequirements(o,dev,h,totalC,totalTW,r.lo);
+ const sp=parseReqRows('specialReq'); if(sp.length) html+=swpTable('6.Occupancy-Specific Requirements',sp);
+
+ // ── OSR — Section 7 ───────────────────────────────────────────────────────
+ const osr=calcOSR(o, dev.plotA, $('areaType').value, $('approvedLayout').value, h);
+ const osrStatus=osr.applicable
+   ? `<span style="color:#c00;font-weight:700">✘ APPLICABLE — ${osr.osrArea.toFixed(2)} sq.m must be reserved</span>`
+   : `<span style="color:#080;font-weight:700">✔ NOT REQUIRED</span>`;
+ const osrRows=[
+   [esc(osr.rule),'OSR Applicability',osrStatus],
+   [esc(osr.rule),'Reason / Basis',esc(osr.reason)],
+ ];
+ if(osr.applicable){
+   osrRows.push([esc(osr.rule),'Required OSR Area',`${osr.osrArea.toFixed(2)} sq.m (10% of plot area ${dev.plotA.toFixed(2)} sq.m)`]);
+   osrRows.push([esc(osr.rule),'Minimum OSR dimensions','Not less than 10.0 m × 10.0 m; contiguous; at ground level; abutting public road']);
+   osrRows.push([esc(osr.rule),'Surrender / Buyback / Retain option',esc(osr.surrender)]);
+   (osr.extras||[]).forEach((e,i)=>osrRows.push([`Rule 41(${i+2})`,`Condition ${i+1}`,esc(e)]));
+ }
+ html+=swpTable('7.OSR — Open Space Reservation (Rule 41)',osrRows);
+ // ─────────────────────────────────────────────────────────────────────────
+ $('swpSections').innerHTML=html;
+
+console.log("SWP applicable sections:", {
+  general: parseReqRows("generalReq").length,
+  sanitation: parseReqRows("sanReq").length,
+  special: parseReqRows("specialReq").length
+});
+
+}
+const _oldCalculate=calculate;
+calculate=function(){
+  try{
+    _oldCalculate();
+    buildSWPReport();
+  }catch(e){
+    console.error('Calculate error:',e);
+    alert('Error generating report: '+e.message+'\nCheck console for details.');
+  }
+}
+
+renderSubOcc();
+function updateAutoDevelopment(){
+  const pw=n("plotW"), pl=n("plotL");
+  if(pw>0 && pl>0) $("plotA").value=(pw*pl).toFixed(2);
+
+  const o=$("occ").value;
+  const sb=calcSetbacks(o);
+  const dev=calcDevelopment(sb);
+
+  // calcDevelopment already fills bua/fsi; make the intended meanings explicit.
+  $("bua").value = dev.footprint>0 ? dev.footprint.toFixed(2) : "";
+  $("fsi").value = dev.maxFSIArea>0 ? dev.maxFSIArea.toFixed(2) : "";
+}
+["plotW","plotL","plotA","roadW","height","floors","areaType","occ"].forEach(id=>{
+  const el=$(id);
+  if(el){
+    el.addEventListener("input",updateAutoDevelopment);
+    el.addEventListener("change",updateAutoDevelopment);
+  }
+});
+updateAutoDevelopment();
+
+</script></div><!-- end tab-scrutiny -->
+
+<!-- ══ LAYOUT APPROVAL TAB ═══════════════════════════════════════════════════ -->
+<div id="tab-layout" class="tab-panel">
+<div class="gm-card">
+  <!-- Print header — hidden on screen, shown on print -->
+  <div class="ly-print-header" style="display:none;text-align:center;margin-bottom:14px;border-bottom:2px solid #222;padding-bottom:10px">
+    <div style="font-size:18px;font-weight:700">SWP CAD Scrutiny Report</div>
+    <div style="font-size:13px;color:#444">TNCDBR 2019 requirements calculator — Created By B.Muthukumar Cell:95979-43222</div>
+    <div style="font-size:15px;font-weight:700;margin-top:6px">Layout / Sub-Division Approval Requirements — Rule 47</div>
+  </div>
+
+  <h2 class="screen-only">Layout / Sub-Division Approval Calculator — Rule 47, TNCDBR 2019</h2>
+  <p class="screen-only" style="color:#555;margin:0 0 14px">Enter layout details to check all applicable Rule 47 requirements.</p>
+
+  <div class="grid ly-inputs" style="margin-bottom:14px">
+    <div class="field"><label>Layout type</label>
+      <select id="lyType" onchange="calcLayout()">
+        <option value="residential">Residential Layout</option>
+        <option value="commercial">Commercial Layout</option>
+        <option value="industrial">Industrial Layout</option>
+        <option value="institutional">Institutional Layout</option>
+        <option value="mixed">Mixed Use Layout</option>
+      </select></div>
+    <div class="field"><label>Total gross site area (sq.m)</label>
+      <input id="lySite" type="number" min="0" step="1" oninput="calcLayout()"></div>
+    <div class="field"><label>Local body / jurisdiction</label>
+      <select id="lyLocal" onchange="calcLayout()">
+        <option value="corp">Corporation / Municipality</option>
+        <option value="townpanchayat">Town Panchayat</option>
+        <option value="villagepanchayat">Village Panchayat</option>
+      </select></div>
+    <div class="field"><label>Abutting public road width (m)</label>
+      <input id="lyRoad" type="number" min="0" step="0.1" oninput="calcLayout()"></div>
+    <div class="field"><label>Number of plots proposed</label>
+      <input id="lyPlots" type="number" min="1" step="1" value="1" oninput="calcLayout()"></div>
+    <div class="field"><label>Layout abuts National / State Highway?</label>
+      <select id="lyHighway" onchange="calcLayout()">
+        <option value="no">No</option>
+        <option value="yes">Yes — Service road required</option>
+      </select></div>
+    <div class="field"><label>Road area within layout (sq.m) <small>For OSR/saleable area statement</small></label>
+      <input id="lyRoadArea" type="number" min="0" step="1" oninput="calcLayout()"></div>
+    <div class="field"><label>Longest internal road length (m) <small>For internal road width check</small></label>
+      <input id="lyLongestRoad" type="number" min="0" step="1" oninput="calcLayout()"></div>
+    <div class="field"><label>Has dead-end (cul-de-sac) road?</label>
+      <select id="lyCuldesac" onchange="calcLayout()">
+        <option value="no">No</option>
+        <option value="yes">Yes</option>
+      </select></div>
+    <div class="field"><label>Dead-end road length (m) <small>If cul-de-sac present</small></label>
+      <input id="lyCulLen" type="number" min="0" step="1" oninput="calcLayout()"></div>
+    <div class="field"><label>EWS plots proposed?</label>
+      <select id="lyEWS" onchange="calcLayout()">
+        <option value="no">No / Not applicable</option>
+        <option value="yes">Yes</option>
+      </select></div>
+    <div class="field"><label>Commercial reservation required? <small>Township-scale only</small></label>
+      <select id="lyCommercial" onchange="calcLayout()">
+        <option value="no">No</option>
+        <option value="yes">Yes</option>
+      </select></div>
+  </div>
+  <div style="display:flex;gap:8px;margin-bottom:4px">
+    <button class="ly-calc-btn primary" style="padding:9px 20px;border:1px solid #222;background:#222;color:#fff;cursor:pointer" onclick="calcLayout()">Calculate Layout Requirements</button>
+    <button id="lyPdfBtn" class="ly-calc-btn" style="padding:9px 16px;border:1px solid #222;background:#fff;cursor:pointer;display:none" onclick="window.print()">🖨 Generate PDF</button>
+  </div>
+  <div id="lyReport" style="margin-top:18px"></div>
+</div>
+</div><!-- end tab-layout -->
+
+</div><!-- end wrap -->
+<script>
+function showTab(t,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  if(btn) btn.classList.add('active');
+}
+
+// ══ LAYOUT CALCULATOR — Rule 47 TNCDBR 2019 (V28 — gazette verified) ════════
+function lyN(id){const e=document.getElementById(id);return e?+e.value||0:0;}
+function lyV(id){const e=document.getElementById(id);return e?e.value:'';}
+
+function lyRow(item,req,rule,status){
+  let bg='';
+  if(status==='fail') bg='background:#fff0f0';
+  else if(status==='pass') bg='background:#f0fff4';
+  else if(status==='warn') bg='background:#fffbe6';
+  return `<tr style="${bg}"><th style="text-align:left;padding:5px 7px;font-weight:400;border:1px solid #ccc;width:200px">${item}</th>`+
+    `<td style="padding:5px 7px;border:1px solid #ccc">${req}</td>`+
+    `<td style="padding:5px 7px;border:1px solid #ccc;color:#555;font-size:11px;width:150px">${rule}</td></tr>`;
+}
+function lySection(title,rows,secNum){
+  return `<div style="font-size:14px;font-weight:700;color:#142bc8;margin:16px 0 4px;border-left:4px solid #142bc8;padding-left:8px">${secNum?secNum+'. ':' '}${title}</div>`+
+    `<table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:10px">`+
+    `<thead><tr>`+
+    `<th style="background:#222;color:#fff;padding:5px 7px;text-align:left;width:200px">Requirement</th>`+
+    `<th style="background:#222;color:#fff;padding:5px 7px;text-align:left">Value / Standard</th>`+
+    `<th style="background:#222;color:#fff;padding:5px 7px;text-align:left;width:150px">Rule Reference</th>`+
+    `</tr></thead><tbody>${rows}</tbody></table>`;
+}
+function lyPass(val,min,unit){
+  if(val<=0) return `<span style="color:#c60">⚠ NOT ENTERED — min: ${min} ${unit}</span>`;
+  if(val>=min) return `<span style="color:#080">✔ PASS — ${val} ${unit} ≥ ${min} ${unit}</span>`;
+  return `<span style="color:#c00">✘ FAIL — ${val} ${unit} &lt; ${min} ${unit}</span>`;
+}
+
+function calcLayout(){
+  const type=lyV('lyType'), site=lyN('lySite'), local=lyV('lyLocal'),
+        road=lyN('lyRoad'), plots=lyN('lyPlots'), highway=lyV('lyHighway'),
+        roadArea=lyN('lyRoadArea'), longestRoad=lyN('lyLongestRoad'),
+        culdesac=lyV('lyCuldesac'), culLen=lyN('lyCulLen'),
+        ewsYes=lyV('lyEWS')==='yes', commRes=lyV('lyCommercial')==='yes';
+
+  if(site<=0){document.getElementById('lyReport').innerHTML='<p style="color:#888;padding:10px">Enter site area to generate requirements.</p>';return;}
+
+  const isResidential=(type==='residential'||type==='mixed');
+  const isIndustrial=(type==='industrial'||type==='mixed');
+  const isCommercial=(type==='commercial'||type==='mixed');
+  const isInstitutional=(type==='institutional');
+
+  // ── 1. LAYOUT CLASSIFICATION — Rule 2(61) / Rule 2(118) ──────────────────
+  // Gazette: Layout = > 8 plots with new road. Sub-division = ≤ 8 plots.
+  const isLayout=plots>8;
+  const devType=isLayout
+    ?'<b>Layout</b> — more than 8 plots with new internal road [Rule 2(61)]'
+    :'<b>Sub-division</b> — 8 or fewer plots, no new road required [Rule 2(118)]';
+
+  // ── 2. APPROACH ROAD — Rule 47(1)(a) ─────────────────────────────────────
+  // Gazette Rule 47(1)(a): residential layout 7.2 m; industrial 9 m (all jurisdictions)
+  // 2026 amendment: Village Panchayat residential layout = 6 m; Town Panchayat = 6.5 m
+  let minRoad, roadRule;
+  if(isIndustrial && type!=='mixed'){
+    minRoad=9; roadRule='Rule 47(1)(a) — Industrial layout: min 9 m approach road (all jurisdictions) [gazette verified]';
+  } else if(local==='villagepanchayat'){
+    minRoad=6; roadRule='Rule 47(1)(a) + 2026 layout road amendment — Village Panchayat: residential layout min approach road 6 m';
+  } else if(local==='townpanchayat'){
+    minRoad=6.5; roadRule='Rule 47(1)(a) + 2026 layout road amendment — Town Panchayat: residential layout min approach road 6.5 m';
+  } else {
+    minRoad=7.2; roadRule='Rule 47(1)(a) — Corporation/Municipality: residential layout min approach road 7.2 m [gazette verified]';
+  }
+  const roadStatus=lyPass(road,minRoad,'m');
+  const roadFail=road>0&&road<minRoad;
+
+  let basicRows='';
+  basicRows+=lyRow('Layout classification',devType,'Rule 2(61) / Rule 2(118)');
+  basicRows+=lyRow('Minimum approach road width required',`${minRoad} m`,roadRule,roadFail?'fail':'');
+  basicRows+=lyRow('Abutting road width — status',roadStatus,'Rule 47(1)(a)',roadFail?'fail':road>0?'pass':'warn');
+  basicRows+=lyRow('Reserve land for public facilities','All roads, OSR and PPR must be reserved and gift-deed executed BEFORE layout sanction or plot sale','Rule 47(1)');
+  if(highway==='yes'){
+    basicRows+=lyRow('Service road (abutting NH / SH)','Service road required — minimum 7.0 m width; raised median 0.5–1.0 m (height 0.30–0.45 m) separating from main carriageway','Rule 47(2)','warn');
+  }
+  // Sub-division approach: for subdivision sites not abutting public road, private passage rules of Rule 35(1)(c) apply
+  if(!isLayout){
+    basicRows+=lyRow('Sub-division private passage','If sub-division site does not directly abut public road: min passage width = 3 m for ≤ 8 DU in Other Areas [Rule 35(1)(c)]','Rule 35(1)(c)','warn');
+  }
+
+  // ── 3. DEAD-END ROADS (CUL-DE-SAC) — Rule 47(4) ──────────────────────────
+  // Gazette Rule 47(4): cul-de-sacs permitted when length ≤ 60 m; turnaround 9×9 m
+  let deadEndRows='';
+  if(culdesac==='yes'){
+    const culPass=culLen>0&&culLen<=60;
+    const culStatus=culLen<=0?'⚠ Length not entered':culPass?`✔ ${culLen} m ≤ 60 m — PERMITTED; min width 3.6 m; turnaround required`:`✘ ${culLen} m > 60 m — EXCEEDS 60 m LIMIT. Through road required.`;
+    deadEndRows+=lyRow('Dead-end road length',`${culLen>0?culLen+' m':'Not entered'}`,`Rule 47(4)`,culLen>60?'fail':culLen>0?'pass':'warn');
+    deadEndRows+=lyRow('Dead-end road status',`<span style="color:${culLen>60?'#c00':culLen>0?'#080':'#c60'}">${culStatus}</span>`,'Rule 47(4)');
+    deadEndRows+=lyRow('Cul-de-sac — max length','60 m maximum length permitted [gazette Rule 47(4)]','Rule 47(4)');
+    deadEndRows+=lyRow('Cul-de-sac — min road width','3.6 m minimum width (applies to dead-end road only)','Rule 47(3) table');
+    deadEndRows+=lyRow('Cul-de-sac — turnaround','9.0 m × 9.0 m turning area at closed end, or provision for reversing satisfying standards','Rule 47(4)');
+  } else {
+    deadEndRows+=lyRow('Dead-end road','Not present — all roads are through roads','Rule 47(4)');
+  }
+
+  // ── 4. INTERNAL ROAD WIDTHS — Rule 47(3) table ───────────────────────────
+  // Gazette Rule 47(3) table (verbatim from TNCDBR 2019 gazette):
+  // Road length up to 60 m (dead-end): 3.6 m
+  // Road length up to 250 m: 6.0 m
+  // Road length 250–500 m: 9.0 m
+  // Road length above 500 m: 12.0 m
+  // Note: Road extendable to adjacent land ≥ 9 m regardless of length [Rule 47(3) Note 2]
+  let internalRows='';
+  internalRows+=lyRow('Internal road width — road length table','','Rule 47(3)');
+  internalRows+=lyRow('Dead-end road, length ≤ 60 m','3.6 m minimum width','Rule 47(3)');
+  internalRows+=lyRow('Road length up to 250 m','6.0 m minimum width','Rule 47(3)');
+  internalRows+=lyRow('Road length 250 m to 500 m','9.0 m minimum width','Rule 47(3)');
+  internalRows+=lyRow('Road length above 500 m','12.0 m minimum width','Rule 47(3)');
+  internalRows+=lyRow('Road extendable to adjacent land','Must be minimum 9.0 m regardless of length — to allow future extension [Rule 47(3) Note 2]','Rule 47(3) Note 2');
+  if(longestRoad>0){
+    const reqW=longestRoad<=60?3.6:longestRoad<=250?6:longestRoad<=500?9:12;
+    internalRows+=lyRow(`Longest road entered: ${longestRoad} m`,`<b>Minimum required width = ${reqW} m</b>`,'Rule 47(3)','warn');
+  }
+  // Private passage — Rule 35(1)(c) — gazette text
+  internalRows+=lyRow('Private passage (site not abutting public road)','Width per Rule 35(1)(c) table: ≤ 8 DU / length ≤ 80 m → 3.6 m; ≤ 12 DU / ≤ 100 m → 4.8 m; ≤ 16 DU / ≤ 120 m → 6 m; ≤ 20 DU / ≤ 120 m → 7.2 m; > 20 DU → 9 m','Rule 35(1)(c)','warn');
+  internalRows+=lyRow('Private passage vs public road','Private passages are NOT gifted; they are exclusive passages and do not form part of the public road network','Rule 35(1)(c) + Rule 47(7)');
+  if(isIndustrial){
+    internalRows+=lyRow('Industrial layout — road standard','All internal roads in industrial layouts must serve as through roads (no dead-ends); min 9 m road width for industry','Rule 47(1)(a) + Rule 47(3)');
+  }
+
+  // ── 5. CORNER SPLAY & JUNCTION GEOMETRY — Rule 47(5) ─────────────────────
+  // Gazette Rule 47(5): splay 1.5×1.5 m for roads ≤ 9 m; 3×3 m for roads > 9 m
+  let junctionRows='';
+  junctionRows+=lyRow('Corner splay — roads up to 9 m wide','1.5 m × 1.5 m triangular splay at each road corner [Rule 47(5) — gazette verified]','Rule 47(5)');
+  junctionRows+=lyRow('Corner splay — roads above 9 m wide','3.0 m × 3.0 m triangular splay at each road corner [Rule 47(5) — gazette verified]','Rule 47(5)');
+  junctionRows+=lyRow('Corner splay — effect on plot','Corner splay area is deducted from the plot area for FSI calculation; not counted as road area','Rule 47(5)');
+  junctionRows+=lyRow('Turning radius at junctions','Minimum turning radius for vehicle movement at road junctions — coordinate with road cross-section','Rule 47(5)');
+  junctionRows+=lyRow('Visibility triangle','Clear sight lines at junctions — no compound walls, structures or trees within visibility triangle','Rule 47(5)');
+
+  // ── 6. EXISTING ROADS / WIDENING / ALIGNMENT ─────────────────────────────
+  let existingRoadRows='';
+  existingRoadRows+=lyRow('Road widening surrender','If any boundary of layout abuts a road notified for widening under Master Plan / DDP, the widening strip must be surrendered to Local Body by gift deed before sanction','Rule 35(19) + Master Plan');
+  existingRoadRows+=lyRow('Road alignment','Layout internal roads must align with existing public roads and proposed roads in Master Plan / Detailed Development Plan','Rule 47(1) + Rule 18');
+  existingRoadRows+=lyRow('Missing link roads','If Master Plan prescribes a road through the site, it must be provided and gifted','Rule 8(2)(b) + Rule 47');
+
+  // ── 7. MINIMUM PLOT DIMENSIONS — Rule 47 + gazette notes ─────────────────
+  let plotRows='';
+  if(isResidential){
+    // Gazette Rule 47 Note 1: min 32 sq.m for EWS; 72 sq.m for other
+    plotRows+=lyRow('EWS / Slum plots','Minimum area 32 sq.m; minimum frontage — as approved by authority [Rule 47 Note 1 — gazette verified]','Rule 47 Note 1');
+    plotRows+=lyRow('Other residential plots','Minimum area 72 sq.m; minimum frontage 4.5 m [Rule 47 Note 1 — gazette verified]','Rule 47 Note 1');
+    plotRows+=lyRow('Plot shape','Rectangular preferred; irregular shapes to be measured at the building line / setback line','Rule 47(6)');
+    plotRows+=lyRow('Corner plots','Corner plot must have required frontage on both abutting roads; corner splay land is excluded from plot area','Rule 47(5)+(6)');
+    plotRows+=lyRow('Width-to-depth ratio','Maximum plot depth should not exceed 2.5 × frontage width to ensure usable plot shape','Rule 47(6)');
+    plotRows+=lyRow('Trapezoidal / irregular plots','Frontage and depth measured at mid-line; minimum frontage must be satisfied at the road boundary','Rule 47(6)');
+  }
+  if(isCommercial){
+    plotRows+=lyRow('Commercial plots','Minimum area 300 sq.m; minimum frontage 9.0 m','Rule 47(6)(b)');
+  }
+  if(isIndustrial){
+    plotRows+=lyRow('Industrial plots','Minimum area 892 sq.m; minimum frontage 18.0 m','Rule 47(6)(c)');
+  }
+  if(isInstitutional){
+    plotRows+=lyRow('Institutional plots','Minimum area 892 sq.m; minimum frontage 18.0 m','Rule 47(6)(d)');
+  }
+
+  // ── 8. OSR — OPEN SPACE RESERVATION — Rule 47 + Rule 41 ──────────────────
+  // CORRECTED per gazette + Supreme Court CMDA v Kamala Selvaraj 2025 INSC 1200:
+  // OSR base = 10% of NET layout area (excluding internal roads), NOT gross area
+  // 3 tiers:
+  //   ≤ 3,000 sq.m  → NIL
+  //   3,001–10,000  → 10% of net area; fee-in-lieu = 10% × (site − 3,000) × GLV
+  //   > 10,000      → 10% of net area; physical only; no fee option
+  // Minimum OSR parcel:
+  //   3k–10k tier  → 100 sq.m, min dimension 10 m
+  //   > 10k tier   → 500 sq.m, min dimension ratio 1:5
+  const netArea=roadArea>0?(site-roadArea):site; // net = site minus roads if entered
+  let osrRows='', osrRequired=true, osrArea=0, osrNote='', osrPayment='', osrMinDim='';
+  if(site<=3000){
+    osrRequired=false;
+    osrNote='Site area ≤ 3,000 sq.m — OSR NOT REQUIRED [Rule 41 / Rule 47 gazette]';
+    osrPayment='—';
+  } else if(site<=10000){
+    osrArea=netArea*0.10;
+    osrNote=`3,000–10,000 sq.m slab: OSR = 10% of net layout area (excluding roads) = 10% × ${netArea.toFixed(0)} sq.m = ${osrArea.toFixed(2)} sq.m`;
+    osrPayment='Fee-in-lieu permitted: 10% × (site − 3,000 sq.m) × Guideline Value per sq.m [SC confirmed 2025]';
+    osrMinDim='Minimum 100 sq.m; minimum dimension 10 m (3k–10k tier)';
+  } else {
+    osrArea=netArea*0.10;
+    osrNote=`Above 10,000 sq.m: OSR = 10% of net layout area (excluding roads) = 10% × ${netArea.toFixed(0)} sq.m = ${osrArea.toFixed(2)} sq.m`;
+    osrPayment='Fee-in-lieu NOT permitted — physical land reservation MANDATORY; registered gift deed required before sanction';
+    osrMinDim='Minimum 500 sq.m; dimension ratio not more than 1:5 (> 10k tier)';
+  }
+  osrRows+=lyRow('OSR applicability',osrRequired?`<span style="color:#c00;font-weight:700">✘ APPLICABLE — ${osrArea.toFixed(2)} sq.m</span>`:`<span style="color:#080;font-weight:700">✔ NOT REQUIRED (site ≤ 3,000 sq.m)</span>`,'Rule 41 + Rule 47',osrRequired?'fail':'pass');
+  osrRows+=lyRow('OSR calculation basis',osrNote,'Rule 41(1)',osrRequired?'warn':'');
+  if(osrRequired){
+    osrRows+=lyRow('OSR area required',`${osrArea.toFixed(2)} sq.m`+(roadArea<=0?' (road area not entered — enter road area for exact calculation)':''),'Rule 41(1)');
+    osrRows+=lyRow('Payment in lieu',osrPayment,'Rule 41(4)',site>10000?'fail':'');
+    osrRows+=lyRow('Minimum OSR parcel dimensions',osrMinDim,'Rule 41(1) + CMDA practice');
+    osrRows+=lyRow('OSR location','Must abut a public road; at ground level; contiguous; free of all construction','Rule 41(1)+(2)');
+    osrRows+=lyRow('Structures permitted in OSR','Watchman booth, public toilet, gardener room, police booth — total built area ≤ 5% of OSR area','Rule 41(6)');
+    osrRows+=lyRow('Below OSR — public parking','Public parking may be provided in basement below OSR','Rule 41(7)');
+    osrRows+=lyRow('Below OSR — RWH / STP','RWH tanks and Sewage Treatment Plant permitted below OSR land','Rule 41(8)');
+    osrRows+=lyRow('OSR — FSI benefit','FSI benefit shall be permitted for land reserved as OSR wherever insisted by competent authority','Rule 35(1)(viii)');
+    if(isIndustrial||isInstitutional){
+      osrRows+=lyRow('Industrial / Institutional — gift deed','Gift deed NOT required — owner retains OSR under Local Body supervision and maintenance','Rule 41 Explanation(i)');
+    } else {
+      osrRows+=lyRow('Residential / Commercial — gift deed','OSR land must be gifted to Local Body by registered Gift Deed BEFORE layout sanction','Rule 47(7)(a)');
+    }
+  }
+
+  // ── 9. AREA STATEMENT ─────────────────────────────────────────────────────
+  // PPR base is gross layout area excluding roads per Rule 47(8): 1% of layout area excluding roads
+  const pprBase=roadArea>0?(site-roadArea):site;
+  const pprLocal=pprBase*0.005, pprTangedco=pprBase*0.005, pprTotal=pprLocal+pprTangedco;
+  const saleable=site-(roadArea||0)-(osrArea||0)-pprTotal;
+  let areaRows='';
+  areaRows+=lyRow('Gross layout area',`${site.toFixed(2)} sq.m`,'Area Statement — Rule 8(2)(f)');
+  areaRows+=lyRow('Road area within layout',roadArea>0?`${roadArea.toFixed(2)} sq.m`:'Not entered — fill road area field for exact statement','Area Statement');
+  areaRows+=lyRow('Net layout area (excl. roads)',roadArea>0?`${(site-roadArea).toFixed(2)} sq.m`:'Not calculable — enter road area','Area Statement');
+  areaRows+=lyRow('OSR area',osrRequired?`${osrArea.toFixed(2)} sq.m`:'Not required','Area Statement');
+  areaRows+=lyRow('PPR — Local Body (0.5% of net area)',`${pprLocal.toFixed(2)} sq.m`+(roadArea<=0?' (estimated from gross)':''),'Rule 47(8) — gazette verified');
+  areaRows+=lyRow('PPR — TANGEDCO (0.5% of net area)',`${pprTangedco.toFixed(2)} sq.m`+(roadArea<=0?' (estimated from gross)':''),'Rule 47(8) — gazette verified');
+  areaRows+=lyRow('Total PPR (1% of net area)',`${pprTotal.toFixed(2)} sq.m`,'Rule 47(8)');
+  areaRows+=lyRow('Saleable plot area (estimated)',roadArea>0?`${saleable.toFixed(2)} sq.m`:'Enter road area for calculation','Area Statement');
+  areaRows+=lyRow('Utility / other area','Electrical room, STP, guard room, etc. — as applicable','Area Statement');
+
+  // ── 10. GIFT DEED REQUIREMENTS — Rule 47(7)(8)(9)(10) ─────────────────────
+  // Rule 47(7)(a): Roads gifted to local body
+  // Rule 47(7)(b): Industrial/Institutional OSR — not gifted
+  // Rule 47(7)(c): Bus stop reservation in layouts > 2 ha
+  // Rule 47(8): 1% PPR (0.5% Local Body + 0.5% TANGEDCO) — gift deed
+  let giftRows='';
+  giftRows+=lyRow('Gift deed for internal roads','All public internal layout roads must be transferred to Local Body by registered Gift Deed before layout sanction [Rule 47(7)(a) — gazette]','Rule 47(7)(a)');
+  giftRows+=lyRow('Roads NOT transferred','Private passages, exclusive access roads for a single plot — NOT gifted to local body','Rule 47(7)');
+  giftRows+=lyRow('Gift deed for OSR (residential/commercial)','OSR land must be gifted to Local Body — registered Gift Deed before sanction [Rule 47(7)(a)]','Rule 47(7)(a)');
+  giftRows+=lyRow('OSR — Industrial / Institutional','Gift deed NOT required — owner retains and maintains under Local Body supervision [Rule 47(7)(b)]','Rule 47(7)(b)');
+  giftRows+=lyRow('Bus stop reservation','Competent authority may reserve space for recessed bus stops in layouts exceeding 2 hectares (20,000 sq.m); this road space is also transferred free of cost [Rule 47(7)(c) — gazette]','Rule 47(7)(c)',site>20000?'warn':'');
+  giftRows+=lyRow('PPR — Local Body 0.5%','0.5% of layout area (excl. roads) transferred to Local Body — registered Gift Deed before sanction [Rule 47(8) — gazette]','Rule 47(8)');
+  giftRows+=lyRow('PPR — TANGEDCO 0.5%','0.5% of layout area (excl. roads) transferred to TANGEDCO — registered Gift Deed before sanction [Rule 47(8) — gazette]','Rule 47(8)');
+  giftRows+=lyRow('Sequence','Gift deeds for roads + OSR + PPR must ALL be executed before layout sanction is issued','Rule 47(7)+(8)');
+
+  // ── 11. EWS RESERVATION — Rule 47(9) ─────────────────────────────────────
+  // Gazette Rule 47(9): EWS triggered when residential layout EXCEEDS 10,000 sq.m (1 hectare)
+  // = 10% of layout area (excl. roads) as EWS plots
+  // No conversion or amalgamation of EWS plots ever permitted
+  let ewsRows='';
+  if(isResidential){
+    if(site>10000){
+      ewsRows+=lyRow('EWS reservation — TRIGGERED','Residential layout exceeds 10,000 sq.m → 10% of layout area (excluding roads) must be reserved as EWS plots [Rule 47(9) — gazette verified]','Rule 47(9)','fail');
+      const ewsAreaReq=(roadArea>0?(site-roadArea):site)*0.10;
+      ewsRows+=lyRow('EWS area required',`${ewsAreaReq.toFixed(2)} sq.m (10% of net area)`+(roadArea<=0?' — enter road area for exact figure':''),'Rule 47(9)');
+      ewsRows+=lyRow('EWS plot minimum size','32 sq.m per EWS plot [Rule 47 Note 1]','Rule 47 Note 1');
+      ewsRows+=lyRow('EWS plot restriction','EWS plots shall be sold ONLY for EWS purpose; NO conversion or amalgamation ever permitted [Rule 47(9) — gazette]','Rule 47(9)');
+      ewsRows+=lyRow('Scrutiny fee — EWS plots','Scrutiny fee shall NOT be collected for EWS dwelling units ≤ 40 sq.m plinth area [Rule 7(5)]','Rule 7(5)');
+    } else {
+      ewsRows+=lyRow('EWS reservation','NOT triggered — residential layout ≤ 10,000 sq.m. EWS reservation applies only when site > 10,000 sq.m [Rule 47(9) — gazette]','Rule 47(9)','pass');
+    }
+  } else {
+    ewsRows+=lyRow('EWS reservation','Applies only to residential layouts exceeding 10,000 sq.m [Rule 47(9)]','Rule 47(9)');
+  }
+
+  // ── 12. COMMERCIAL RESERVATION — Rule 47(10) ─────────────────────────────
+  // Gazette Rule 47(10): Commercial reservation when layout area ≥ 20 HECTARES (200,000 sq.m)
+  // = at least 3% of total area reserved for commercial
+  let commRows='';
+  if(site>=200000){
+    commRows+=lyRow('Commercial reservation — TRIGGERED',`Layout area ≥ 20 hectares → at least 3% of total area must be reserved for commercial use [Rule 47(10) — gazette]`,'Rule 47(10)','fail');
+    commRows+=lyRow('Commercial area required',`${(site*0.03).toFixed(0)} sq.m (3% of ${site.toFixed(0)} sq.m)`,'Rule 47(10)');
+    commRows+=lyRow('Commercial use examples','Shops, banks, pharmacy, daily-needs stores, service establishments for future residents','Rule 47(10)');
+  } else {
+    commRows+=lyRow('Commercial reservation','NOT triggered — layout area < 20 hectares. Commercial reservation applies only when total layout area ≥ 20 hectares [Rule 47(10) — gazette verified]','Rule 47(10)','pass');
+    commRows+=lyRow('Commercial reservation threshold',`Current site: ${site.toFixed(0)} sq.m. Threshold: 200,000 sq.m (20 ha)`,'Rule 47(10)');
+  }
+
+  // ── 13. INFRASTRUCTURE COSTS — Rule 47(11) ────────────────────────────────
+  let infraRows='';
+  infraRows+=lyRow('Infrastructure improvement costs','Cost of road, water supply, sewerage, drainage or electricity improvements required by Local Body / TANGEDCO shall be borne by the layout developer [Rule 47(11) — gazette]','Rule 47(11)');
+  infraRows+=lyRow('Water supply and sewerage','Developer to provide internal water supply and sewerage lines to each plot as per Local Body specification','Rule 47(11)');
+  infraRows+=lyRow('Road formation','All internal roads must be formed, levelled and tarred before layout completion certificate','Rule 47');
+  infraRows+=lyRow('Street lighting','Internal road lighting to be provided and handed over to Local Body along with road gift deed','Rule 47 + Local Body');
+
+  // ── 14. RESTRICTED AREAS & PROTECTED ZONES — Annexure XVII + Rule 19 ──────
+  let restrictRows='';
+  restrictRows+=lyRow('Lakes and water bodies','Minimum 30 m buffer from Full Tank Level (FTL) boundary; no plots within buffer — Annexure XVII','Rule 19 + Annexure XVII');
+  restrictRows+=lyRow('Natural drainage (Odai / storm drain)','No plots within drain bed; minimum buffer as notified; drain must remain unobstructed','DTCP / Local Body');
+  restrictRows+=lyRow('Flood-prone areas','No layout development in areas notified as flood-prone [Rule 30(6)]; FEMA / DM Act clearance required','Rule 30(6)');
+  restrictRows+=lyRow('HT power lines','Clearance from HT line centreline as per TANGEDCO/CEA norms: 11 kV=1.5 m; 33 kV=2 m; 110 kV=3 m; 230 kV=3.7 m; 400 kV=5 m','CEA Regulations');
+  restrictRows+=lyRow('Railway corridors','Minimum 30 m from railway boundary; NOC from Southern Railway required; safety zone restrictions apply','Railway Act 1989');
+  restrictRows+=lyRow('Petroleum / gas pipelines','Exclusion zone per OISD-118 from pipeline centreline; no plots within zone','OISD-118');
+  restrictRows+=lyRow('Reserved / protected forests','No layout within or abutting reserved forest without Forest Conservation Act clearance','Forest Conservation Act 1980');
+  restrictRows+=lyRow('Coastal Regulation Zone (CRZ)','No layout in CRZ-I/IA; restrictions in CRZ-II/III; CRZ notification 2019 (MoEF) clearance required','CRZ Notification 2019');
+  restrictRows+=lyRow('Archaeological protected areas','No layout within 300 m of any ASI/TNSMA-protected monument (prohibited zone); 300 m outer regulated zone applies','AMASR Act 1958');
+  restrictRows+=lyRow('Airport influence zones','Height restriction funnel per AAI/DGCA; no plots within obstacle limitation surface; NOC from AAI if height > 30.5 m','Aircraft Act + Rule 35 Note');
+
+  // ── 15. PLAN & APPLICATION REQUIREMENTS — Rule 8(2) ──────────────────────
+  let planRows='';
+  planRows+=lyRow('Application form','Form A (Annexure I) — online submission via DTCP / CMDA portal [Rule 6(7)]','Rule 6(7)');
+  planRows+=lyRow('Site plan scale','1:500 for sites ≤ 1 hectare; 1:1000 for sites > 1 hectare [Rule 8(iii) — gazette]','Rule 8(2)(iii)');
+  planRows+=lyRow('Key plan','Scale ≥ 1:10,000 showing boundary, neighbourhood landmarks, existing road network [Rule 8(1)(i) — gazette]','Rule 8(1)(i)');
+  planRows+=lyRow('Topo plan','Scale ≥ 1:5,000 showing details within 500 m radius — road widths, water bodies, quarries, stone crushers, forests, pipelines [Rule 8(1)(ii) — gazette]','Rule 8(1)(ii)');
+  planRows+=lyRow('Layout plan mandatory contents','North point, scale, proposed + existing roads with widths, plot dimensions and numbers, OSR, PPR, EWS, commercial area, electrical lines, drains, utility lines [Rule 8(2)(b–i) — gazette]','Rule 8(2)');
+  planRows+=lyRow('Area statement (mandatory)','Tabulated statement: Gross area / Road area / OSR / PPR / EWS / Commercial / Saleable plot area with percentages [Rule 8(2)(f) — gazette]','Rule 8(2)(f)');
+  planRows+=lyRow('Reconstitution deed','Required when two or more survey numbers / plots are amalgamated for the layout [Rule 27(2) — gazette]','Rule 27(2)');
+  planRows+=lyRow('Professionals required — Layout','Registered Developer (RD) + Registered Architect (RA) or Registered Engineer (RE) or Registered Town Planner (RTP) [Rule 8(5)(e) — gazette]','Rule 8(5)(e)');
+  planRows+=lyRow('Professionals required — Sub-division','Registered Architect (RA) or Registered Engineer (RE) or Registered Town Planner (RTP) [Rule 8(5)(d) — gazette]','Rule 8(5)(d)');
+  planRows+=lyRow('Permit validity','5 years from date of issue; extendable once for 3 more years on application before expiry [Rule 14(1) — gazette]','Rule 14(1)');
+  planRows+=lyRow('Scrutiny fee','Rs. 0.75 per sq.m of land area for layouts / sub-divisions / reconstitutions [Rule 7(2)(ii) — gazette]','Rule 7(2)(ii)');
+  planRows+=lyRow('Display board','Display approval details on site — minimum 60 cm × 120 cm board with layout number, date, expiry, owner name, RA/RE name [Rule 10(7) — gazette]','Rule 10(7)');
+
+  // ── 16. SHELTER CHARGES — Rule 34 ────────────────────────────────────────
+  // Gazette Rule 34: triggered when FSI area (built-up area) exceeds 4,000 sq.m
+  let shelterRows='';
+  const estFSI=site*2.0;
+  if(estFSI>4000){
+    shelterRows+=lyRow('Shelter charges — LIKELY TRIGGERED',`Estimated FSI area ${estFSI.toFixed(0)} sq.m (using FSI=2.0) exceeds 4,000 sq.m threshold. Provide 10% of FSI area as LIG housing (≤ 40 sq.m carpet area each) OR pay 1% of GLV of FSI area exceeding 4,000 sq.m [Rule 34(1) — gazette]`,'Rule 34(1)','warn');
+    shelterRows+=lyRow('LIG housing location','Within the site OR within 2 km radius of site; no conversion or amalgamation permitted [Rule 34(2) — gazette]','Rule 34(2)');
+    shelterRows+=lyRow('Scrutiny fee — LIG/EWS','Scrutiny fee not collected for EWS / LIG dwelling units with plinth area ≤ 40 sq.m [Rule 7(5) — gazette]','Rule 7(5)');
+  } else {
+    shelterRows+=lyRow('Shelter charges — Rule 34','Not triggered (estimated FSI area < 4,000 sq.m). Verify with actual FSI area from the layout [Rule 34(1) — gazette]','Rule 34(1)','pass');
+  }
+
+  // ── 17. SECURITY DEPOSIT & MISCELLANEOUS — Rule 35(21) + others ──────────
+  let miscRows='';
+  miscRows+=lyRow('Security deposit','50% of Infrastructure & Amenity charges per sq.m — refundable non-interest-bearing deposit; forfeited if development deviates from approved plan [Rule 35(21) — gazette]','Rule 35(21)');
+  miscRows+=lyRow('Rainwater harvesting','Mandatory in every plot within the layout as per Annexure XXII [Rule 35(5) — gazette]','Rule 35(5) + Annexure XXII');
+  miscRows+=lyRow('Electrical room / transformer','Required for every plot with floor area > 900 sq.m [Rule 35(11) / Rule 46 — gazette]','Rule 35(11) + Rule 46');
+  miscRows+=lyRow('Fire safety certificate','Commercial / industrial / institutional: Fire Safety Certificate (FSC) from TN Fire & Rescue Services — replaces old NOC (TN Fire & Rescue Services Act 2025)','Rule 64 + TN FSA 2025');
+  miscRows+=lyRow('DA / accessibility provisions','Disabled-accessible design mandatory for all commercial, institutional and industrial developments [Rule 43 — gazette]','Rule 43');
+  miscRows+=lyRow('Vehicular access way within site','Clear width 7.2 m internal vehicular access way within every site; open to sky; available to every building block within 50 m [Rule 35(9) — gazette]','Rule 35(9)');
+  if(isResidential && plots>100){
+    miscRows+=lyRow('Solid waste management','Required for developments with > 100 DU — closed, non-polluting storage with direct road access [Rule 35(17) — gazette]','Rule 35(17)');
+    miscRows+=lyRow('Servant / driver toilet','1 bathroom + 1 WC per building block exceeding 25 DU [Rule 35(18) — gazette]','Rule 35(18)');
+  }
+  if(site>25000||plots>50){
+    miscRows+=lyRow('Sewage treatment plant','Required where > 50 DU or > 2,500 sq.m commercial area AND municipal sewer is unavailable [Rule 35(15)(a) — gazette]','Rule 35(15)(a)');
+  }
+  miscRows+=lyRow('Stilt parking','Stilt floor for parking shall not be enclosed; if enclosed it counts toward FSI [Rule 35(10) — gazette]','Rule 35(10)');
+
+  // ── ASSEMBLE ──────────────────────────────────────────────────────────────
+  const jurisdText=local==='corp'?'Corporation/Municipality':local==='townpanchayat'?'Town Panchayat':'Village Panchayat';
+  let html=`<div style="border:2px solid #142bc8;padding:10px 14px;margin-bottom:14px;background:#f0f4ff;font-size:12px;line-height:1.9">
+    <b>Classification:</b> ${devType}<br>
+    <b>Layout type:</b> ${type.charAt(0).toUpperCase()+type.slice(1)} &nbsp;|&nbsp;
+    <b>Jurisdiction:</b> ${jurisdText} &nbsp;|&nbsp;
+    <b>Site area:</b> ${site.toFixed(2)} sq.m &nbsp;|&nbsp;
+    <b>Plots:</b> ${plots}<br>
+    <b>OSR:</b> ${osrRequired?osrArea.toFixed(2)+' sq.m required':'Not required (≤ 3,000 sq.m)'} &nbsp;|&nbsp;
+    <b>PPR Local Body:</b> ${pprLocal.toFixed(2)} sq.m &nbsp;|&nbsp;
+    <b>PPR TANGEDCO:</b> ${pprTangedco.toFixed(2)} sq.m<br>
+    <b>EWS:</b> ${(isResidential&&site>10000)?((roadArea>0?(site-roadArea):site)*0.10).toFixed(2)+' sq.m REQUIRED [Rule 47(9)]':'Not triggered'} &nbsp;|&nbsp;
+    <b>Commercial:</b> ${site>=200000?(site*0.03).toFixed(0)+' sq.m REQUIRED [Rule 47(10)]':'Not triggered'}
+  </div>`;
+
+  let sn=1;
+  html+=lySection('Approach Road & Basic Principles — Rule 47(1)',basicRows,sn++);
+  html+=lySection('Dead-End Road (Cul-de-Sac) — Rule 47(4)',deadEndRows,sn++);
+  html+=lySection('Internal Road Widths — Rule 47(3) [gazette table]',internalRows,sn++);
+  html+=lySection('Corner Splay, Junction & Visibility — Rule 47(5)',junctionRows,sn++);
+  html+=lySection('Existing Roads, Road Widening & Alignment — Rule 18 + Rule 35(19)',existingRoadRows,sn++);
+  if(plotRows) html+=lySection('Plot Dimensions & Design — Rule 47 + Note 1',plotRows,sn++);
+  html+=lySection('Open Space Reservation (OSR) — Rule 41 + Rule 47 [gazette verified]',osrRows,sn++);
+  html+=lySection('Area Statement — Rule 8(2)(f)',areaRows,sn++);
+  html+=lySection('Gift Deed Requirements — Rule 47(7)(8) [gazette verified]',giftRows,sn++);
+  html+=lySection('EWS Reservation — Rule 47(9) [gazette: triggered > 10,000 sq.m]',ewsRows,sn++);
+  html+=lySection('Commercial Reservation — Rule 47(10) [gazette: triggered ≥ 20 hectares]',commRows,sn++);
+  html+=lySection('Infrastructure & Development Costs — Rule 47(11)',infraRows,sn++);
+  html+=lySection('Restricted Areas & Protected Zones — Rule 19 + Annexure XVII',restrictRows,sn++);
+  html+=lySection('Plan & Application Requirements — Rule 8 [gazette verified]',planRows,sn++);
+  html+=lySection('Shelter Charges — Rule 34 [gazette verified]',shelterRows,sn++);
+  html+=lySection('Security Deposit & Miscellaneous — Rule 35 [gazette verified]',miscRows,sn++);
+
+  html+=`<div style="border:1px solid #d22;color:#c11;padding:8px;margin-top:12px;font-size:11px">
+    V28 — All rules gazette-verified from official TNCDBR 2019 PDF (G.O. Ms. No. 18, dated 4 Feb 2019) and latest amendments up to 2026.
+    EWS threshold corrected to > 10,000 sq.m (Rule 47(9)). Commercial threshold corrected to ≥ 20 hectares (Rule 47(10)).
+    Industrial min approach road corrected to 9 m (Rule 47(1)(a)). OSR base corrected to net area (excl. roads).
+    Always verify with DTCP / CMDA / Local Body before submission.
+  </div>`;
+  html+=`<div style="text-align:center;font-size:10px;color:#555;margin-top:8px;border-top:1px solid #ccc;padding-top:6px" class="print-footer">
+    SWP CAD Scrutiny Report — Layout Approval — TNCDBR 2019 V28 — Gazette Verified — Created By B.Muthukumar Cell:95979-43222
+  </div>`;
+
+  document.getElementById('lyReport').innerHTML=html;
+  const pdfBtn=document.getElementById('lyPdfBtn');
+  if(pdfBtn) pdfBtn.style.display='inline-block';
+}
+// ─────────────────────────────────────────────────────────────────────────────
+</script>
+<div id="tab-manual" class="tab-panel">
+<div class="gm-card">
+  <h2>SWP General Manual — Layer &amp; Feature Requirements by Occupancy</h2>
+  <div class="gm-filter">
+    <label>Occupancy:</label>
+    <select id="gmOcc" onchange="renderGM()">
+      <option value="all">All Occupancies</option>
+      <option value="res-nhr">Residential — Non High-Rise</option>
+      <option value="res-hr">Residential — High-Rise</option>
+      <option value="com-nhr">Commercial — Non High-Rise</option>
+      <option value="com-hr">Commercial — High-Rise</option>
+      <option value="cot-nhr">Cottage Industry — NHR</option>
+      <option value="cot-hr">Cottage Industry — HR</option>
+      <option value="go-nhr">Green &amp; Orange Industry — NHR</option>
+      <option value="go-hr">Green &amp; Orange Industry — HR</option>
+      <option value="red-nhr">Red Industry — NHR</option>
+      <option value="red-hr">Red Industry — HR</option>
+      <option value="sch-nhr">School — Non High-Rise</option>
+      <option value="inst-nhr">Institutional (Others) — NHR</option>
+      <option value="inst-hr">Institutional (Others) — HR</option>
+    </select>
+    <label>Search:</label>
+    <input type="text" id="gmSearch" placeholder="Feature / layer name…" oninput="renderGM()">
+    <label>Show:</label>
+    <select id="gmFilter" onchange="renderGM()">
+      <option value="all">All</option>
+      <option value="yes">YES only</option>
+      <option value="opt">Optional only</option>
+      <option value="no">NO only</option>
+    </select>
+    <button onclick="document.getElementById('gmSearch').value='';document.getElementById('gmOcc').value='all';document.getElementById('gmFilter').value='all';renderGM()">Reset</button>
+  </div>
+  <div style="overflow-x:auto"><table class="gm-tbl" id="gmTable">
+    <thead><tr>
+      <th style="width:40px">S.No</th>
+      <th style="width:180px">Feature</th>
+      <th style="width:110px">Layer / Parameter</th>
+      <th style="width:160px">Content</th>
+      <th style="width:50px">Colour</th>
+      <th style="width:80px" id="gmColHead">Status</th>
+    </tr></thead>
+    <tbody id="gmBody"></tbody>
+  </table></div>
+  <div id="gmCount" style="margin-top:8px;color:#555;font-size:12px"></div>
+</div>
+</div><!-- end tab-manual -->
+
+</div><!-- end wrap -->
+<script>
+// ── General Manual Data ───────────────────────────────────────────────────
+// Columns: [sno, feature, layer, content, colour, res_nhr, res_hr, com_nhr, com_hr, cot_nhr, cot_hr, go_nhr, go_hr, red_nhr, red_hr, sch_nhr, inst_nhr, inst_hr]
+const GM_COLS=['res-nhr','res-hr','com-nhr','com-hr','cot-nhr','cot-hr','go-nhr','go-hr','red-nhr','red-hr','sch-nhr','inst-nhr','inst-hr'];
+const GM_COL_LABELS={'res-nhr':'Res NHR','res-hr':'Res HR','com-nhr':'Com NHR','com-hr':'Com HR','cot-nhr':'Cot NHR','cot-hr':'Cot HR','go-nhr':'G&O NHR','go-hr':'G&O HR','red-nhr':'Red NHR','red-hr':'Red HR','sch-nhr':'School NHR','inst-nhr':'Inst NHR','inst-hr':'Inst HR'};
+
+const Y='YES', N='NO', O='Optional';
+function YF(x){return x>=1?Y:N} // floors
+const GM=[
+// [sno, feature, layer, content, colour, res_nhr,res_hr,com_nhr,com_hr,cot_nhr,cot_hr,go_nhr,go_hr,red_nhr,red_hr,sch_nhr,inst_nhr,inst_hr]
+['1','Plot boundary — As at Site','AS_AT_SITE','Polyline showing plot boundary','6',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['1','Plot boundary — Plot Boundary','PLOT_BOUNDARY','Polyline showing plot boundary','70',Y,N,N,N,N,N,N,N,N,N,N,N,N],
+['1','Plot boundary — FMB/PLR','FMB_OR_PLR','Polyline showing plot boundary','70',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['1','Plot boundary — Least Extent (Superimposed)','SUPER_IMPOSED','Polyline showing least boundary (setback check only)','5',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['1','Plot boundary Deduction','PLOT_BOUNDARY_DEDUCT','Polyline showing deduction for third party land','70',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['1','Basement Plot Boundary','BLK_n_LVL_-i_BSMNT_PLOT_BOUNDARY','Polyline showing basement plot boundary','70',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['2','Building footprint','BLK_n_LVL_0_BLDG_FOOT_PRINT','Polyline showing building footprint','1',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['3','Plot Coverage','BLK_n_COVERED_AREA','Polyline showing covered area','140',N,Y,N,Y,N,Y,N,Y,N,Y,N,N,Y],
+['4','Plot Coverage Deduction','BLK_n_COVERED_AREA_DEDUCT','Polyline showing covered area deduction','140',N,Y,N,Y,N,Y,N,Y,N,Y,N,N,Y],
+['5','Built-up Area — Proposed block','BLK_n_FLR_i_BLT_UP_AREA','Polyline showing proposed built up area','Sub-occ',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['5','Built-up Area Deduction — Proposed','BLK_n_FLR_i_BLT_UP_AREA_DEDUCT','Polyline showing built up area deduction','Sub-occ',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['6','Built-up Area — Typical floor','BLK_n_FLR_i_BLT_UP_AREA','MTEXT: TYPICAL_FLOOR_PLAN=X,X,X','Sub-occ',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['7','Built-up Area — Existing block','BLK_n_FLR_i_BLT_UP_AREA_EXISTING','Polyline showing existing built up area','Sub-occ',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['7','Built-up Area Deduction — Existing','BLK_n_FLR_i_BLT_UP_AREA_DEDUCT_EXISTING','Polyline showing existing built up area deduction','Sub-occ',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['7','Staircase Headroom — Existing block','BLK_n_EXISTING_STAIR_HEADROOM','Polyline showing staircase head room area','148',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['8','Carpet area','BLK_n_FLR_i_CARPET_AREA','Polyline showing carpet area','Sub-occ',Y,Y,N,N,N,N,N,N,N,N,N,N,N],
+['8','Carpet area Deduction','BLK_n_FLR_i_CARPET_AREA_DEDUCT','Polyline showing carpet area deduction','Sub-occ',Y,Y,N,N,N,N,N,N,N,N,N,N,N],
+['9','Height of building','BLK_n_HT_OF_BLDG','Dimension showing height of building','5',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['10','Plinth height','BLK_n_PLINTH_HEIGHT','Dimension showing plinth height','7',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['11','Front setback','BLK_n_LVL_0_FRONT_SETBACK','Polyline showing front setback','2',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['11','Side setback 1','BLK_n_LVL_0_SIDE_SETBACK1','Polyline showing side setback 1','171',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['11','Side setback 2','BLK_n_LVL_0_SIDE_SETBACK2','Polyline showing side setback 2','102',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['11','Rear setback','BLK_n_LVL_0_REAR_SETBACK','Polyline showing rear setback','11',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['12','Basement / Cellar footprint','BLK_n_LVL_-i_BSMNT_FOOT_PRINT','Polyline showing building footprint','1',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['12','Basement floor height','BLK_n_LVL_-i_BSMNT_FOOT_PRINT','Dimension showing height of basement floors','1',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['12','Basement Parking Area','BLK_n_FLR_i_COVERED_PARKING','Polyline showing basement / first floor footprint','4',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['13','Basement front setback','BLK_n_LVL_-i_BSMNT_FRONT_SETBACK','Polyline showing basement front setback','2',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['13','Basement rear setback','BLK_n_LVL_-i_BSMNT_REAR_SETBACK','Polyline showing basement rear setback','171',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['13','Basement side setback 1','BLK_n_LVL_-i_BSMNT_SIDE_SETBACK1','Polyline showing basement side setback 1','102',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['13','Basement side setback 2','BLK_n_LVL_-i_BSMNT_SIDE_SETBACK2','Polyline showing basement side setback 2','11',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['14','Staircase','BLK_n_FLR_i_STAIR_k','Polyline showing staircase','1','Yes if >1 floor','Yes if >1 floor','Yes if >1 floor',Y,'Yes if >1 floor',Y,'Yes if >1 floor',Y,'Yes if >1 floor',Y,'Yes if >1 floor','Yes if >1 floor',Y],
+['14','Staircase — Floor height MTEXT','BLK_n_FLR_i_STAIR_k','MTEXT: FLR_HT_M=XXX','1',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['14','Staircase flight','BLK_n_FLR_i_STAIR_k_FLIGHT_m','Polyline + dimensions (length/width) + riser lines','7',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['14','Staircase landing','BLK_n_FLR_i_STAIR_k_LANDING_m','Polyline + dimensions (length/width)','7',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['15','Fire staircase','BLK_n_FLR_i_FIRESTAIR_k','Polyline: 1 per 30m (type 1&2) or 22.5m (type 3&4) travel dist','1',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['16','Spiral staircase radius','BLK_n_FLR_i_SPIRAL_FIRE_STAIR_k','Circle showing spiral staircase','6',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['17','Chajja / overhangs / roof projections','BLK_n_FLR_i_CHAJJA','Polyline showing chajja / overhang','6',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['19','RWH tank','RWH or RWH_n','Polyline + capacity MTEXT (RWH_CAPACITY_L=XXX) + height dim','130',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['20','Balcony','BLK_n_FLR_i_BALCONY_k','Polyline + depth dimension','5',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['21','Land use zone','PLAN_INFO','MTEXT: LAND_USE_ZONE=XXX','1',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['22','Distance from river','DISTANCE_FROM_RIVER','Dimension showing distance','1',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['24','Distance from electric line','OHEL_i / VOLTAGE_i','Polyline + voltage MTEXT + horizontal/vertical clearance dims','17/15',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['25','Plantation tree cover','PLANTATION_TREECOVER','Polyline showing plantation tree cover','73',N,Y,N,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['26','Continuous green planting strip','BLK_n_PLANTATION_GREENSTRIP','Polyline showing green strip','81',N,Y,N,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['27','Distance between blocks','DISTANCE_BLK','Polyline (if >1 block)','238','If >1 block','If >1 block','If >1 block','If >1 block','If >1 block','If >1 block','If >1 block','If >1 block','If >1 block','If >1 block','If >1 block','If >1 block','If >1 block'],
+['28','Four wheeler parking','PARKING_SLOT','Polyline showing parking slots','30',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['29','Parallel parking','PARALLEL_PARKING_SLOT','Polyline showing parallel parking slots','248',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['29a','Tandem parking','TANDEM_PARKING_SLOT','Polyline showing tandem parking slots','245',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['30','Two wheeler parking','TWO_WHEELER_PARKING','Polyline showing parking slots','2','If 25–75 sq.m unit','If 25–75 sq.m unit',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['31','Cycle parking','CYCLE_PARKING','Polyline showing cycle slots','250',N,N,N,N,Y,Y,Y,Y,Y,Y,Y,O,O],
+['32','DA Car parking','DA_PARKING','Polyline showing DA parking slots','1',N,N,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['33','Lorry parking','LORRY_PARKING','Polyline showing lorry slots','175',N,N,N,N,Y,Y,Y,Y,Y,Y,N,N,N],
+['34','Internal vehicular access','BLK_n_INTERNAL_VEHICULAR_ACCESS','Polyline showing internal vehicular access','161',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['34a','Aisle width — four wheeler','PER_AISLE_WIDTH / ANGULAR_PARKING_SLOT_1/2','Polyline defining aisle width and angular parking','5/6/7',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['35','Regular room','BLK_n_FLR_i_REGULAR_ROOM_k','Polyline + height dimension','Room CC',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['36','Kitchen — height dimension','BLK_n_FLR_i_KITCHEN','Dimension showing height','Room CC',Y,Y,O,O,O,O,O,O,O,O,O,O,O],
+['36','Kitchen — existing block','BLK_n_FLR_i_KITCHEN_EXISTING','Polyline showing room','Room CC',Y,Y,O,O,O,O,O,O,O,O,O,O,O],
+['36','Kitchen — light & ventilation','BLK_n_FLR_i_KITCHEN_LIGHT_VENTILATION_k','Polyline showing light and ventilation of kitchen','Room CC',Y,Y,O,O,O,O,O,O,O,O,O,O,O],
+['36','Kitchen — existing block (ground floor)','BLK_1_FLR_0_KITCHEN_EXISTING','Polyline showing room (existing)','Room CC',Y,Y,O,O,O,O,O,O,O,O,O,O,O],
+['36','Kitchen L&V — existing (ground floor)','BLK_1_FLR_0_KITCHEN_LIGHT_VENTILATION_1_EXISTING','Polyline showing light and ventilation of kitchen (existing)','Room CC',Y,Y,O,O,O,O,O,O,O,O,O,O,O],
+['37','Drinking water point','BLK_n_FLR_i_DRINKING_WATER','Polyline showing drinking water','7',N,N,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['38','DA water closet','BLK_n_FLR_i_SP_WC','Polyline showing special WC','233',N,N,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['39','Wash basin','BLK_n_FLR_i_WASH (col 55)','Polyline or circle showing fixture','55',N,N,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['40','Cleaner\'s sink','BLK_n_FLR_i_WASH (col 56)','Polyline or circle showing fixture','56',N,N,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['41','Kitchen sink','BLK_n_FLR_i_WASH (col 57)','Polyline or circle showing fixture','57',N,N,Y,Y,N,N,N,N,N,N,O,O,O],
+['42','Ablution tap','BLK_n_FLR_i_WASH (col 60)','Polyline showing fixture','60',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['43','Water closet (Male/Female/Common)','BLK_n_FLR_i_WATER_CLOSET','Polyline showing WC room (col 1=Male, 2=Female, 3=Common)','1/2/3',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['45','Water closet with bath','BLK_n_FLR_i_WC_BATH','Polyline + height dimension (Male/Female/Common)','1/2/3',O,O,O,O,O,Y,O,Y,O,Y,O,O,O],
+['46','Bath (Male/Female/Common)','BLK_n_FLR_i_BATH','Polyline showing bath room','1/2/3',O,O,O,O,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['47','Urinal (Male/Common)','BLK_n_FLR_i_URINAL','Polyline or circle showing urinal','1/3',O,O,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['48','Bath room','BLK_n_FLR_i_BATH_ROOM','Polyline + height dimension','3',Y,Y,O,O,O,O,O,O,O,O,O,O,O],
+['49','Window / ventilator','BLK_n_FLR_i_WINDOW_k','Lines showing window opening','1/2/3',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['50','Window sill height','BLK_n_FLR_i_WINDOW_k','Dimension showing sill height','4',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['51','Ventilation opening area','BLK_n_FLR_i_LIGHT_VENTILATION_k','Polyline showing light/ventilation opening','5',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['52','Mezzanine floor','BLK_n_FLR_i_MEZ_k','Polyline showing mezzanine floor','1',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['53','Solar panel','BLK_n_SOLAR_PANEL','Polyline showing solar panel area','235',O,Y,O,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['54','Parapet','BLK_n_PARAPET','Polyline showing parapet','3',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['55','Lift','BLK_n_FLR_i_LIFT_k','Polyline showing lift shaft','2',O,Y,O,Y,O,Y,O,Y,O,Y,O,O,Y],
+['56','Ramp','BLK_n_LVL_0_RAMP_k','Polyline showing ramp','3',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['57','DA ramp','DA_RAMP','Polyline showing DA ramp','4',O,O,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['58','Service road / driveway','SERVICE_ROAD / DRIVE_WAY','Polyline showing service road','8/254',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['60','Compound wall','BLK_n_COMPOUND_WALL','Polyline showing compound wall','4',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['61','Septic tank','SEPTIC_TANK_n','Polyline + distance dims to building and water source','146',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['62','Manhole','MANHOLE','Polyline or circle showing manhole','7',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['63','Overhead tank','OHT_n','Polyline showing overhead tank','193',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['64','UG Sump','UG_SUMP','Polyline + MTEXT: SUMP_CAPACITY_L=XXXLTRS','194',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['65','Sewage treatment plant','SEWAGE_TREATMENT_PLANT','Polyline + dimension','7',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['66','Room height dimension','BLK_n_FLR_i_ROOM_HT_k','Dimension showing room height','6',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['67','Headroom under beam/eaves','BLK_n_FLR_i_HEADROOM_k','Dimension showing headroom','6',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['68','Parapet height','BLK_n_PARAPET_HT','Dimension showing parapet height','3',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['69','Watchman booth','WATCHMAN_BOOTH','Polyline showing watchman booth','4',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['70','Generator room / DG room','BLK_n_LVL_m_DG_ROOM','Polyline showing DG room','18',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['71','Pump room','BLK_n_LVL_m_PUMP_ROOM','Polyline showing pump room','17',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['72','Gate','GATE','Polyline showing gate','5',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['73','Pathway / pedestrian access','PATHWAY','Polyline showing pathway','7',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['74','Passage with stair','PRIVATE_PASSAGE','Polyline showing private passage','1',O,Y,O,Y,N,N,N,N,N,N,O,O,O],
+['75','Passage with stair — stair length','PASSAGE_STAIR','Dimension showing passage stair length','2',O,Y,O,Y,N,N,N,N,N,N,O,O,O],
+['76','Canopy distance from plot boundary','DIST_CANOPY','Dimension showing distance','7',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['77','Recreational space','BLK_n_FLR_m_RECREATION','Polyline showing recreational space','140',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['78','Recycling waste water','RECYCLING_WASTE_WATER','Polyline showing recycling waste water','4',O,Y,O,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['79','Segregation of waste','WASTE_MANAGEMENT','Polyline showing waste management','240',O,Y,O,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['80','Septic tank (sewage unavailable areas)','SEPTIC_TANK_n','Required where corporation drains unavailable','146',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['80a','Sewage treatment plant','SEWAGE_TREATMENT_PLANT','Polyline + dimension to show STP','7',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['81','Solid liquid waste management','SOLID_LIQUID_WASTE_TREATMENT','Polyline showing solid/liquid waste treatment','7',N,Y,N,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['82','Travel distance to exit','DIST_EXIT','Dimension showing travel distance to exit','7',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['83','Verandah','BLK_m_FLR_n_VERANDAH','Polyline + depth/height dimension','5',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['84','Waste disposal','WASTE_DISPOSAL','Polyline (Existing=1, Proposed=2)','1/2',O,Y,O,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['85','Water tank — Domestic','BLK_n_ROOF_WATER_TANK_HT','Polyline showing domestic water tank','235',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['86','Rain water tank','WATER_TANK_CALCULATION','Polyline showing rain water tank','5',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['87','Fire tank','WATER_TANK_CALCULATION','Polyline showing fire tank','6',N,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['88','Sullage tank','WATER_TANK_CALCULATION','Polyline showing sullage tank','7',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['89','Terrace utility distances','BLK_n_TERRACESERVICE_UTILITYDISTANCE','Dimension from parapet wall','2',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['90','Water tank capacity','WATER_TANK_CALCULATION','MTEXT: WATER_TANK_CAPACITY_L=XXXLTRS','150',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['91','UG Sump','UG_SUMP','Polyline + MTEXT: SUMP_CAPACITY_L=XXXLTRS','194',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['92','Fire sump','FIRE_SUMP','Polyline + MTEXT: FIRE_SUMP_CAPACITY_L=XXXLTRS','194',N,Y,O,O,O,O,O,O,O,O,O,O,O],
+['93','Water treatment plant','INSITU_WASTE_TREATMENT_PLANT','Polyline showing water treatment plant','226',N,Y,N,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['94','Well','WELL / DIST_WELL','Polyline/circle + distance dimension','1/2',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['95','Ventilation shaft','BLK_n_FLR_i_VENTILATION_SHAFT','Polyline + height/depth dimension','6',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['96','Inner courtyard','BLK_n_FLR_i_COURTYARD_INNER','Polyline + depth dimension','92',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['97','Outer courtyard','BLK_n_FLR_i_COURTYARD_OUTER','Polyline + depth dimension','94',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['98','Sunken courtyard','BLK_n_FLR_i_COURTYARD_SUNKEN','Polyline + depth dimension','96',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['99','Footpath','FOOTPATH','Polyline + distances (Public=1, Private=2)','1/2',N,N,N,N,Y,Y,Y,Y,Y,Y,N,N,N],
+['100','Roof area','BLK_n_FLR_m_ROOF_AREA','Polyline + deduction polyline','54',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['101','Glass facade opening','BLK_n_FLR_i_GLASS_FACADE_k','Dimensions: height, width, height from floor','1/2/3',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['102','Exit door width','BLK_i_FLR_k_EXIT_WIDTH_DOOR','Dimension showing exit door width','2',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['103','Exit stair width','BLK_i_FLR_k_EXIT_WIDTH_STAIR','Dimension showing exit stair width','1',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['104','Portico','BLK_n_FLR_i_PORTICO_k','Polyline + dimensions (length/width/height/dist to wall) + deduction','5/249',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['105','Electrical room / Transformer yard','ELECTRICAL_ROOM / TRANSFORMER_YARD','Polyline + height dim. Required if built-up > 900 sq.m','7','If >900 sqm','If >900 sqm','If >900 sqm','If >900 sqm','If >900 sqm','If >900 sqm','If >900 sqm','If >900 sqm','If >900 sqm','If >900 sqm','If >900 sqm','If >900 sqm','If >900 sqm'],
+['106','OSR','OSR_PLAN','Polyline showing OSR area (as per TNCDBR)','7',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['107','Drive way (one-way)','DRIVE_WAY','Polyline showing one-way driveway','254',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['107','Drive way (two-way)','DRIVE_WAY','Polyline showing two-way driveway','255',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['108','Swimming pool','SP / SP_DECK / SP_DEPTH','Polyline + deck dim + depth dim + WC/change room/motor room','254',O,O,O,O,N,N,N,N,N,N,O,O,O],
+['110','Units (dwelling)','BLK_n_FLR_i_UNITFA_k','Polyline showing unit area','234',Y,Y,N,N,N,N,N,N,N,N,N,N,N],
+['111','Road width','ROAD_WIDTH','Closed polyline showing road width','1',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['112','Stilt floor parking','BLK_n_FLR_m_STILT_PARKING','Polyline showing stilt area','13',O,O,O,O,N,N,N,N,N,N,N,N,N],
+['112','Total height of the building','BLK_n_TOTAL_HEIGHT','Dimension showing total height','21',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['113','Terrace floor WC','BLK_n_TERRACE_WC','Polyline showing WC in terrace floor','200',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['115','Plan information (PLAN_INFO MTEXT)','PLAN_INFO','All plan info properties — PLOT_AREA_M2, ROAD_WIDTH, LAND_USE_ZONE, AREA_TYPE, etc.','1',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['116','Setback spaces — Servant room (Industrial)','BLK_n_LVL_m_SERVANT_ROOM','Polyline showing servant room','150',N,N,N,N,O,O,O,O,O,O,N,N,N],
+['116','Setback spaces — Watchman booth (Industrial)','BLK_n_LVL_m_WATCHMAN_BOOTH','Polyline showing watchman booth','151',N,N,N,N,O,O,O,O,O,O,N,N,N],
+['116','Setback spaces — Cycle shed (Industrial)','BLK_n_LVL_m_CYCLE_STAND','Polyline showing cycle shed','152',N,N,N,N,O,O,O,O,O,O,N,N,N],
+['116','Setback spaces — Toilet block (Industrial)','BLK_n_LVL_m_TOILET_BLOCK','Polyline showing toilet block','153',N,N,N,N,O,O,O,O,O,O,N,N,N],
+['117','Auditorium / Kalyana Mandapam seating area','SEATING_AREA','Polyline showing seating area','7',N,N,Y,Y,N,N,N,N,N,N,N,N,N],
+['118','Multi-level parking floor','MULTI_LEVEL_PARKING_FLR_n','Closed polyline defining ML parking floors','130',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['119','Combined footprint (Stilt floor)','COMBINED_n_LVL_i_FOOT_PRINT','Polyline showing combined building footprint','100',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['120','Combined front/side/rear setbacks','COMBINED_n_LVL_i_FRONT/SIDE/REAR_SETBACK','Polylines showing combined setbacks','101-104',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['122','Toilet ventilation','TOILET_VENTILATION','Polyline showing ventilation for WC / Bath / Toilet','6',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+['125','DA two-wheeler parking','DA_TWO_WHEELER_PARKING','Polyline showing parking slots (1.0m × 1.8m)','130',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['127','Class room door opening (School)','DOOR_OPEN','Polyline + width dim + height dim','180',N,N,N,N,N,N,N,N,N,N,Y,O,O],
+['128','Mechanical two-wheeler parking','MULTI_LEVEL_TWOWHEELER_PARKING_FLR_0','Closed polyline for ML two-wheeler floors','200',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['130','Bus parking','BUS_PARKING','Polyline showing bus parking slots (3.5m × 10m)','176',N,N,O,O,O,O,O,O,O,O,O,O,O],
+['132','Toilet block within setback','BLK_n_LVL_i_TOILET_BLOCK','Polyline showing toilet block','94',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['133','Motor room (structure in setback)','BLK_n_LVL_i_MOTOR_ROOM','Polyline showing motor block','95',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['134','Car porch','BLK_n_FLR_0_PORCH_k','Polyline showing Car porch','5',O,O,O,O,O,O,O,O,O,O,O,O,O],
+['134','Sheet numbers','SHEET_1','Polyline showing sheet boundaries','5',Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
+];
+
+const COL_IDX={};
+GM_COLS.forEach((c,i)=>COL_IDX[c]=i+5);
+
+function badgeVal(v){
+  if(!v||v===N) return `<span class="badge b-no">NO</span>`;
+  if(v===Y) return `<span class="badge b-yes">YES</span>`;
+  if(v===O) return `<span class="badge b-opt">Optional</span>`;
+  return `<span class="badge b-cond">${v}</span>`;
+}
+
+function renderGM(){
+  const occ=document.getElementById('gmOcc').value;
+  const search=(document.getElementById('gmSearch').value||'').toLowerCase();
+  const filt=document.getElementById('gmFilter').value;
+  const head=document.getElementById('gmColHead');
+  head.textContent=occ==='all'?'All':'Status';
+
+  let rows='', count=0;
+  GM.forEach(row=>{
+    const [sno,feat,layer,content,colour,...vals]=row;
+    const val=occ==='all'?null:vals[GM_COLS.indexOf(occ)];
+    const valStr=val||'';
+
+    // Filter by show
+    if(filt==='yes' && valStr!==Y) return;
+    if(filt==='no' && valStr!==N) return;
+    if(filt==='opt' && valStr!==O) return;
+
+    // Filter by search
+    if(search && !feat.toLowerCase().includes(search) && !layer.toLowerCase().includes(search) && !content.toLowerCase().includes(search)) return;
+
+    const statusCell=occ==='all'
+      ? GM_COLS.map((c,i)=>`<span title="${GM_COL_LABELS[c]}">${badgeVal(vals[i])}</span>`).join(' ')
+      : badgeVal(val);
+
+    rows+=`<tr>
+      <td class="gm-sno">${sno}</td>
+      <td><b>${feat}</b></td>
+      <td style="font-family:monospace;font-size:11px">${layer}</td>
+      <td>${content}</td>
+      <td style="text-align:center">${colour}</td>
+      <td>${statusCell}</td>
+    </tr>`;
+    count++;
+  });
+
+  document.getElementById('gmBody').innerHTML=rows||'<tr><td colspan="6" style="text-align:center;color:#888;padding:20px">No matching rows</td></tr>';
+  document.getElementById('gmCount').textContent=`Showing ${count} of ${GM.length} features`;
+
+  // Widen status column when showing all
+  document.querySelector('#gmTable th:last-child').style.width=occ==='all'?'420px':'80px';
+}
+
+renderGM();
+</script>
+<script>
+const LICENSE_API='https://swp-license.bmkumar07.workers.dev/';
+const STORAGE_KEY_LIC='swp_license_key';
+const STORAGE_KEY_DEV='swp_device_id';
+function getDeviceId(){let id=localStorage.getItem(STORAGE_KEY_DEV);if(!id){id='DEV-'+Math.random().toString(36).substr(2,8).toUpperCase()+'-'+Math.random().toString(36).substr(2,8).toUpperCase();localStorage.setItem(STORAGE_KEY_DEV,id);}return id;}
+async function verifyLicense(licKey,deviceId){const resp=await fetch(LICENSE_API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'verify',license_key:licKey,device_id:deviceId})});return await resp.json();}
+async function doActivate(){const btn=document.getElementById('activateBtn');const key=document.getElementById('licKeyInput').value.trim().toUpperCase();if(!key){showActMsg('Enter your license key.','err');return;}btn.disabled=true;btn.textContent='Checking...';showActMsg('Contacting license server...','checking');try{const result=await verifyLicense(key,getDeviceId());if(result.success){localStorage.setItem(STORAGE_KEY_LIC,key);showActMsg('✅ Activated! Welcome, '+(result.customer_name||''),'ok');setTimeout(showTool,900);}else{showActMsg('❌ '+(result.message||'Invalid license key.'),'err');btn.disabled=false;btn.textContent='Activate';}}catch(e){showActMsg('❌ Network error.','err');btn.disabled=false;btn.textContent='Activate';}}
+function showActMsg(t,cls){const el=document.getElementById('actMsg');el.textContent=t;el.className='act-msg '+cls;}
+function showTool(){document.getElementById('licOverlay').style.display='none';document.getElementById('swpToolContent').style.display='';}
+function showOverlay(){document.getElementById('licOverlay').style.display='flex';document.getElementById('swpToolContent').style.display='none';document.getElementById('activateBtn').disabled=false;document.getElementById('activateBtn').textContent='Activate';document.getElementById('actMsg').textContent='';}
+function licSwitchTab(tab){['activate','classes'].forEach(t=>{document.getElementById('licTabContent_'+t).classList.toggle('active',t===tab);document.getElementById('licTab_'+t).classList.toggle('active',t===tab);});}
+async function licStartup(){const savedKey=localStorage.getItem(STORAGE_KEY_LIC);if(!savedKey){showOverlay();return;}document.getElementById('licOverlay').style.display='flex';document.getElementById('swpToolContent').style.display='none';const btn=document.getElementById('activateBtn');btn.disabled=true;btn.textContent='Verifying...';showActMsg('Verifying license...','checking');try{const result=await verifyLicense(savedKey,getDeviceId());if(result.success){showTool();}else{localStorage.removeItem(STORAGE_KEY_LIC);showOverlay();showActMsg('❌ '+(result.message||'License invalid.'),'err');}}catch(e){showTool();}}
+document.getElementById('licKeyInput').addEventListener('keydown',e=>{if(e.key==='Enter')doActivate();});
+licStartup();
+</script>
+</div>
