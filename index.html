@@ -6,30 +6,25 @@
 <title>SWP CAD Tools — www.swpcad.in</title>
 <style>
   :root {
-    --bg: #f5f6f7;
     --panel: #ffffff;
     --line: #e2e8f0;
     --text: #1a1a2e;
     --dim: #64748b;
     --accent: #2563eb;
     --accent-bg: #eff6ff;
-    --sidebar-w: 200px;
     --mono: ui-monospace, "SFMono-Regular", Consolas, monospace;
     --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; overflow: hidden; font-family: var(--sans); color: var(--text); background: var(--bg); }
+  html, body { height: 100%; overflow: hidden; font-family: var(--sans); color: var(--text); background: #f5f6f7; }
   .layout { display: flex; height: 100vh; }
 
   .sidebar {
-    width: var(--sidebar-w);
-    min-width: var(--sidebar-w);
+    width: 190px; min-width: 190px;
     background: var(--panel);
     border-right: 1px solid var(--line);
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    overflow-y: auto;
+    display: flex; flex-direction: column;
+    height: 100vh; overflow-y: auto; z-index: 10;
   }
   .sidebar-brand { padding: 14px 12px 10px; border-bottom: 1px solid var(--line); }
   .sidebar-brand-name { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--accent); letter-spacing: 0.06em; }
@@ -40,14 +35,13 @@
     display: flex; align-items: center; gap: 8px;
     padding: 9px 12px; font-size: 12px; color: var(--dim);
     cursor: pointer; border-left: 3px solid transparent;
-    transition: all 0.15s; text-decoration: none; user-select: none;
+    transition: all 0.15s; user-select: none;
   }
   .nav-item:hover { background: var(--accent-bg); color: var(--accent); }
   .nav-item.active { background: var(--accent-bg); color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
   .nav-icon { font-size: 15px; flex-shrink: 0; }
   .nav-label { line-height: 1.3; flex: 1; }
   .nav-badge { font-size: 9px; padding: 1px 5px; border-radius: 10px; margin-left: auto; flex-shrink: 0; }
-  .badge-free { background: #dcfce7; color: #166534; }
   .badge-lic { background: #fef3c7; color: #92400e; }
 
   .sidebar-footer {
@@ -66,8 +60,11 @@
   .topbar-url { font-family: var(--mono); font-size: 11px; color: var(--dim); margin-left: auto; }
 
   .frame-area { flex: 1; position: relative; min-height: 0; }
-  .tool-frame { position: absolute; inset: 0; width: 100%; height: 100%; border: none; display: none; }
-  .tool-frame.active { display: block; }
+  #toolFrame {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    border: none;
+  }
 </style>
 </head>
 <body>
@@ -80,10 +77,35 @@
     </div>
 
     <div class="sidebar-section">Main Tool</div>
-    <div class="nav-item active" onclick="loadTool('v36_PER_SHEET_FSI_LIVE_UPDATE_33_.html', this, 'Online Self Certification')">
+    <div class="nav-item active">
       <span class="nav-icon">📋</span>
       <span class="nav-label">Online Self Certification</span>
       <span class="nav-badge badge-lic">Paid</span>
     </div>
 
+    <div class="sidebar-footer">
+      B. Muthukumar (B.E)<br>
+      IDS Innolink, Madurai<br>
+      📞 9597943222<br>
+      <a href="https://www.youtube.com/@SWPCAD" target="_blank">▶ @SWPCAD</a>
+    </div>
+  </div>
 
+  <div class="main">
+    <div class="topbar">
+      <span class="topbar-title">Online Self Certification</span>
+      <span class="topbar-url">www.swpcad.in</span>
+    </div>
+    <div class="frame-area">
+      <iframe
+        id="toolFrame"
+        src="v36_PER_SHEET_FSI_LIVE_UPDATE_33_.html"
+        sandbox="allow-scripts allow-same-origin allow-forms allow-downloads allow-modals allow-popups"
+        allow="clipboard-read; clipboard-write"
+      ></iframe>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
