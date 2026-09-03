@@ -14,63 +14,155 @@
     --accent-bg: #eff6ff;
     --mono: ui-monospace, "SFMono-Regular", Consolas, monospace;
     --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    --sidebar-w: 200px;
+    --toggle-w: 28px;
+    --topbar-h: 36px;
+    --transition: 0.22s cubic-bezier(0.4,0,0.2,1);
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; overflow: hidden; font-family: var(--sans); color: var(--text); background: #f5f6f7; }
-  .layout { display: flex; height: 100vh; }
 
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html {
+    width: 100%; height: 100%; overflow: hidden;
+    -webkit-text-size-adjust: 100%; text-size-adjust: 100%;
+  }
+  body {
+    width: 100%; height: 100%; overflow: hidden;
+    font-family: var(--sans); color: var(--text); background: #f5f6f7;
+  }
+
+  /* ── Outer layout ── */
+  .layout {
+    display: flex; flex-direction: row;
+    width: 100vw; height: 100vh; height: 100dvh;
+    overflow: hidden;
+  }
+
+  /* ── Sidebar ── */
   .sidebar {
-    width: 190px; min-width: 190px;
+    width: var(--sidebar-w);
+    min-width: var(--sidebar-w);
+    max-width: var(--sidebar-w);
+    flex-shrink: 0;
     background: var(--panel);
     border-right: 1px solid var(--line);
     display: flex; flex-direction: column;
-    height: 100vh; overflow-y: auto; z-index: 10;
+    height: 100%; overflow-y: auto; overflow-x: hidden;
+    z-index: 10;
+    /* Smooth slide in/out */
+    transition: width var(--transition),
+                min-width var(--transition),
+                max-width var(--transition),
+                opacity var(--transition);
   }
-  .sidebar-brand { padding: 14px 12px 10px; border-bottom: 1px solid var(--line); }
-  .sidebar-brand-name { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--accent); letter-spacing: 0.06em; }
-  .sidebar-brand-sub { font-size: 10px; color: var(--dim); margin-top: 2px; line-height: 1.4; }
-  .sidebar-section { padding: 10px 12px 4px; font-size: 10px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.1em; color: var(--dim); }
+  /* Collapsed state */
+  .sidebar.collapsed {
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    opacity: 0;
+    pointer-events: none;
+    overflow: hidden;
+    border-right: none;
+  }
+
+  .sidebar-brand { padding: 14px 12px 10px; border-bottom: 1px solid var(--line); flex-shrink: 0; }
+  .sidebar-brand-name { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--accent); letter-spacing: 0.06em; white-space: nowrap; }
+  .sidebar-brand-sub { font-size: 10px; color: var(--dim); margin-top: 2px; line-height: 1.5; white-space: nowrap; }
+  .sidebar-section { padding: 10px 12px 4px; font-size: 10px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.1em; color: var(--dim); flex-shrink: 0; white-space: nowrap; }
 
   .nav-item {
     display: flex; align-items: center; gap: 8px;
     padding: 9px 12px; font-size: 12px; color: var(--dim);
     cursor: pointer; border-left: 3px solid transparent;
-    transition: all 0.15s; user-select: none;
+    transition: background 0.15s, color 0.15s;
+    user-select: none; flex-shrink: 0; white-space: nowrap;
   }
-  .nav-item:hover { background: var(--accent-bg); color: var(--accent); }
+  .nav-item:hover  { background: var(--accent-bg); color: var(--accent); }
   .nav-item.active { background: var(--accent-bg); color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
-  .nav-icon { font-size: 15px; flex-shrink: 0; }
-  .nav-label { line-height: 1.3; flex: 1; }
+  .nav-icon  { font-size: 15px; flex-shrink: 0; }
+  .nav-label { line-height: 1.3; flex: 1; min-width: 0; }
   .nav-badge { font-size: 9px; padding: 1px 5px; border-radius: 10px; margin-left: auto; flex-shrink: 0; }
   .badge-lic { background: #fef3c7; color: #92400e; }
 
   .sidebar-footer {
     margin-top: auto; padding: 10px 12px;
     border-top: 1px solid var(--line);
-    font-size: 10px; color: var(--dim); line-height: 1.6;
+    font-size: 10px; color: var(--dim); line-height: 1.7; flex-shrink: 0; white-space: nowrap;
   }
   .sidebar-footer a { color: #dc2626; text-decoration: none; font-weight: 500; }
 
-  .main { flex: 1; display: flex; flex-direction: column; min-width: 0; height: 100vh; }
-  .topbar {
-    background: var(--panel); border-bottom: 1px solid var(--line);
-    padding: 8px 16px; display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+  /* ── Main area ── */
+  .main {
+    flex: 1 1 0; min-width: 0;
+    display: flex; flex-direction: column;
+    height: 100%; overflow: hidden;
+    transition: flex-basis var(--transition);
   }
-  .topbar-title { font-size: 13px; font-weight: 600; color: var(--text); }
-  .topbar-url { font-family: var(--mono); font-size: 11px; color: var(--dim); margin-left: auto; }
 
-  .frame-area { flex: 1; position: relative; min-height: 0; }
+  /* ── Topbar ── */
+  .topbar {
+    flex-shrink: 0;
+    background: var(--panel);
+    border-bottom: 1px solid var(--line);
+    height: var(--topbar-h);
+    padding: 0 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  /* Toggle button inside topbar */
+  .toggle-btn {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--accent-bg);
+    border: 1px solid #bfdbfe;
+    border-radius: 6px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s, border-color 0.15s;
+    user-select: none;
+    font-size: 14px;
+    color: var(--accent);
+  }
+  .toggle-btn:hover { background: #dbeafe; border-color: var(--accent); }
+  .toggle-btn:active { background: #bfdbfe; }
+
+  /* Arrow icon flips when collapsed */
+  .toggle-btn .arrow { display: inline-block; transition: transform var(--transition); }
+  .layout.sidebar-hidden .toggle-btn .arrow { transform: rotate(180deg); }
+
+  .topbar-title { font-size: 13px; font-weight: 600; color: var(--text); }
+  .topbar-url   { font-family: var(--mono); font-size: 11px; color: var(--dim); margin-left: auto; white-space: nowrap; }
+
+  /* Fullscreen hint badge — shown only when sidebar is hidden */
+  .full-badge {
+    font-size: 9px; padding: 2px 7px;
+    background: #dcfce7; color: #166534;
+    border-radius: 10px; font-family: var(--mono);
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .layout.sidebar-hidden .full-badge { opacity: 1; }
+
+  /* ── iframe area ── */
+  .frame-area {
+    flex: 1 1 0; min-height: 0;
+    position: relative; overflow: hidden;
+  }
   #toolFrame {
     position: absolute; inset: 0;
     width: 100%; height: 100%;
-    border: none;
+    border: none; display: block;
   }
 </style>
 </head>
 <body>
-<div class="layout">
+<div class="layout" id="layout">
 
-  <div class="sidebar">
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
     <div class="sidebar-brand">
       <div class="sidebar-brand-name">SWP CAD Tools</div>
       <div class="sidebar-brand-sub">TNCDBR 2019<br>www.swpcad.in</div>
@@ -91,11 +183,18 @@
     </div>
   </div>
 
+  <!-- MAIN CONTENT -->
   <div class="main">
     <div class="topbar">
+      <!-- Toggle button -->
+      <div class="toggle-btn" id="toggleBtn" title="Toggle Sidebar (full width)">
+        <span class="arrow">◀</span>
+      </div>
       <span class="topbar-title">Online Self Certification</span>
+      <span class="full-badge">● FULL WIDTH</span>
       <span class="topbar-url">www.swpcad.in</span>
     </div>
+
     <div class="frame-area">
       <iframe
         id="toolFrame"
@@ -107,5 +206,16 @@
   </div>
 
 </div>
+
+<script>
+  const layout  = document.getElementById('layout');
+  const sidebar = document.getElementById('sidebar');
+  const btn     = document.getElementById('toggleBtn');
+
+  btn.addEventListener('click', function () {
+    const isHidden = sidebar.classList.toggle('collapsed');
+    layout.classList.toggle('sidebar-hidden', isHidden);
+  });
+</script>
 </body>
 </html>
